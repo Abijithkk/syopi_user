@@ -1,0 +1,266 @@
+.refer-div-1 {
+    border-radius: 60px;
+    background: linear-gradient(180deg, #1F0091 0%, #8B09F8 150.79%);
+    width: 65%;
+    margin: 0 auto; 
+    padding: 20px; 
+    text-align: center;
+    margin-top: 3%; 
+    padding-top: 3%;
+    padding-bottom: 3%;
+}
+.refer-title-1{
+    font-family: Poppins;
+font-size: 32px;
+font-weight: 600;
+line-height: 50px;
+text-align: center;
+text-underline-position: from-font;
+text-decoration-skip-ink: none;
+color: #FFFFFF;
+}
+.refer-des-1{
+    font-family: Poppins;
+font-size: 16px;
+font-weight: 400;
+line-height: 28px;
+text-align: center;
+text-underline-position: from-font;
+text-decoration-skip-ink: none;
+color: #FFFFFF;
+margin-left: 24%;
+    margin-right: 24%;
+}
+.refer-first-row {
+    display: flex;
+    align-items: center; 
+    justify-content: center; 
+    gap: 0px; 
+}
+
+.referal-code {
+    background: none;
+    border-radius: 20px;
+    font-weight: bold;
+    text-align: center;
+    border: 1px dashed #FFFFFF;
+    width: 70%;
+    position: relative;
+    display: inline-block;
+    padding: 10px;
+    font-size: 16px;
+    text-align: center;
+    margin-top: 10%;
+
+}
+.referal-code::before{
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: none;
+    mask-image: radial-gradient(circle, black 100%, transparent 0%);
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='50px' x ")
+}
+.referal-code p:first-child {
+    margin: 0;
+    font-family: Poppins;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 28px;
+    text-align: center;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+color: #FFFFFF;    
+}
+
+.referal-code p:last-child {
+    margin: 5px 0 0;
+    font-family: Poppins;
+    font-size: 34px;
+    font-weight: 500;
+    line-height: 40px;
+    text-align: center;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    color: #FFFFFF;
+        
+}
+.share-refer{
+    font-family: Poppins;
+font-size: 18px;
+font-weight: 500;
+line-height: 28px;
+text-align: center;
+text-underline-position: from-font;
+text-decoration-skip-ink: none;
+color: #FFFFFF;
+margin-top: 3%;
+}
+
+.copy-code{
+    font-family: Poppins;
+font-size: 14px;
+font-weight: 500;
+line-height: 28px;
+text-align: center;
+text-underline-position: from-font;
+text-decoration-skip-ink: none;
+color: #FFFFFF;
+margin-top: 3%;
+cursor: pointer;
+}
+.custom-toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #333; /* Dark background for contrast */
+    color: #fff; /* White text for readability */
+    padding: 10px 20px;
+    border-radius: 8px; /* Rounded corners */
+    font-size: 14px;
+    font-weight: 500; /* Semi-bold for emphasis */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    animation: fade-in-out 3s ease-in-out;
+    z-index: 1000;
+  }
+  
+  /* Animation for fade-in and fade-out */
+  @keyframes fade-in-out {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    10% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    90% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+  }
+  /* Container styles */
+  .refer-div-1 {
+    position: relative;
+  }
+  
+  /* Social icons container */
+  .social-icons-container {
+    position: absolute;
+    bottom: -30px; /* Half the height of the circle to make it half outside */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 20px; /* Space between circles */
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Individual social icon styles */
+  .social-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+  }
+  
+  /* Background colors */
+  .bg-telegram {
+    background-color: #14A4DD; /* Telegram blue */
+  }
+  
+  .bg-facebook {
+    background-color: #0871F6; /* Facebook blue */
+  }
+  
+  .bg-whatsapp {
+    background-color: #25d366; /* WhatsApp green */
+  }
+  
+
+  .refer-div-2 {
+    border-radius: 60px;
+    background: #fafafa;
+    width: 65%;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: left;
+    margin-top: 6%;
+    padding-top: 6%;
+    padding-bottom: 6%;
+    border: 1px solid rgba(45, 46, 46, 0.2);
+  }
+  
+  .refer-title2 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 54px;
+    text-align: left;
+    color: #2d2e2e;
+  }
+  
+  .refer-des2 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 28px;
+    text-align: left;
+    color: #2d2e2e;
+  }
+  
+
+  
+
+  .refer-div-3 {
+    border-radius: 60px;
+    background: #fafafa;
+    width: 65%;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: left;
+    margin-top: 6%;
+    padding-top: 6%;
+    padding-bottom: 6%;
+    border: 1px solid rgba(45, 46, 46, 0.2);
+  }
+
+  @media (max-width: 767px) {
+    .refer-div-1{
+      width: 80%;
+    }
+    .refer-div-2{
+      width: 80%;
+      margin-top: 20%;
+    }
+    .refer-div-3{
+      width: 80%;
+      margin-top: 20%;
+
+    }
+    .refer-title-1{
+      font-size: 24px;
+    }
+    .refer-title2{
+      font-size: 24px;
+    }
+    .refer-des-1{
+      margin-left: 0%;
+      margin-right: 0%;
+    }
+    .refer-img{
+      display: none;
+    }
+  }

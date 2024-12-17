@@ -1,0 +1,120 @@
+.rating-container {
+    border-top: 1px solid #2D2E2E33;
+    border-bottom: 1px solid #2D2E2E33;
+    padding: 20px 0px;
+    margin: 20px 0;
+  }
+  
+  .rating-heading {
+    font-family: "Poppins", sans-serif;
+font-size: 22px;
+font-weight: 500;
+line-height: 36px;
+text-align: left;
+text-underline-position: from-font;
+text-decoration-skip-ink: none;
+color: #2D2E2E;
+text-transform: uppercase;
+  }
+  .average-rating{
+    font-family: "Poppins", sans-serif;
+font-size: 38px;
+font-weight: 400;
+line-height: 96px;
+text-align: left;
+text-underline-position: from-font;
+text-decoration-skip-ink: none;
+color: #2D2E2E;
+  }
+  
+  .verified-buyers{
+    font-family: "Poppins", sans-serif;
+font-size: 18px;
+font-weight: 400;
+line-height: 27px;
+text-align: left;
+text-underline-position: from-font;
+text-decoration-skip-ink: none;
+color: #2D2E2E;
+  }
+  .rating-heading .stars {
+    color: #FBCA01; 
+  }
+  
+  .rating-body {
+    display: flex;
+    justify-content: start;
+  }
+  
+  .rating-left-column,
+  .rating-right-column {
+    width: 40%; 
+  }
+  
+  .rating-left-column {
+    font-size: 18px;
+    
+    align-items: center;
+    margin-top: 10%;
+  }
+  
+  .rating-left-column .rating-stars {
+    color: #FBCA01; 
+    margin-left: 10px;
+    margin-top: 13px;
+    font-size: 40px;
+  }
+  
+  .rating-right-column {
+    font-size: 14px;
+    margin-top: 4%;
+  }
+  
+  .rating-right-column .rating-line {
+    display: flex;
+    align-items: center;  /* Align progress bar and number in one line */
+    margin-bottom: 10px;
+  }
+  
+  .rating-right-column .rating-line span {
+    display: flex;
+    align-items: center;
+    margin-right: 10px; /* Add space between number and progress bar */
+  }
+  
+  .progress-bar-container {
+    width: 100%;
+    background-color: #D9D9D980;
+    border-radius: 10px;
+    margin-left: 10px;
+    height: 5px; 
+  }
+  
+  .progress-bar {
+    height: 5px; 
+    border-radius: 10px;
+  }
+  
+  .rating-line .people-rated {
+    margin-left: 10px;
+    font-family: Poppins;
+font-size: 13px;
+font-weight: 400;
+line-height: 27px;
+text-align: left;
+text-underline-position: from-font;
+text-decoration-skip-ink: none;
+color: #2D2E2E80;
+  }
+  
+  @media (max-width: 768px) {
+    .rating-body {
+      flex-direction: column;
+    }
+  
+    .rating-left-column,
+    .rating-right-column {
+      width: 100%;
+    }
+  }
+  

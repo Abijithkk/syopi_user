@@ -1,0 +1,115 @@
+.landing-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.landing-image-container {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  position: relative; 
+  width: 100%;
+  height: 100%;
+}
+
+.landing-image {
+  width: 100%;
+  height: 100vh;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  transform: scaleX(-1); /* Horizontal flip */
+  margin-top: 2%;
+  margin-left: 10%;
+  margin-right: 10%;
+}
+
+.welcome-section {
+  position: absolute; /* Absolute positioning to place it at the bottom center of the image */
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%); /* To align it horizontally at the center */
+  background-color: #FAFAFA;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 40px; /* Reduced padding to make it smaller */
+  width: 100%;
+  max-width: 600px; /* Limit the width to make the section smaller */
+  box-sizing: border-box; /* Ensure padding doesn't affect width */
+  border-radius: 32px;
+}
+
+.welcome-text h1 {
+  font-family: Poppins;
+  font-size: 50px;
+  font-weight: 700;
+  line-height: 59px;
+  text-align: left;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+color: #000000;  
+  margin: 0;
+}
+
+.welcome-text p {
+  font-family: Poppins;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 33px;
+  text-align: center;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+  color: #5D5D5D;
+  margin-top: 10px;
+  margin-bottom: 20px; /* Spacing between text and buttons */
+}
+
+.auth-toggle {
+  display: flex;
+  justify-content: center;
+  border: 1px solid #969696;
+  box-shadow: 0px 4px 8px 0px #D3262640;
+border-radius: 25px;
+}
+
+.toggle-btn {
+  padding: 10px 20px;
+  margin: 0 0px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: transparent;
+  border-radius: 25px;
+  border: none;
+  transition: background-color 0.3s ease;
+  font-family: 'Metropolis', sans-serif;
+font-weight: 500;
+line-height: 20px;
+text-align: center;
+text-underline-position: from-font;
+text-decoration-skip-ink: none;
+
+}
+
+.toggle-btn.active {
+  background-color: #1265FD;
+  color: #fff;
+}
+
+
+@media (max-width: 767px) {
+.welcome-text h1{
+  font-size: 30px;
+}
+.welcome-text p{
+  font-size: 16px;
+}
+.welcome-section{
+  bottom: 50px;
+}
+}

@@ -1,0 +1,319 @@
+.address-left-column .address-item {
+    display: flex;
+    flex-direction: row; 
+    align-items: flex-start;
+    border-radius: 12px;
+    overflow: hidden;
+    padding: 1rem; 
+    width: 100%;
+    box-shadow: var(--bs-box-shadow) !important;
+  }
+  .address-container {
+    padding-left: 25px;
+    padding-right: 25px;
+  }
+  
+  .address-left-column {
+    padding-right: 15px;
+    
+  }
+  
+  .address-right-column {
+    padding-left: 15px; 
+  }
+  
+  .no-gutters {
+    margin-left: 0;
+    margin-right: 0;
+  }
+  
+  
+  
+  .address-image {
+    width: 130px;
+    height: 180px;
+    border-radius: 12px;
+    object-fit: cover;
+  }
+  
+  .address-title {
+    font-family: Poppins;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 36px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    white-space: nowrap;
+  }
+  
+  .address-item .card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0; 
+    
+  }
+  
+  .address-item p {
+    margin: 0.3rem 0; 
+  }
+  
+  .address-right-column .address-checkout {
+    border-radius: 10px;
+  }
+  
+  .address-left-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .color-size{
+    font-family: Poppins;
+font-size: 15px;
+font-weight: 400;
+line-height: 27px;
+text-align: left;
+text-underline-position: from-font;
+text-decoration-skip-ink: none;
+color: #2D2E2E99;
+  }
+  .address-delivery{
+    font-family: Poppins;
+font-size: 15px;
+font-weight: 500;
+line-height: 27px;
+text-align: left;
+text-underline-position: from-font;
+text-decoration-skip-ink: none;
+color: #1DA69E;
+  }
+
+.quantity-wrapper {
+    background-color: #ECEFE9; 
+    border-radius: 27px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem; 
+    width: 120px; 
+    height: 40px; 
+    box-sizing: border-box;
+  }
+  
+  .quantity-btn {
+    width: 30px; 
+    height: 30px;
+    border: none;
+    border-radius: 50%; 
+    font-size: 1rem;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+  
+  .quantity-btn.minus {
+    background-color: #FFFFFF; 
+    color: #000; 
+    border: 1px solid #DCDCDC; 
+  }
+  
+  .quantity-btn.plus {
+    background-color: #49A1F7; 
+    color: #FFFFFF; 
+  }
+  
+  .quantity-number {
+    font-weight: bold;
+    text-align: center;
+    flex-grow: 1; 
+    margin: 0 0.5rem; 
+  }
+  .address-points-info {
+    background-color: #ECEFE9;
+    border-radius: 5px;
+  }
+  
+  .address-checkout .d-flex p {
+    margin: 0;
+  }
+  
+  .address-checkout .text-end {
+    text-align: right;
+  }
+  .address-points{
+    font-family: Poppins;
+font-size: 14px;
+font-weight: 400;
+line-height: 21px;
+text-align: center;
+text-underline-position: from-font;
+text-decoration-skip-ink: none;
+color: #2D2E2E;
+  }
+  .address-check-total{
+    font-family: Poppins;
+font-size: 15px;
+font-weight: 400;
+line-height: 36px;
+text-align: left;
+text-underline-position: from-font;
+text-decoration-skip-ink: none;
+color: #2D2E2E;
+  }
+  .points{
+    font-family: Poppins;
+font-size: 15px;
+font-weight: 400;
+line-height: 27px;
+text-align: left;
+text-underline-position: from-font;
+text-decoration-skip-ink: none;
+color: #1DA69E;
+  }
+  .checkout-button{
+    background-color: #00A8FF;
+    border-radius: 10px;
+    color: white;
+    border: none;
+    font-size: 20px;
+    font-family: poppins;
+    font-weight: 500;
+    padding: 10px;
+  }
+  .checkout-button1{
+    background-color: #00A8FF;
+    border-radius: 10px;
+    color: white;
+    border: none;
+    font-size: 12px;
+    font-family: poppins;
+    font-weight: 500;
+    padding: 10px;
+    margin-top: 3%;
+  }
+  #address-checkbox:checked + .checkbox-label::before {
+    visibility: visible;
+    content: "✓"; /* White tick */
+  }
+  
+  .add-icon {
+    color: #00A8FF;
+    font-size: 16px;
+  }
+  
+  .add-text {
+    font-family: "poppins", sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    text-align: center;
+  }
+  .custom-checkbox {
+    appearance: none; /* Remove default styling */
+    width: 20px;
+    height: 20px;
+    border-radius: 4px; /* Add rounded corners if desired */
+    cursor: pointer;
+    background-color: #00A8FF;
+    transition: background-color 0.3s ease;
+
+    /* For the checked state */
+    position: relative;
+}
+
+
+
+.custom-checkbox:checked::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 10px;
+    height: 10px;
+    background: white;
+    border-radius: 2px; 
+}
+.add-shipping-button {
+  border: 1px solid #00A8FF;
+  background-color: #FAFAFA;
+  color: #00A8FF;
+  font-family: Poppins;
+font-size: 18px;
+font-weight: 500;
+line-height: 36px;
+letter-spacing: -0.011em;
+text-align: center;
+text-underline-position: from-font;
+text-decoration-skip-ink: none;
+border-radius: 10px;
+padding: 5px;
+box-shadow: var(--bs-box-shadow) !important;
+}
+
+  @media (max-width: 768px) {
+    .address-left-column .address-item {
+      flex-direction: column;
+      align-items: center;
+      padding: 0.5rem;
+    }
+  
+    .address-container {
+      padding-left: 15px;
+      padding-right: 15px;
+    }
+  
+    .address-left-column {
+      padding-right: 15px;
+      gap: 0.5rem;
+    }
+  
+    .address-right-column {
+      padding-left: 15px;
+      margin-top: 1rem;
+    }
+  
+    .address-image {
+      width: 100%;
+      height: 100%;
+    }
+  
+    .address-title {
+      font-size: 16px;
+      line-height: 28px;
+      text-align: left;
+    }
+  
+    .color-size, 
+    .address-delivery, 
+    .address-points, 
+    .address-check-total, 
+    .points {
+      font-size: 14px;
+      line-height: 24px;
+      text-align: left;
+    }
+  
+    .quantity-wrapper {
+      width: 100px;
+      height: 35px;
+    }
+  
+    .quantity-number {
+      font-size: 14px;
+      margin: 0 0.3rem;
+    }
+  
+    .checkout-button {
+      font-size: 16px;
+      padding: 8px;
+    }
+  
+    .checkout-button1 {
+      font-size: 10px;
+      padding: 8px;
+    }
+  }
+  

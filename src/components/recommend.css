@@ -1,0 +1,159 @@
+.Recommend {
+    padding-left: 40px;
+    padding-right: 40px;
+    margin-top: 6%;
+    position: relative;
+}
+
+.Recommendheading {
+    text-align: left;
+    font-family: "Poppins", sans-serif;
+    font-size: 28px; 
+    font-weight: 600;
+    line-height: 40px;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    color: #2D2E2E;
+    margin-bottom: 20px;
+}
+
+.Recommend-card-row {
+    display: flex;
+    overflow-x: auto;
+    gap: 25px;
+    padding-bottom: 10px;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -ms-overflow-style: none; 
+}
+
+.Recommend-card-row::-webkit-scrollbar {
+    display: none; 
+}
+
+.Recommend-card {
+    flex: 0 0 calc(33.33% - 16px); 
+    background-color: none;
+    display: flex;
+    flex-direction: column;
+    scroll-snap-align: start; 
+}
+
+.Recommend-card-image-container {
+    position: relative; 
+    width: 100%; 
+    overflow: hidden; 
+}
+
+.Recommend-card-image {
+    width: 100%;
+    aspect-ratio: 9 / 14; 
+    object-fit: cover; 
+    border-radius: 12px; 
+}
+
+.Recommend-card-title, 
+.Recommend-card-description {
+    font-family: "Poppins", sans-serif;
+    font-size: 18px; 
+    font-weight: 400;
+    line-height: 28px;
+    text-align: left;
+    color: #2D2E2E;    
+    margin-top: 10px;
+}
+
+.wishlist-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    background-color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.2s;
+}
+.Recommend-card-title {
+    font-family: "Poppins", sans-serif;
+    font-size: 18px; 
+    font-weight: 400;
+    line-height: 28px;
+    text-align: left;
+    color: #2D2E2E;    
+    margin-top: 10px;
+}
+
+.Recommend-card-description {
+    font-family: "Poppins", sans-serif;
+    font-size: 18px; 
+    font-weight: 400;
+    line-height: 5px;
+    text-align: left;
+    color: #2D2E2E;    
+    margin-top: 0px; /* Reduced gap */
+}
+
+.wishlist-icon.active {
+    background-color: white;
+}
+
+.wishlist-icon .fa-heart {
+    color: #2D2E2E;
+    font-size: 16px;
+}
+
+.wishlist-icon.active .fa-heart {
+    color: red;
+}
+
+/* Responsive Breakpoints */
+
+/* For larger screens (desktops) */
+@media (min-width: 1024px) {
+    .Recommend-card {
+        flex: 0 0 calc(25% - 16px); 
+    }
+
+    .Recommendheading {
+        font-size: 34px;
+        line-height: 54px;
+    }
+}
+
+/* For smaller screens (tablets) */
+@media (max-width: 1024px) {
+    .Recommend-card {
+        flex: 0 0 calc(50% - 16px); /* Two cards in a row */
+    }
+}
+
+/* For mobile devices */
+@media (max-width: 768px) {
+    .Recommend-card {
+        flex: 0 0 calc(50% - 16px); 
+    }
+
+    .Recommend {
+        padding-left: 30px;
+        padding-right: 30px;
+    }
+
+    .Recommendheading {
+        font-size: 24px;
+        line-height: 36px;
+    }
+    .Recommend-card-title{
+        font-size: 13px;
+        line-height: 16px;
+    }
+    .Recommend-card-description{
+        font-size: 13px;
+        line-height: 0px;
+
+    }
+}

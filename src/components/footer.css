@@ -1,0 +1,214 @@
+.footer {
+    background-color: #0A142F;
+    color: #F6F6F6;
+    padding: 40px;
+    margin-top: 4%;
+  }
+  .footer-container{
+    width: 80%;
+  }
+  .footer-heading {
+    font-size: 24.58px;
+    font-weight: 700;
+    line-height: 61.99px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    
+  }
+  
+  .footer ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .footer ul li {
+    margin-bottom: 8px;
+font-size: 16px;
+font-weight: 500;
+line-height: 39.04px;
+text-align: left;
+text-underline-position: from-font;
+text-decoration-skip-ink: none;
+
+  }
+  
+  .footer ul li:hover {
+    text-decoration: none;
+  }
+  
+  .footer-column {
+    padding: 0 5px; 
+  }
+  .download-app{
+font-size: 25.58px;
+font-weight: 700;
+line-height: 61.99px;
+text-align: end;
+text-underline-position: from-font;
+text-decoration-skip-ink: none;
+white-space: nowrap;
+  }
+  .app-links {
+    display: flex;
+    gap: 10px;
+  }
+  .playstore,
+.appstore {
+  background-color: #828A9F1A;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  text-align: center;
+  cursor: pointer;
+  width: fit-content;
+  color: #FFFFFF;
+}
+
+.icon-rows {
+  margin-top: 20px;
+}
+
+.icon-containers {
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+}
+.second-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.icon-column {
+  display: flex;
+  align-items: center;
+}
+
+.download-column {
+  text-align: right;
+}
+
+.app-links {
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
+}
+
+.playstore, .appstore {
+  display: flex;
+  align-items: center;
+  background-color: #828A9F1A;
+  border-radius: 5px;
+  padding: 10px;
+  gap: 10px;
+  cursor: pointer;
+  color: #FFFFFF;
+}
+
+.icon-containers {
+  display: flex;
+  gap: 15px;
+}
+
+.icon-boxs {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.social-icons {
+  font-size: 17px;
+  color: #0A142F;
+}
+
+.social-icons:hover {
+  color: #007bff;
+}
+.icon-boxs {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.social-icons {
+  font-size: 17px;
+  color: #0A142F;
+  cursor: pointer;
+}
+
+.social-icons:hover {
+  color: #007bff;
+}
+.a1 , .g1{
+  font-family: Causten;
+font-size: 10px;
+font-weight: 400;
+line-height: 12px;
+text-align: left;
+text-underline-position: from-font;
+text-decoration-skip-ink: none;
+
+
+}
+.a2 , .g2{
+  font-family: Causten;
+font-size: 18px;
+font-weight: 400;
+line-height: 0px;
+text-align: left;
+text-underline-position: from-font;
+text-decoration-skip-ink: none;
+
+}
+.f-text{
+  font-family: Causten;
+font-size: 28.58px;
+font-weight: 700;
+line-height: 57.16px;
+text-align: left;
+text-underline-position: from-font;
+text-decoration-skip-ink: none;
+
+}
+.icon-column{
+  margin-left: -6px;
+}
+  @media (max-width: 768px) {
+    .footer {
+      text-align: center;
+      padding: 30px;
+    }
+    .download-app{
+      text-align: left;
+    }
+    .footer h3 {
+      margin-top: 15px;
+    }
+    .footer-container{
+      width: 100%;
+    }
+    .playstore,
+    .appstore {
+      flex: 1 1 100%; 
+      text-align: center;
+    }
+    .icon-column{
+      margin-left: 0px;
+    }
+  }
+  @media (max-width: 390px){
+    .app-links{
+      display: block;
+    }
+    .appstore{
+      margin-top: 3%;
+    }
+  }

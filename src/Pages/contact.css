@@ -1,0 +1,224 @@
+.contact-container {
+    padding-left: 25px;
+    padding-right: 25px;
+  }
+  .contact-left-column .cart-item {
+    display: flex;
+    flex-direction: row; 
+    align-items: flex-start;
+    border-radius: 12px;
+    overflow: hidden;
+    padding: 1rem; 
+    width: 100%;
+    
+  }
+  .contact-left-column {
+    padding-right: 15px;
+  }
+  .contact-left-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .contact-item{
+    box-shadow: var(--bs-box-shadow) !important;
+    border: 1px solid #2D2E2E33
+
+  }
+  .contact-item .card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0; 
+  }
+  .contact-item p {
+    margin: 0.3rem 0; 
+  }
+  .contact-title {
+    font-family: Poppins;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 36px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    white-space: nowrap;
+  }
+  .contact-right-column {
+    padding-left: 15px; 
+  }
+  .contact-right-column .cart-checkout {
+    border-radius: 10px;
+  }
+  .contact-checkout .d-flex p {
+    margin: 0;
+  }
+  .contact-checkout .text-end {
+    text-align: right;
+  }
+  .contact-check-total{
+    font-family: Poppins;
+font-size: 15px;
+font-weight: 400;
+line-height: 36px;
+text-align: left;
+text-underline-position: from-font;
+text-decoration-skip-ink: none;
+color: #2D2E2E;
+  }
+  .contact-points-info {
+    background-color: #ECEFE9;
+    border-radius: 5px;
+  }
+  .contact-points{
+    font-family: Poppins;
+font-size: 14px;
+font-weight: 400;
+line-height: 21px;
+text-align: center;
+text-underline-position: from-font;
+text-decoration-skip-ink: none;
+color: #2D2E2E;
+  }
+  .points{
+    font-family: Poppins;
+font-size: 15px;
+font-weight: 400;
+line-height: 27px;
+text-align: left;
+text-underline-position: from-font;
+text-decoration-skip-ink: none;
+color: #1DA69E;
+  }
+
+  .form-head{
+    font-family: Poppins;
+font-size: 15px;
+font-weight: 500;
+line-height: 27px;
+text-align: left;
+text-underline-position: from-font;
+text-decoration-skip-ink: none;
+color: #2D2E2E;
+  }
+  .custom-placeholder::placeholder{
+    font-family: Poppins;
+font-size: 13px;
+font-weight: 400;
+line-height: 24px;
+text-align: left;
+text-underline-position: from-font;
+text-decoration-skip-ink: none;
+color: #2D2E2E80;
+  }
+  .custom-select {
+    border: 1px solid #9F9F9F;
+    border-radius: 12px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 7'%3E%3Cpath fill='%23333' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 12px 7px;
+    appearance: none;
+    padding-right: 2rem;
+    font-size: 16px;
+    color: #333;
+  }
+  
+  .custom-select option {
+    font-family: Poppins, sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 24px;
+    color: #2D2E2E80;
+    text-align: left;
+  }
+  .form-button{
+    font-family: Poppins;
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 36px;
+    letter-spacing: -0.011em;
+    text-align: center;
+    justify-content: center;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    width: 100%;
+background-color: #00A8FF;
+border-radius: 10px;
+border: none;
+color: white;   
+padding: 5px; 
+  }
+  .form-home-button{
+    border: 1px solid #00A8FF;
+    border-radius: 12px;
+    color: #00A8FF;
+    font-family: Poppins;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 24px;
+    text-align: center;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    padding: 5px;
+
+width: 15%; 
+background-color: #FAFAFA;   
+  }
+  
+  .form-work-button{
+    border: 1px solid #2D2E2E99;
+        border-radius: 12px;
+    color: #2D2E2E99;
+    font-family: Poppins;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 24px;
+    text-align: center;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    padding: 5px;
+width: 15%; 
+background-color: #FAFAFA;   
+  }
+  @media (max-width: 768px) {
+   
+    .contact-left-column .cart-item {
+        flex-direction: column;
+        align-items: center;
+        padding: 0.5rem;
+      }
+    
+    .contact-container {
+      padding-left: 15px;
+      padding-right: 15px;
+    }
+    .contact-left-column {
+        padding-right: 15px;
+        gap: 0.5rem;
+      }
+      .contact-title {
+        font-size: 16px;
+        line-height: 28px;
+        text-align: left;
+      }
+      .contact-right-column {
+        padding-left: 15px;
+        margin-top: 1rem;
+      }
+      .color-size, 
+    .contact-delivery, 
+    .contact-points, 
+    .contact-check-total, 
+    .points {
+      font-size: 14px;
+      line-height: 24px;
+      text-align: left;
+    }
+    .form-home-button{
+      width: 35%;
+    }
+    .form-work-button{
+      width: 35%;
+    }
+}

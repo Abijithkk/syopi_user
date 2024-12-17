@@ -1,0 +1,81 @@
+.brandoff-container {
+    width: 100%;
+    overflow: hidden;
+    background-color: #f38630;
+    margin-top: 6%;
+    font-family: 'Poppins', sans-serif;
+    height: auto;
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+  }
+  
+  .brandoff-marquee {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    animation: scroll var(--scroll-duration) linear infinite;
+  }
+  
+  .brand-icon-text-pair {
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+    margin-right: 40px;
+  }
+  
+  .offerbrandicon {
+    margin-bottom: 10px;
+  }
+  
+  .brand-image {
+    width: 50px;
+    height: auto;
+  }
+  
+  .brandoff-text {
+    font-family: "Poppins", sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    color: #ffffff;
+  }
+  
+  /* Scroll animation */
+  @keyframes scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+  
+  /* Responsiveness */
+  @media (max-width: 768px) {
+    .brandoff-container {
+      padding: 10px 0;
+    }
+  
+    .brandoff-text {
+      font-size: 14px;
+    }
+  
+    .brand-image {
+      width: 40px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .brand-icon-text-pair {
+      margin-right: 20px;
+    }
+  
+    .brandoff-text {
+      font-size: 12px;
+    }
+  
+    .brand-image {
+      width: 30px;
+    }
+  }
+  

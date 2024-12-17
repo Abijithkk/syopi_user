@@ -1,0 +1,112 @@
+.delight-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 25px;
+  margin-top: 3%;
+}
+
+.delight-heading {
+  font-family: "Poppins", sans-serif;
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 54px;
+  text-align: left;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+}
+
+.delight {
+  padding: 40px;
+  margin-top: 3%;
+  overflow-x: hidden;
+}
+
+.delight-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 0 0 10px 10px;
+  box-shadow: -1px 3px 6px 0px #00000008,
+    -3px 11px 11px 0px #00000008,
+    -6px 24px 15px 0px #00000005,
+    -11px 43px 18px 0px #00000000,
+    -17px 67px 19px 0px #00000000;
+  overflow: hidden;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.delight-card-image-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9 / 10;
+  overflow: hidden;
+}
+
+.delight-card-image-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #00000066; /* Overlay */
+  z-index: 1; /* Above image */
+}
+
+.delight-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: relative;
+  z-index: 0; /* Below overlay */
+}
+
+.delight-card-title {
+  font-family: "Poppins", sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 36px;
+  text-align: center;
+  color: #2D2E2E;
+  margin-top: 3%;
+}
+
+.delight-card-description {
+  font-family: "Poppins", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 27px;
+  text-align: center;
+  color: #2D2E2E;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .delight-container {
+    display: flex;
+    overflow-x: auto; /* Enable horizontal scrolling */
+    gap: 15px; /* Reduce the gap between cards */
+  }
+
+  .delight-card {
+    flex: 0 0 calc(50% - 15px); /* Ensure two cards are visible at a time */
+    min-width: calc(50% - 15px); /* Set minimum width for the cards */
+    scroll-snap-align: start; /* Snap effect for smooth scrolling */
+  }
+
+  .delight-heading {
+    font-size: 24px;
+  }
+
+  .delight {
+    padding: 30px;
+  }
+
+  .delight-card-title {
+    font-size: 16px; 
+  }
+
+  .delight-card-description {
+    font-size: 12px; 
+  }
+}
