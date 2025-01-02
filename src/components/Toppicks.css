@@ -1,5 +1,5 @@
 .Toppicksheading1 {
-    font-family: "Poppins", sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 34px;
     font-weight: 600;
     line-height: 54px;
@@ -10,8 +10,8 @@
 
 .Toppicks {
     margin-top: 5%;
-    margin-left: 40px;
-    margin-right: 40px;
+    margin-left: 70px;
+    margin-right: 70px;
     position: relative;
 }
 
@@ -112,7 +112,7 @@
 }
 
 .Toppicksheading {
-    font-family: "Poppins", sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 400;
     color: #000000;
@@ -120,7 +120,7 @@
 }
 
 .Toppickssubheading {
-    font-family: "Poppins", sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 16px;
     font-weight: 500;
     color: #000000;

@@ -1,78 +1,90 @@
 .fproduct {
-    padding-left: 40px;
-    padding-right: 40px;
-    margin-top: 6%;
+  padding-left: 70px;
+  padding-right: 70px;
+  margin-top: 6%;
 }
 
 .fproductheading {
-    text-align: left;
-    font-family: "Poppins", sans-serif;
-    font-size: 28px; 
-    font-weight: 600;
-    line-height: 40px;
-    text-underline-position: from-font;
-    text-decoration-skip-ink: none;
-    color: #2D2E2E; /* Final fallback color */
-    margin-bottom: 20px;
-    background: linear-gradient(90deg, #2D2E2E, #2D2E2E, #2D2E2E);
-    background-repeat: no-repeat;
-    background-size: 80%;
-    animation: animate 6s linear 1; 
-    -webkit-background-clip: text;
-    background-clip:none;
+  text-align: left;
+  font-family: 'Inter', sans-serif;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 40px;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+  color: #2D2E2E;
+  /* Final fallback color */
+  margin-bottom: 20px;
+  background: linear-gradient(90deg, #2D2E2E, #2D2E2E, #2D2E2E);
+  background-repeat: no-repeat;
+  background-size: 80%;
+  animation: animate 6s linear 1;
+  -webkit-background-clip: text;
+  background-clip: none;
+  -webkit-text-fill-color: transparent;
+}
+
+@keyframes animate {
+  0% {
+    background-position: -500%;
     -webkit-text-fill-color: transparent;
   }
-  
-  @keyframes animate {
-    0% {
-      background-position: -500%;
-      -webkit-text-fill-color: transparent;
-    }
-    90% {
-      -webkit-text-fill-color: transparent; 
-    }
-    100% {
-      -webkit-text-fill-color: #2D2E2E; 
-    }
+
+  90% {
+    -webkit-text-fill-color: transparent;
   }
-  
+
+  100% {
+    -webkit-text-fill-color: #2D2E2E;
+  }
+}
+
 
 .feature-card-row {
-    display: flex;
-    overflow-x: auto;
-    gap: 25px;
-    padding-bottom: 10px;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    -ms-overflow-style: none; 
+  display: flex;
+  overflow-x: auto;
+  gap: 25px;
+  padding-bottom: 10px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .feature-card-row::-webkit-scrollbar {
-    display: none; 
+  display: none;
 }
+
 /* Add styles for previous and next buttons */
 .product-prev,
 .product-next {
-    position: absolute;
-    top: 50%; /* Center vertically */
-    transform: translateY(-50%); /* Adjust to exact vertical center */
-background: none;
-    border: none; /* Remove border */
-    font-size: 20px; /* Adjust size */
-    cursor: pointer; /* Pointer cursor */
-    z-index: 1000; /* Ensure it stays above other elements */
-    width: auto; /* Width of the button */
-    height: 40px; /* Height of the button */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 0 3px 3px 0;
-    transition: background-color 0.3s ease;
-    color: #fff;
-    font-size: 2rem;
-    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.7);
-    background: none;
-  }
+  position: absolute;
+  top: 50%;
+  /* Center vertically */
+  transform: translateY(-50%);
+  /* Adjust to exact vertical center */
+  background: none;
+  border: none;
+  /* Remove border */
+  font-size: 20px;
+  /* Adjust size */
+  cursor: pointer;
+  /* Pointer cursor */
+  z-index: 1000;
+  /* Ensure it stays above other elements */
+  width: auto;
+  /* Width of the button */
+  height: 40px;
+  /* Height of the button */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 3px 3px 0;
+  transition: background-color 0.3s ease;
+  color: #fff;
+  font-size: 2rem;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.7);
+  background: none;
+}
 
 .product-prev:hover,
 .product-next:hover {
@@ -83,231 +95,248 @@ background: none;
 
 /* Position the previous button to the left of the row */
 .-productprev {
-    left: 0px; /* Adjust the space from the left edge */
+  left: 0px;
+  /* Adjust the space from the left edge */
 }
 
 /* Position the next button to the right of the row */
 .product-next {
   border-radius: 3px 0 0 3px;
 
-  right: 0px; /* Adjust the space from the right edge */
+  right: 0px;
+  /* Adjust the space from the right edge */
 }
 
 /* Ensure .feature-card-row has relative positioning for absolute placement of buttons */
 .fproduct {
-    position: relative; /* Required for the absolute buttons */
+  position: relative;
+  /* Required for the absolute buttons */
 }
 
 /* Responsive alignment */
 @media (max-width: 768px) {
-    .prev,
-    .next {
-        width: 30px; /* Adjust size for smaller screens */
-        height: 30px;
-        font-size: 16px;
-    }
+
+  .prev,
+  .next {
+    width: 30px;
+    /* Adjust size for smaller screens */
+    height: 30px;
+    font-size: 16px;
+  }
 }
 
 .feature-card {
-    flex: 0 0 calc(33.33% - 16px); 
-    background-color: none;
-    display: flex;
-    flex-direction: column;
-    scroll-snap-align: start; 
+  flex: 0 0 calc(33.33% - 16px);
+  background-color:rgba(255, 255, 255, 0.9);;
+  display: flex;
+  flex-direction: column;
+  scroll-snap-align: start;
+  border-radius: 15px;
 }
+
 .feature-card {
-    position: relative; /* Ensure position is defined for pseudo-elements */
-  }
-  .feature-card:hover{
-    cursor: pointer;
-  }
-  
-  .feature-card::before,
-  .feature-card::after {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    transform: scale3d(0, 0, 1);
-    transition: transform 0.3s ease-out 0s;
-    background: rgba(255, 255, 255, 0.174);
-    content: '';
-    pointer-events: none;
-  }
-  
-  .feature-card::before {
-    transform-origin: left top;
-  }
-  
-  .feature-card::after {
-    transform-origin: right bottom;
-  }
-  
-  .feature-card:hover::before,
-  .feature-card:hover::after,
-  .feature-card:focus::before,
-  .feature-card:focus::after {
-    transform: scale3d(1, 1, 1);
-  }
-  
-  
+  position: relative;
+  /* Ensure position is defined for pseudo-elements */
+}
+
+.feature-card:hover {
+  cursor: pointer;
+}
+
+.feature-card::before,
+.feature-card::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: scale3d(0, 0, 1);
+  transition: transform 0.3s ease-out 0s;
+  background: rgba(255, 255, 255, 0.174);
+  content: '';
+  pointer-events: none;
+}
+
+.feature-card::before {
+  transform-origin: left top;
+}
+
+.feature-card::after {
+  transform-origin: right bottom;
+}
+
+.feature-card:hover::before,
+.feature-card:hover::after,
+.feature-card:focus::before,
+.feature-card:focus::after {
+  transform: scale3d(1, 1, 1);
+}
+
+
 .feature-card-image-container {
-    position: relative; 
-    width: 100%; 
-    overflow: hidden; 
+  position: relative;
+  width: 100%;
+  overflow: hidden;
 }
 
 .feature-card-image {
-    width: 100%;
-    aspect-ratio: 9 / 11; 
-    object-fit: cover; 
-    border-radius: 12px; 
+  width: 100%;
+  aspect-ratio: 9 / 11;
+  object-fit: cover;
+  border-radius: 12px;
 }
 
-.feature-card-title, 
+.feature-card-title,
 .feature-card-description {
-    font-family: "Poppins", sans-serif; 
-    font-size: 20px; 
-    font-weight: 600; 
-    line-height: 1.5;
-    text-align: left;
-    color: #333333; 
-    margin-top: 15px; 
-    margin-bottom: 10px; 
+  font-family: 'Inter', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.5;
+  text-align: left;
+  color: #333333;
+  margin-top: 15px;
+  margin-bottom: 10px;
 }
 
 .feature-card-title {
-    font-size: 24px; 
-    font-weight: 700;
-    margin-top: 0;
+  font-size: 24px;
+  font-weight: 700;
+  margin-top: 0;
 }
 
 .feature-card-description {
-    font-size: 18px; 
-    font-weight: 400; 
+  font-size: 18px;
+  font-weight: 400;
 }
 
 
 .wishlist-icon {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 30px;
-    height: 30px;
-    background-color: white;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    cursor: pointer;
-    transition: transform 0.2s, background-color 0.2s;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  background-color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.2s;
 }
+
 .feature-card-title {
-    font-family: "Poppins", sans-serif;
-    font-size: 18px; 
-    font-weight: 400;
-    line-height: 28px;
-    text-align: left;
-    color: #2D2E2E;    
-    margin-top: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 28px;
+  text-align: center;
+  color: #2D2E2E;
+  margin-top: 10px;
 }
 
 .feature-card-description {
-    font-family: "Poppins", sans-serif;
-    font-size: 18px; 
-    font-weight: 400;
-    line-height: 5px;
-    text-align: left;
-    color: #2D2E2E;    
-    margin-top: 0px; /* Reduced gap */
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 5px;
+  text-align: center;
+  color: #2D2E2E;
+  margin-top: 0px;
+  /* Reduced gap */
 }
 
 .wishlist-icon.active {
-    background-color: white;
+  background-color: white;
 }
 
 .wishlist-icon .fa-heart {
-    color: #2D2E2E;
-    font-size: 16px;
+  color: #2D2E2E;
+  font-size: 16px;
 }
 
 .wishlist-icon.active .fa-heart {
-    color: red;
+  color: red;
 }
+
 .wishlist-icon {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    cursor: pointer;
-    transition: transform 0.2s ease-in-out;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.wishlist-icon.active {
+  color: red;
+}
+
+.wishlist-icon.animate {
+  animation: scaleUp 0.3s ease-in-out;
+}
+
+@keyframes scaleUp {
+  0% {
+    transform: scale(1);
   }
-  
-  .wishlist-icon.active {
-    color: red;
+
+  50% {
+    transform: scale(1.4);
   }
-  
-  .wishlist-icon.animate {
-    animation: scaleUp 0.3s ease-in-out;
+
+  100% {
+    transform: scale(1);
   }
-  
-  @keyframes scaleUp {
-    0% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.4);
-    }
-    100% {
-      transform: scale(1);
-    }
-  }
-  
-  
+}
+
+
 /* Responsive Breakpoints */
 
 /* For larger screens (desktops) */
 @media (min-width: 1024px) {
-    .feature-card {
-        flex: 0 0 calc(25% - 16px); 
-    }
+  .feature-card {
+    flex: 0 0 calc(25% - 16px);
+  }
 
-    .fproductheading {
-        font-size: 34px;
-        line-height: 54px;
-    }
+  .fproductheading {
+    font-size: 34px;
+    line-height: 54px;
+  }
 }
 
 /* For smaller screens (tablets) */
 @media (max-width: 1024px) {
-    .feature-card {
-        flex: 0 0 calc(50% - 16px); /* Two cards in a row */
-    }
+  .feature-card {
+    flex: 0 0 calc(50% - 16px);
+    /* Two cards in a row */
+  }
 }
 
 /* For mobile devices */
 @media (max-width: 768px) {
-    .feature-card {
-        flex: 0 0 calc(50% - 16px); 
-    }
+  .feature-card {
+    flex: 0 0 calc(50% - 16px);
+  }
 
-    .fproduct {
-        padding-left: 30px;
-        padding-right: 30px;
-    }
+  .fproduct {
+    padding-left: 30px;
+    padding-right: 30px;
+  }
 
-    .fproductheading {
-        font-size: 24px;
-        line-height: 36px;
-    }
-    .feature-card-title{
-        font-size: 13px;
-        line-height: 16px;
-    }
-    .feature-card-description{
-        font-size: 13px;
-        line-height: 0px;
+  .fproductheading {
+    font-size: 24px;
+    line-height: 36px;
+  }
 
-    }
+  .feature-card-title {
+    font-size: 13px;
+    line-height: 16px;
+  }
+
+  .feature-card-description {
+    font-size: 13px;
+    line-height: 0px;
+
+  }
 }

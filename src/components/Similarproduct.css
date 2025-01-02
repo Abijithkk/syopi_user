@@ -7,7 +7,7 @@
 
 .similarproductheading {
     text-align: left;
-    font-family: "Poppins", sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 28px; 
     font-weight: 600;
     line-height: 40px;
@@ -54,7 +54,7 @@
 
 .similar-card-title, 
 .similar-card-description {
-    font-family: "Poppins", sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 18px; 
     font-weight: 400;
     line-height: 28px;
@@ -79,7 +79,7 @@
     transition: transform 0.2s, background-color 0.2s;
 }
 .similar-card-title {
-    font-family: "Poppins", sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 18px; 
     font-weight: 400;
     line-height: 28px;
@@ -89,7 +89,7 @@
 }
 
 .similar-card-description {
-    font-family: "Poppins", sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 18px; 
     font-weight: 400;
     line-height: 5px;

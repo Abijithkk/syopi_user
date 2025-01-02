@@ -1,7 +1,6 @@
 import React from 'react';
 import './Brand.css';
 import Brandimg from '../images/Brand.png'
-
 function Brand() {
   return (
     <div className="brand-container">
@@ -18,5 +17,4 @@ function Brand() {
     </div>
   );
 }
-
 export default Brand;

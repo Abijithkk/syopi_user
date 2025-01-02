@@ -3,7 +3,7 @@
     overflow: hidden;
     background-color: #f38630;
     margin-top: 6%;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Inter', sans-serif;
     height: auto;
     display: flex;
     align-items: center;
@@ -34,7 +34,7 @@
   }
   
   .brandoff-text {
-    font-family: "Poppins", sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 16px;
     font-weight: 500;
     color: #ffffff;

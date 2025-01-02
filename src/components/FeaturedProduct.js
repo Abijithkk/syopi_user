@@ -44,10 +44,10 @@ function FeaturedProduct() {
     },
   };
 
-console.log("FeaturedProduct component rendered");
-console.log("Products:", products);
-console.log("Wishlist state:", wishlist);
-console.log("InView state:", inView);
+  console.log("FeaturedProduct component rendered");
+  console.log("Products:", products);
+  console.log("Wishlist state:", wishlist);
+  console.log("InView state:", inView);
   const wishlistVariants = {
     active: { scale: 1.2, color: "#e63946", transition: { type: "spring", stiffness: 300 } },
     inactive: { scale: 1, color: "#333" },

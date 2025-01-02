@@ -1,13 +1,13 @@
 .fbrand {
-    padding-left: 40px;
-    padding-right: 40px;
+    padding-left: 70px;
+    padding-right: 70px;
     margin-top: 6%;
     position: relative;
 }
 
 .fbrandheading {
     text-align: left;
-    font-family: "Poppins", sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 28px; 
     font-weight: 600;
     line-height: 40px;
@@ -89,7 +89,7 @@
 
 .feature-brand-card-title, 
 .feature-brand-card-description {
-    font-family: "Poppins", sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 18px; 
     font-weight: 400;
     line-height: 28px;
@@ -113,7 +113,7 @@
     transition: transform 0.2s, background-color 0.2s;
 }
 .feature-brand-card-title {
-    font-family: "Poppins", sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 18px; 
     font-weight: 400;
     line-height: 28px;
@@ -123,7 +123,7 @@
 }
 
 .feature-brand-card-description {
-    font-family: "Poppins", sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 18px; 
     font-weight: 400;
     line-height: 5px;

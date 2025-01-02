@@ -6,7 +6,7 @@
 }
 
 .delight-heading {
-  font-family: "Poppins", sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 34px;
   font-weight: 600;
   line-height: 54px;
@@ -16,7 +16,7 @@
 }
 
 .delight {
-  padding: 40px;
+  padding: 70px;
   margin-top: 3%;
   overflow-x: hidden;
 }
@@ -24,7 +24,7 @@
 .delight-card {
   background-color: #fff;
   border: 1px solid #ddd;
-  border-radius: 0 0 10px 10px;
+  border-radius:10px;
   box-shadow: -1px 3px 6px 0px #00000008,
     -3px 11px 11px 0px #00000008,
     -6px 24px 15px 0px #00000005,
@@ -62,7 +62,7 @@
 }
 
 .delight-card-title {
-  font-family: "Poppins", sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 20px;
   font-weight: 600;
   line-height: 36px;
@@ -72,7 +72,7 @@
 }
 
 .delight-card-description {
-  font-family: "Poppins", sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   line-height: 27px;

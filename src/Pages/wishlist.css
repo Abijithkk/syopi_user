@@ -6,7 +6,7 @@
 
 .wishlist-heading {
     text-align: left;
-    font-family: "Poppins", sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 28px; 
     font-weight: 600;
     line-height: 40px;
@@ -55,7 +55,7 @@
 
 .wishlist-card-title, 
 .wishlist-card-description {
-    font-family: "Poppins", sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 18px; 
     font-weight: 400;
     line-height: 0px;
@@ -80,7 +80,7 @@
     transition: transform 0.2s, background-color 0.2s;
 }
 .wishlist-card-title {
-    font-family: "Poppins", sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 18px; 
     font-weight: 400;
     line-height: 28px;
@@ -90,7 +90,7 @@
 }
 
 .wishlist-card-description {
-    font-family: "Poppins", sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 18px; 
     font-weight: 400;
     line-height: 0px;

@@ -12,7 +12,7 @@
    
   }
   .review-title{
-    font-family: "Poppins", sans-serif;
+    font-family: 'Inter', sans-serif;
 font-size: 20px;
 font-weight: 500;
 line-height: 36px;
@@ -68,7 +68,7 @@ text-decoration-skip-ink: none;
     font-size: 16px;
   }
   .review-text{
-    font-family: "Poppins", sans-serif;
+    font-family: 'Inter', sans-serif;
 font-size: 12px;
 font-weight: 400;
 line-height: 20px;
@@ -78,7 +78,7 @@ text-decoration-skip-ink: none;
 color: #2D2E2E;
   }
   .purchased {
-    font-family: "Poppins", sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 12px;
     font-weight: 400;
     line-height: 20px;
@@ -115,7 +115,7 @@ color: #2D2E2E;
     margin-top: 2%;
 }
   .allreviewbutton-text{
-    font-family: "Poppins", sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 15px;
     font-weight: 400;
     line-height: 20px;

@@ -1,10 +1,10 @@
 .lowest {
-    padding: 0 40px;
+    padding: 0 70px;
     margin-top: 5%;
 }
 
 .lowestheading {
-    font-family: "Poppins", sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 34px;
     font-weight: 600;
     line-height: 54px;
@@ -41,7 +41,7 @@
 }
 
 .lowest-card-title {
-    font-family: "Poppins", sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 16px; 
     font-weight: 500;
     line-height: 24px;
@@ -51,7 +51,7 @@
 }
 
 .lowest-card-sub-title {
-    font-family: "Poppins", sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 20px; 
     font-weight: 600;
     line-height: 28px;

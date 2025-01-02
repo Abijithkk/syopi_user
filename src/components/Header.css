@@ -73,7 +73,7 @@
 }
 
 .headerlink {
-  font-family: "Poppins", sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 15px !important;
   font-weight: 500;
   line-height: 24px;
@@ -151,7 +151,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-family: "Poppins", sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 15px !important;
   font-weight: 500;
   line-height: 24px;
@@ -209,7 +209,7 @@
   transition: 300ms;
   background-color: #2a2f3b;
   width: 150px;
-  font-family: "Poppins", sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 15px !important;
   font-weight: 500;
   line-height: 24px;
@@ -261,7 +261,7 @@
   transition: 300ms;
   background-color: #2a2f3b;
   width: 150px;
-  font-family: "Poppins", sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 15px !important;
   font-weight: 500;
   line-height: 24px;
