@@ -1,12 +1,10 @@
 import React from 'react';
-import Header from '../components/Header';
 import './subscribe.css';
 import sub from '../images/subscribe1.png';
 
 function Subscribe() {
   return (
     <div>
-      <Header />
       <div className="subscribe">
         <p className="sub-title">Subscribe WhatsApp Community</p>
         <div className="subscribe-content">

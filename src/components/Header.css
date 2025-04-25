@@ -42,7 +42,9 @@
 .search-container:hover {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
-
+.header-brand{
+  display: none;
+}
 .search-icon {
   position: absolute;
   left: 10px;
@@ -355,6 +357,7 @@
       width: 35px;
       height: 35px;
     }
+    
     .header2{
       display: grid !important;
     }
@@ -366,5 +369,12 @@
     .header-dropdown{
       margin-left: 12px;
     }
+    
   }
   
+  @media (max-width: 480px){
+   
+    .header{
+      display: none;
+    }
+  }

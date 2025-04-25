@@ -1,6 +1,5 @@
 import React from 'react';
 import './Order.css';
-import Header from '../components/Header';
 import { Card, Col, Container, Row } from 'react-bootstrap';
 import C1 from '../images/Cart1.jpeg';
 import C2 from '../images/Cart2.jpeg';
@@ -8,7 +7,6 @@ import C2 from '../images/Cart2.jpeg';
 function Orders() {
   return (
     <div>
-      <Header></Header>
       <p className="order-title">My Orders</p>
 
       <Container fluid className="order-container my-5 order-row">

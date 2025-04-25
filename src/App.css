@@ -4,5 +4,13 @@
 /* App.css */
 html {
     scroll-behavior: smooth;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch; /* Improves smoothness on mobile */
   }
   
+  .home {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}

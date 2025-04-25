@@ -1,69 +1,119 @@
-import React, { useState } from 'react'
-import Header from '../components/Header'
-import similar1 from '../images/similar1.jpeg';
-import similar2 from '../images/similar2.jpeg';
-import similar3 from '../images/similar3.jpeg';
-import similar4 from '../images/similar4.jpeg';
-import './wishlist.css'
+import React, { useState, useEffect } from 'react';
+import ContentLoader from 'react-content-loader';
+import './wishlist.css';
+import { getWishlistApi } from '../services/allApi';
+import { BASE_URL } from '../services/baseUrl';
 
 function Wishlist() {
-    const [wishlist, setWishlist] = useState({}); 
+    const [wishlist, setWishlist] = useState([]);
+    const [wishlistStatus, setWishlistStatus] = useState({});
+    const [loading, setLoading] = useState(true);
 
-    const products = [
-      { id: 1, image: similar1, title: 'Product 1', description: 'This is product 1' },
-      { id: 2, image: similar2, title: 'Product 2', description: 'This is product 2' },
-      { id: 3, image: similar3, title: 'Product 3', description: 'This is product 3' },
-      { id: 4, image: similar4, title: 'Product 4', description: 'This is product 4' },
-    
-    ];
-  
+    useEffect(() => {
+        const fetchWishlist = async () => {
+            try {
+                const response = await getWishlistApi();
+                if (response.success) {
+                    setWishlist(response.data.wishlist);
+                    
+                    const initialStatus = response.data.wishlist.reduce((acc, item) => {
+                        acc[item._id] = true;
+                        return acc;
+                    }, {});
+                    setWishlistStatus(initialStatus);
+                }
+            } catch (error) {
+                console.error('Error fetching wishlist:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchWishlist();
+    }, []);
+
     const toggleWishlist = (id) => {
-      setWishlist((prev) => ({
-        ...prev,
-        [id]: !prev[id], 
-      }));
+        setWishlistStatus((prev) => ({
+            ...prev,
+            [id]: !prev[id], 
+        }));
     };
-  
-  return (
-    <div>
-        <Header></Header>
-        <div className="no-wishlist container">
-  <div className="wishlist-icon2">
-    <i class="fa-regular fa-heart"></i>
-  </div>
-  <p className="empty-wishlist">Your wishlist is empty.</p>
-  <p className="empty-wishlist-des">
-    You don’t have any products in the wishlist yet. You will find a lot
-    of interesting products on our Shop page.
-  </p>
-  <button className='wishlist-button'><span className='wishlist-button-text'>Continue Shopping</span></button>
-</div>
 
-        <div className="wishlist">
-      <p className="wishlist-heading">My Wishlist <span className='wishlist-heading-span'>( 2 items )</span></p>
-      <div className="wishlist-card-row">
-        {products.map((product) => (
-          <div className="wishlist-card" key={product.id}>
-            <div className="wishlist-card-image-container">
-              <img src={product.image} alt={product.title} className="wishlist-card-image" />
-              <div
-                className={`wishlist-icon ${wishlist[product.id] ? 'active' : ''}`}
-                onClick={() => toggleWishlist(product.id)}
-              >
-                <i className={wishlist[product.id] ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}></i>
-              </div>
-            </div>
-            <p className="wishlist-card-title">{product.title}</p>
-            <p className="wishlist-card-description">{product.description}</p>
-          </div>
-        ))}
-      </div>
-      
-    </div>
+    return (
+        <div>
 
-        
-    </div>
-  )
+            {loading ? (
+                
+               <div className="wishlist">
+                 <p className="wishlist-heading">
+                        My Wishlist <span className='wishlist-heading-span'>({wishlist.length} items)</span>
+                    </p>
+                    <div className="wishlist-card-row">
+                        {[...Array(6)].map((_, index) => (
+                            <SkeletonCard key={index} />
+                        ))}
+                    </div>
+               </div>
+              
+            ) : wishlist.length === 0 ? (
+                <div className="no-wishlist container">
+                    <div className="wishlist-icon2">
+                        <i className="fa-regular fa-heart"></i>
+                    </div>
+                    <p className="empty-wishlist">Your wishlist is empty.</p>
+                    <p className="empty-wishlist-des">
+                        You don’t have any products in the wishlist yet. You will find a lot
+                        of interesting products on our Shop page.
+                    </p>
+                    <button className='wishlist-button'>
+                        <span className='wishlist-button-text'>Continue Shopping</span>
+                    </button>
+                </div>
+            ) : (
+                <div className="wishlist">
+                    <p className="wishlist-heading">
+                        My Wishlist <span className='wishlist-heading-span'>({wishlist.length} items)</span>
+                    </p>
+                    <div className="wishlist-card-row">
+                        {wishlist.map((item) => (
+                            <div className="wishlist-card" key={item._id}>
+                                <div className="wishlist-card-image-container">
+                                    <img 
+                                        src={`${BASE_URL}/uploads/${item.productId.images[0]}`}
+                                        alt={item.productId.name} 
+                                        className="wishlist-card-image" 
+                                    />
+                                    <div
+                                        className={`wishlist-icon ${wishlistStatus[item._id] ? 'active' : ''}`}
+                                        onClick={() => toggleWishlist(item._id)}
+                                    >
+                                        <i className={wishlistStatus[item._id] ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}></i>
+                                    </div>
+                                </div>
+                                <p className="wishlist-card-title">{item.productId.name}</p>
+                                <p className="wishlist-card-description">{item.productId.productType}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
 }
 
-export default Wishlist
+const SkeletonCard = () => (
+    <ContentLoader 
+        speed={2}
+        width={250}
+        height={350}
+        viewBox="0 0 250 350"
+        backgroundColor="#f3f3f3"
+        foregroundColor="#ecebeb"
+        className="wishlist-card"
+    >
+        <rect x="0" y="0" rx="12" ry="12" width="250" height="280" />
+        <rect x="10" y="295" rx="4" ry="4" width="200" height="15" />
+        <rect x="10" y="320" rx="4" ry="4" width="150" height="15" />
+    </ContentLoader>
+);
+
+export default Wishlist;

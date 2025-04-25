@@ -1,18 +1,17 @@
 import React from 'react';
 import './contact.css';
-import { Container, Row, Col, Card, Form } from 'react-bootstrap';
-import Header from '../components/Header';
+import { Container, Row, Col, Card } from 'react-bootstrap';
+import AddressCard from '../components/AddressCard';
 
 function Contact() {
   return (
     <div>
-      <Header></Header>
       <Container fluid className="contact-container my-5">
         <Row className="no-gutters">
           {/* Left Column */}
           <Col xs={12} md={7} className="contact-left-column mb-4 mb-md-0">
             {/* Form Card */}
-            <Card className="contact-item mb-4 p-4" >
+            {/* <Card className="contact-item mb-4 p-4" >
             <Card.Title className="contact-title">
                     Contact Details
                                         </Card.Title>
@@ -103,7 +102,8 @@ function Contact() {
 </Form>
 
               </Form>
-            </Card>
+            </Card> */}
+            <AddressCard></AddressCard>
           </Col>
 
           {/* Right Column */}

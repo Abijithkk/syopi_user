@@ -1,15 +1,51 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./Header.css";
 import { Navbar, Nav, FormControl } from "react-bootstrap";
 import { FaShoppingCart, FaSearch } from "react-icons/fa";
 import headerlogo from "../images/Headerlogo.png";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { SearchContext } from "./SearchContext";
 
 function Header() {
+  const { searchQuery, setSearchQuery } = useContext(SearchContext);
+  const [inputValue, setInputValue] = useState(searchQuery || "");
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    setInputValue(searchQuery);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const q = params.get("q");
+    if (q && q !== searchQuery) {
+      setSearchQuery(q);
+    }
+  }, [location.search, searchQuery, setSearchQuery]);
+
+  const handleInputChange = (e) => {
+    setInputValue(e.target.value);
+  };
+
+  // Trigger search only on Enter or clicking the search icon
+  const triggerSearch = () => {
+    const query = inputValue.trim();
+    if (query) {
+      setSearchQuery(query);
+      navigate(`/allproducts?q=${encodeURIComponent(query)}`);
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      triggerSearch();
+    }
+  };
   return (
     <Navbar expand="lg" className="p-3 header">
-      <Navbar.Brand href="/" className="ms-2">
+      <Navbar.Brand href="/" className="ms-2 header-brand">
         <img
           src={headerlogo}
           alt="Logo"
@@ -55,14 +91,18 @@ function Header() {
               </svg>
             </div>
             <div className="options">
-            <Link to="/category" className="unstyled-link">
-            <div title="all">
+              <Link to="/category" className="unstyled-link">
+                <div title="all">
                   <input id="all" name="option" type="radio" defaultChecked />
-                  <label className="option" htmlFor="all" data-txt="All"></label>
+                  <label
+                    className="option"
+                    htmlFor="all"
+                    data-txt="All"
+                  ></label>
                 </div>
-            </Link>
-            <Link to="/category" className="unstyled-link">
-            <div title="option-1">
+              </Link>
+              <Link to="/category" className="unstyled-link">
+                <div title="option-1">
                   <input id="option-1" name="option" type="radio" />
                   <label
                     className="option"
@@ -70,9 +110,9 @@ function Header() {
                     data-txt="Option 1"
                   ></label>
                 </div>
-            </Link>
-            <Link to="/category" className="unstyled-link">
-            <div title="option-2">
+              </Link>
+              <Link to="/category" className="unstyled-link">
+                <div title="option-2">
                   <input id="option-2" name="option" type="radio" />
                   <label
                     className="option"
@@ -80,9 +120,9 @@ function Header() {
                     data-txt="Option 2"
                   ></label>
                 </div>
-             </Link>
-             <Link to="/category" className="unstyled-link">
-             <div title="option-3">
+              </Link>
+              <Link to="/category" className="unstyled-link">
+                <div title="option-3">
                   <input id="option-3" name="option" type="radio" />
                   <label
                     className="option"
@@ -101,6 +141,9 @@ function Header() {
               placeholder="Search for products, brands etc."
               className="search-input"
               aria-label="Search"
+              value={inputValue}
+              onChange={handleInputChange}
+              onKeyPress={handleKeyPress}
             />
           </div>
 

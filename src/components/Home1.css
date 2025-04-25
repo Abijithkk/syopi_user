@@ -121,4 +121,7 @@ height: 200px;
   .carousel-indicators {
     bottom: -40px; 
   }
+  .prev, .next{
+    display: none;
+  }
 }

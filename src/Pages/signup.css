@@ -21,3 +21,38 @@
   .phone-number{
     line-height: 15px;
   }
+
+
+  .input-error {
+    border: 1px solid red;
+    background-color: #ffe6e6;
+  }
+  
+  .error-text {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
+  }
+
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  /* Optional: Add button transition */
+  .signin-btn {
+    transition: opacity 0.3s ease;
+  }
+  
+  .signin-btn:disabled {
+    opacity: 0.8;
+    cursor: not-allowed;
+  }

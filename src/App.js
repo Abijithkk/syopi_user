@@ -16,11 +16,19 @@ import Contactdetails from './Pages/Contactdetails';
 import Signin from './Pages/Signin';
 import Signup from './Pages/Signup';
 import Forget from './Pages/Forget';
+import { SearchProvider } from './components/SearchContext';
+import Allproducts from './components/Allproducts';
+import Layout from './components/Layout';
+import ReturnRefundPolicy from './Pages/Return';
+import PrivacyPolicy from './Pages/PrivacyPolicy';
 function App() {
   
   return (
+    <SearchProvider>
     <div className="App">
      <Routes>
+     <Route element={<Layout />}>
+
      <Route path="/login" element={<Landing />} />
      <Route path="/" element={<Home />} />
      <Route path="/product/:id" element={<SingleProduct />} />
@@ -28,9 +36,11 @@ function App() {
      <Route path="/category" element={<Category />} />
      <Route path="/cart" element={<Cart />} />
      <Route path="/contact" element={<Contact />} />
-     <Route path="/address" element={<Address />} />
-     <Route path="/cod" element={<Cod />} />
+     <Route path="/address/:id" element={<Address />} />
+     <Route path="/cod/:id" element={<Cod />} />
      <Route path="/refer" element={<Refer />} />
+     <Route path="/returnpolicy" element={<ReturnRefundPolicy />} />
+     <Route path="/privacypolicy" element={<PrivacyPolicy />} />
      <Route path="/subscribe" element={<Subscribe />} />
      <Route path="/order" element={<Orders />} />
      <Route path="/addressdetails" element={<Contactdetails />} />
@@ -38,9 +48,13 @@ function App() {
      <Route path="/signup" element={<Signup />} />
      <Route path="/forget" element={<Forget />} />
 
+     <Route path="/allproducts" element={<Allproducts />} />
+     </Route>
 
+     
      </Routes>
     </div>
+    </SearchProvider>
   );
 }
 

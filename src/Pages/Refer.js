@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import './refer.css';
 import { Col, Row } from 'react-bootstrap';
 import r1 from '../images/refer1.png';
-import Header from '../components/Header';
 import r2 from '../images/refer2.png';
 import r3 from '../images/refer3.png';
 
@@ -52,7 +51,6 @@ function Refer() {
 
   return (
     <div>
-      <Header />
       <div className="refer-div-1">
         <p className="refer-title-1">Refer your Friends and Earn</p>
         <p className="refer-des-1">

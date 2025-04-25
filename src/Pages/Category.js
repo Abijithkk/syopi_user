@@ -1,5 +1,4 @@
-import React from 'react';
-import Header from '../components/Header';
+import React, { useCallback, useEffect, useState } from 'react';
 import './category.css';
 import C1 from '../images/C1.jpeg';
 import C2 from '../images/C2.jpeg';
@@ -13,19 +12,37 @@ import C9 from '../images/C9.jpeg';
 import C10 from '../images/C10.jpeg';
 import C11 from '../images/C11.jpeg';
 import C12 from '../images/C12.jpeg';
+import { getCategoriesApi } from '../services/allApi';
+import { BASE_URL } from '../services/baseUrl';
 
 function Category() {
-  const categories = [
-    'Men',
-    'Women',
-    'Kids',
-    'Dresses',
-    'Footwear',
-    'Accessories',
-    'Payjamas',
-    'Indian',
-    'Branded',
-  ];
+ 
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch categories using useCallback to prevent unnecessary re-renders
+  const fetchCategories = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await getCategoriesApi();
+      
+      if (response && Array.isArray(response.data)) {
+        setCategories(response.data);
+      } else {
+        throw new Error("Invalid data format received.");
+      }
+    } catch (err) {
+      setError(err.message || "Failed to load categories.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
   const cardData = [
     { title: 'Makeup Set', image: C1 },
@@ -44,19 +61,31 @@ function Category() {
 
   return (
     <div>
-      <Header />
       <div>
         <p className="category-heading">Category</p>
         <div className="category-container">
           {/* Left Column */}
           <div className="category-left">
-            <h2 className="category-heading-left">Festival Sales</h2>
-            <ul>
-              {categories.map((category, index) => (
-                <li key={index}>{category}</li>
-              ))}
-            </ul>
-          </div>
+      {loading ? (
+        <p>Loading categories...</p>
+      ) : error ? (
+        <p className="error-message">{error}</p>
+      ) : (
+        <ul>
+          {categories.map((category) => (
+            <li key={category._id} className="category-item">
+              <span className="category-name">{category.name}</span>
+              <img
+                src={`${BASE_URL}/uploads/${category.image}`}
+                alt={category.name}
+                className="category-image"
+              />
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+
 
           {/* Right Section */}
           <div className="category-right">

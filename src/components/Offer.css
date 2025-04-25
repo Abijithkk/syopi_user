@@ -14,13 +14,29 @@
 
 .offer-div {
     display: flex;
-    justify-content: center;
     gap: 30px; 
+    justify-content: center;
+
     margin-top: 30px;
     background-color: #040C20;
     padding: 50px;
     flex-wrap: wrap; 
     transition: all 0.3s ease-in-out;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #FFB500 #040C20;
+}
+
+/* Scrollbar styles for WebKit */
+.offer-div::-webkit-scrollbar {
+    height: 8px;
+}
+.offer-div::-webkit-scrollbar-track {
+    background: #040C20;
+}
+.offer-div::-webkit-scrollbar-thumb {
+    background-color: #FFB500;
+    border-radius: 10px;
 }
 
 .offer-card {
@@ -29,16 +45,31 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
     border: 6px solid #FFB500;
-    aspect-ratio: 1 / 1; 
     width: 300px;
+    min-width: 300px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     background-color: none; 
-    transition: transform 0.3s ease, opacity 0.3s ease; /* Smooth scaling and fading */
-
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    aspect-ratio: 1;
 }
+
+
+/* Tablet view */
+@media (max-width: 1024px) {
+    .offer-div {
+        padding: 20px;
+        overflow-x: auto; /* Enable horizontal scrolling */
+        flex-wrap: nowrap; /* Prevent wrapping */
+    }
+    .offer-card {
+        width: 45%;
+        min-width: 45%;
+    }
+}
+
 .offer-card:hover {
     transform: scale(1.1); /* Slightly enlarge the hovered card */
 }
@@ -74,18 +105,35 @@
     color: #FFB500;
 }
 @media (max-width: 1024px) { /* Tablet */
+    .offer-div {
+        padding: 20px;
+    }
     .offer-card {
         width: 45%; /* Two cards per row */
+        min-width: 45%;
+
     }
 }
 
-@media (max-width: 768px) { /* Mobile */
-    .offer-card {
-        width: 90%; /* One card per row */
+/* Mobile view */
+@media (max-width: 768px) {
+    .offer-div {
+        overflow-x: auto;
+        display: flex;
+        gap: 20px;
+        padding: 20px;
+        justify-content: left;
     }
-    .offer-heading{
+    .offer-card {
+        width: 250px;
+        min-width: 250px;
+        
+    }
+    .offer-heading {
         font-size: 24px;
         padding-left: 30px;
         padding-right: 30px;
     }
 }
+
+

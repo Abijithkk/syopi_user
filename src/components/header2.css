@@ -1,0 +1,112 @@
+@media (max-width: 480px){
+    .header-mobile{
+        display: block;
+        padding: 30px;
+        background-color: #FFF;
+        box-shadow: 0px 4px 4px 0px #00000029;
+
+    }
+    .header-location-section {
+        display: flex;
+        align-items: center;
+      }
+      
+      .location-text-col {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      
+      .location-top {
+        text-align: center;
+        margin-bottom: 5px; /* Adjust spacing as needed */
+      }
+      
+      .location-bottom {
+        display: flex;
+        align-items: left;
+        justify-content: left;
+      }
+      
+      .header-location {
+        font-family: 'Poppins', sans-serif;
+        font-size: 10px;
+        font-weight: 500;
+        line-height: 15px;
+        letter-spacing: -0.011em;
+        color: #717171;
+        text-align: left;
+        margin-left: 23px;
+      }
+      
+      .header-location2 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 1px;
+        letter-spacing: -0.011em;
+        color: #000000;
+        margin-right: 8px; /* Adjust spacing as needed */
+      }
+      
+      .dropdown-iconss {
+        color: #000000;
+        margin-top: -8px;
+        font-size: 13px;
+      }
+      .custom-header-section {
+        display: grid;
+        grid-template-columns: 1fr auto; /* Makes the search input take available space, and icons take as much space as needed */
+        align-items: center; /* Vertically center both elements */
+        margin-top: 3%;
+      }
+      
+      .custom-search-wrapper {
+        display: flex;
+        justify-content: flex-start; /* Aligns the search form to the left */
+      }
+      
+      .custom-search-form {
+        width: 100%; /* Ensures the form takes up full width inside its container */
+      }
+      
+      .custom-search-input {
+        width: 100%;
+        background-color: #f8f9fa;
+        border-radius: 12px;
+        padding-left: 2.5rem;
+        box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.15);
+        border: 1px solid #ced4da;
+        font-size: 1rem;
+      }
+      
+      .custom-icons-wrapper {
+        display: flex;
+        gap: 15px;
+        color: #6c757d;
+        font-size: 30px;
+        justify-self: end; 
+      }
+      
+      .use-current-location{
+        font-family: Nunito Sans;
+font-size: 14px;
+font-weight: 500;
+line-height: 19.1px;
+text-align: left;
+text-underline-position: from-font;
+text-decoration-skip-ink: none;
+color: #0691FE;
+      }
+
+      
+      
+      
+}
+
+@media (min-width: 500px){
+.header-mobile{
+    display:none;
+}
+}
+

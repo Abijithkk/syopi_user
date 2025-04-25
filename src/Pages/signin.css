@@ -257,7 +257,7 @@ color: #294957;
     content: "";
     height: 1px;
     background-color:  #CFDFE2;
-    width: 170px; /* Adjust the length of the line */
+    width: 130px; /* Adjust the length of the line */
     margin: 0 10px; /* Space between the line and text */
 }
 

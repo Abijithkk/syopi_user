@@ -215,27 +215,32 @@ color: #1DA69E;
     appearance: none; /* Remove default styling */
     width: 20px;
     height: 20px;
-    border-radius: 4px; /* Add rounded corners if desired */
+    border: 2px solid #00A8FF; /* Border color */
+    border-radius: 4px; /* Add rounded corners */
     cursor: pointer;
-    background-color: #00A8FF;
-    transition: background-color 0.3s ease;
-
-    /* For the checked state */
+    background-color: transparent;
+    transition: all 0.3s ease;
     position: relative;
 }
 
-
+.custom-checkbox:checked {
+    background-color: #00A8FF; /* Background color when checked */
+    border-color: #0077CC;
+}
 
 .custom-checkbox:checked::after {
-    content: '';
+    content: "✔"; 
     position: absolute;
-    top: 4px;
-    left: 4px;
-    width: 10px;
-    height: 10px;
-    background: white;
-    border-radius: 2px; 
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
 }
+
+
+
 .add-shipping-button {
   border: 1px solid #00A8FF;
   background-color: #FAFAFA;
