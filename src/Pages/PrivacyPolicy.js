@@ -68,7 +68,7 @@ const PrivacyPolicy = () => {
 
       <h2>Contact Us</h2>
       <p>If you have questions about this Privacy Policy, please contact us:</p>
-      <p><strong>Email</strong>: support@syopi.com</p>
+      <p><strong>Email</strong>: syopi5051@gmail.com</p>
     </div>
   );
 };
