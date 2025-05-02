@@ -21,6 +21,7 @@ import Allproducts from './components/Allproducts';
 import Layout from './components/Layout';
 import ReturnRefundPolicy from './Pages/Return';
 import PrivacyPolicy from './Pages/PrivacyPolicy';
+import DeleteAccountPolicy from './Pages/DeleteAccountPolicy';
 function App() {
   
   return (
@@ -30,6 +31,8 @@ function App() {
      <Route element={<Layout />}>
 
      <Route path="/login" element={<Landing />} />
+     <Route path="/account-delete-policy" element={<DeleteAccountPolicy />} />
+
      <Route path="/" element={<Home />} />
      <Route path="/product/:id" element={<SingleProduct />} />
      <Route path="/wishlist" element={<Wishlist />} />
