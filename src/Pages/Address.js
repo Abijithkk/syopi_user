@@ -1,16 +1,14 @@
 import React, { useEffect, useState, useCallback, memo } from "react";
-import { Container, Row, Col, Card } from "react-bootstrap";
+import { Container, Row, Col, Card, Form, InputGroup } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
+import toast, { Toaster } from "react-hot-toast";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import "./address.css";
 import AddressCard from "../components/AddressCard";
-import { getAddressApi, getCheckoutByIdApi } from "../services/allApi";
-import ErrorBoundary from "../components/ErrorBoundary"; // Assuming you'll create this
-import LeavePageConfirmation from "../components/LeavePageConfirmation";
+import { applyCouponApi, applyCoinsApi, getAddressApi, getAvailableCouponsApi, getCheckoutByIdApi, getProfileApi } from "../services/allApi";
+import ErrorBoundary from "../components/ErrorBoundary";
 
-// Memoized skeleton loader component
 const AddressSkeleton = memo(() => (
   <Card className="address-item mb-4">
     <Row className="align-items-center">
@@ -77,22 +75,144 @@ const CheckoutSummary = memo(({ checkoutData }) => (
     </div>
     <div className="d-flex justify-content-between">
       <p className="address-check-total">Total MRP:</p>
-      <p className="text-end address-check-total">{checkoutData?.finalTotal}</p>
+      <p className="text-end address-check-total">₹{checkoutData?.subtotal}</p>
     </div>
     <div className="d-flex justify-content-between">
+      <p className="address-check-total">Delivery Charge</p>
+      <p className="text-end address-check-total">₹{checkoutData?.deliveryCharge}</p>
+    </div>
+    
+    <div className="d-flex justify-content-between">
       <p className="address-check-total">Total Discount:</p>
-      <p className="text-end points">{checkoutData?.ReducedDiscount}</p>
+      <p className="text-end points">₹{checkoutData?.ReducedDiscount || 0}</p>
     </div>
     <div className="d-flex justify-content-between">
       <p className="address-check-total">Syopi Points:</p>
-      <p className="text-end points">{checkoutData?.coinsApplied}</p>
+      <p className="text-end points">₹{checkoutData?.coinsApplied || 0}</p>
     </div>
     <div className="d-flex justify-content-between">
       <p className="address-check-total">Total Price:</p>
-      <p className="text-end address-check-total">{checkoutData?.subtotal}</p>
+      <p className="text-end address-check-total">₹{checkoutData?.finalTotal}</p>
     </div>
   </Card.Text>
 ));
+
+const CouponSection = memo(({ checkoutId, onCouponApplied, availableCoupons, loading }) => {
+  const [couponCode, setCouponCode] = useState("");
+  const [coupons, setCoupons] = useState([]);
+  const [showCoupons, setShowCoupons] = useState(false);
+  const [applying, setApplying] = useState(false);
+
+  useEffect(() => {
+    if (availableCoupons?.length > 0) {
+      setCoupons(availableCoupons);
+    }
+  }, [availableCoupons]);
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      toast.error("Please enter a coupon code");
+      return;
+    }
+
+    setApplying(true);
+    try {
+      const response = await applyCouponApi(checkoutId, couponCode);
+      
+      if (response.status === 200) {
+        toast.success("Coupon applied successfully!");
+        onCouponApplied(response.checkout || response.data);
+        setCouponCode("");
+      } else {
+        toast.error(response.message || "Failed to apply coupon");
+      }
+    } catch (error) {
+      toast.error("Error applying coupon");
+      console.error(error);
+    } finally {
+      setApplying(false);
+    }
+  };
+
+  const applyCouponFromList = async (code) => {
+    setCouponCode(code);
+    setApplying(true);
+    try {
+      const response = await applyCouponApi(checkoutId, code);
+      
+      if (response.status === 200) {
+        toast.success("Coupon applied successfully!");
+        onCouponApplied(response.checkout || response.data);
+        setShowCoupons(false);
+      } else {
+        toast.error(response.message || "Failed to apply coupon");
+      }
+    } catch (error) {
+      toast.error("Error applying coupon");
+      console.error(error);
+    } finally {
+      setApplying(false);
+    }
+  };
+
+  return (
+    <div className="coupon-section mb-4">
+      <h5>Apply Coupon</h5>
+      <InputGroup>
+        <Form.Control
+          placeholder="Enter coupon code"
+          value={couponCode}
+          onChange={(e) => setCouponCode(e.target.value)}
+          disabled={applying}
+        />
+        <button 
+          className="btn btn-primary" 
+          onClick={handleApplyCoupon}
+          disabled={applying}
+        >
+          {applying ? "Applying..." : "Apply"}
+        </button>
+      </InputGroup>
+      
+      <div className="mt-2">
+        <button 
+          className="btn btn-sm btn-outline-secondary" 
+          onClick={() => setShowCoupons(!showCoupons)}
+          disabled={loading}
+        >
+          {loading ? "Loading coupons..." : showCoupons ? "Hide Available Coupons" : "View Available Coupons"}
+        </button>
+      </div>
+      
+      {showCoupons && coupons?.length > 0 && (
+        <div className="available-coupons mt-2">
+          <div className="coupon-list">
+            {coupons.map((coupon) => (
+              <div key={coupon._id} className="coupon-item">
+                <div className="coupon-details">
+                  <strong>{coupon.code}</strong>
+                  <p>{coupon.description}</p>
+                  <small>Valid till: {coupon.endDate}</small>
+                </div>
+                <button 
+                  className="btn btn-sm btn-success"
+                  onClick={() => applyCouponFromList(coupon.code)}
+                  disabled={applying}
+                >
+                  Apply
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      
+      {showCoupons && (!coupons || coupons.length === 0) && !loading && (
+        <p className="text-muted mt-2">No coupons available for this order</p>
+      )}
+    </div>
+  );
+});
 
 function Address() {
   const [state, setState] = useState({
@@ -102,12 +222,21 @@ function Address() {
     error: null,
     selectedAddress: null,
     checkoutData: null,
+    checkoutId: null,
+    availableCoupons: [],
+    couponsLoading: false,
+    applyingCoins: false
   });
+  const [points, setPoints] = useState("");
+
   const { id } = useParams();
+  const navigate = useNavigate();
 
   // Memoized handlers
   const handleAddressSuccess = useCallback(() => {
     setState((prev) => ({ ...prev, showAddressCard: false }));
+    // Refresh addresses after adding a new one
+    fetchAddresses();
   }, []);
 
   const handleSelect = useCallback((index) => {
@@ -118,53 +247,165 @@ function Address() {
     setState((prev) => ({ ...prev, showAddressCard: true }));
   }, []);
 
-  // Fetch addresses with error handling
-  useEffect(() => {
-    const fetchAddresses = async () => {
-      try {
-        setState((prev) => ({ ...prev, loading: true }));
-        const response = await getAddressApi();
-        if (response.success) {
-          setState((prev) => ({
-            ...prev,
-            addresses: response.data,
-            loading: false,
-          }));
-        } else {
-          throw new Error(response.error || "Failed to fetch addresses");
-        }
-      } catch (error) {
+  // Extract fetchAddresses function to be reusable
+  const fetchAddresses = async () => {
+    try {
+      setState((prev) => ({ ...prev, loading: true }));
+      const response = await getAddressApi();
+      
+      // Handle successful response with addresses
+      if (response.success && response.data) {
         setState((prev) => ({
           ...prev,
-          error: error.message,
+          addresses: response.data,
           loading: false,
         }));
-        toast.error("Failed to load addresses. Please try again later.");
+      } 
+      // Handle 404 "No addresses found" as a valid state, not an error
+      else if (response.status === 404 || (response.message && response.message.includes("No addresses found"))) {
+        setState((prev) => ({
+          ...prev,
+          addresses: [],
+          loading: false,
+        }));
+        // Optional - show a toast to prompt user to add an address
+        toast.error("No addresses found. Please add a shipping address.");
+      } 
+      // Handle other errors
+      else {
+        throw new Error(response.error || response.message || "Failed to fetch addresses");
       }
-    };
-
-    fetchAddresses();
-  }, []);
-  const navigate = useNavigate();
-
-  const handleContinue = () => {
-    if (state.selectedAddress === null) {
-      toast.warn("Please select an address!", { position: "top-right" });
-      return;
+    } catch (error) {
+      console.error("Address fetch error:", error);
+      setState((prev) => ({
+        ...prev,
+        addresses: [],
+        loading: false,
+        error: error.message,
+      }));
+      toast.error("Error loading addresses. Please try again later.");
     }
-  
-    const selectedAddressId = state.addresses[state.selectedAddress]?._id;
-    if (selectedAddressId) {
-      localStorage.setItem("AddressId", selectedAddressId);
+  };
+
+  const fetchAvailableCoupons = async (checkoutId) => {
+    if (!checkoutId) return;
+    
+    try {
+      setState(prev => ({ ...prev, couponsLoading: true }));
+      const response = await getAvailableCouponsApi(checkoutId);
+      console.log("available-coins",response);
+      
+      
+      if (response.status === 200 && response.coupons) {
+        setState(prev => ({ 
+          ...prev, 
+          availableCoupons: response.coupons,
+          couponsLoading: false 
+        }));
+      } else {
+        setState(prev => ({ ...prev, couponsLoading: false }));
+      }
+    } catch (error) {
+      console.error("Error fetching coupons:", error);
+      setState(prev => ({ ...prev, couponsLoading: false }));
     }
+  };
+
+  const fetchSyopiPoints = async () => {
+    try {
+      setState(prev => ({ ...prev, couponsLoading: true }));
   
-    // Ensure `state.checkoutId` is available
-    const checkoutId = state.checkoutId || "defaultId"; // Use a fallback if checkoutId is missing
+      const response = await getProfileApi();
+      console.log("available-coinss", response);
   
-    navigate(`/cod/${checkoutId}`);
+      if (response.status === 200 && response.data?.user) {
+        setPoints(response.data.user.coins); // directly assign coins even if 0
+      }
+    } catch (error) {
+      console.error("Error fetching coupons:", error);
+    } finally {
+      setState(prev => ({ ...prev, couponsLoading: false }));
+    }
   };
   
 
+  useEffect(() => {
+    fetchSyopiPoints();
+  }, []);
+  // Apply coins
+  const handleApplyCoins = async () => {
+    if (!state.checkoutId) {
+      toast.error("Checkout information is missing");
+      return;
+    }
+
+    setState(prev => ({ ...prev, applyingCoins: true }));
+    try {
+      const response = await applyCoinsApi(state.checkoutId);
+      console.log("apply",response);
+      if (response.status === 200) {
+        toast.success("Syopi points applied successfully!");
+        // Update checkout data
+        setState(prev => ({
+          ...prev,
+          checkoutData: response.checkout || response.data,
+          applyingCoins: false
+        }));
+      } else {
+        toast.error(response.message || "Failed to apply points");
+        setState(prev => ({ ...prev, applyingCoins: false }));
+      }
+    } catch (error) {
+      console.error("Error applying points:", error);
+      toast.error("Error applying Syopi points");
+      setState(prev => ({ ...prev, applyingCoins: false }));
+    }
+  };
+
+  // Handle coupon applied
+  const handleCouponApplied = useCallback((updatedCheckout) => {
+    setState(prev => ({
+      ...prev,
+      checkoutData: updatedCheckout
+    }));
+  }, []);
+
+  // Fetch addresses on component mount
+  useEffect(() => {
+    fetchAddresses();
+  }, []);
+
+  const handleContinue = () => {
+    if (state.selectedAddress === null) {
+      toast.error("Please select an address!");
+      return;
+    }
+  
+    const selectedAddressData = state.addresses[state.selectedAddress];
+    
+    if (!selectedAddressData || !selectedAddressData._id) {
+      toast.error("Invalid address selection. Please try again.");
+      return;
+    }
+    
+    try {
+      // Also store just the ID for backward compatibility
+      localStorage.setItem("AddressId", selectedAddressData._id);
+      
+      const checkoutId = state.checkoutId || id;
+      
+      if (!checkoutId) {
+        toast.error("Missing checkout information. Please try again.");
+        return;
+      }
+      
+      navigate(`/cod/${checkoutId}`);
+    } catch (error) {
+      console.error("Error saving address data:", error);
+      toast.error("There was a problem processing your selection. Please try again.");
+    }
+  };
+  
   // Fetch checkout data with error handling
   useEffect(() => {
     const fetchCheckoutData = async () => {
@@ -173,31 +414,36 @@ function Address() {
       try {
         setState((prev) => ({ ...prev, loading: true }));
         const response = await getCheckoutByIdApi(id);
-        if (response.success) {
+        
+        if (response.status === 200 && response.data) {
           setState((prev) => ({
             ...prev,
             checkoutData: response.data,
-            checkoutId: response.data._id, // Ensure checkoutId is stored correctly
-
+            checkoutId: response.data._id,
             loading: false,
           }));
+          
+          // Fetch available coupons after getting checkout data
+          fetchAvailableCoupons(response.data._id);
         } else {
-          throw new Error(response.error || "Failed to fetch checkout details");
+          throw new Error(response.error || response.message || "Failed to fetch checkout details");
         }
       } catch (error) {
+        console.error("Checkout data fetch error:", error);
         setState((prev) => ({
           ...prev,
-          error: error.message,
           loading: false,
+          error: error.message,
         }));
-        toast.error("Failed to load checkout details. Please try again later.");
+        toast.error("Failed to load checkout details. Please try again.");
       }
     };
 
     fetchCheckoutData();
   }, [id]);
 
-  if (state.error) {
+  // Specific error handling for checkout data - show error UI only for critical errors
+  if (state.error && !state.checkoutData) {
     return (
       <div className="text-center mt-5">
         <h3>Something went wrong</h3>
@@ -215,10 +461,11 @@ function Address() {
   return (
     <ErrorBoundary>
       <div>
-        <Container fluid className="address-container my-5">
+        <Container fluid className="address-container">
           <Row className="no-gutters">
             {/* Left Column */}
             <Col xs={12} md={7} className="address-left-column mb-4 mb-md-0">
+              <h4 className="mb-3">Select Delivery Address</h4>
               {state.loading ? (
                 Array.from({ length: 3 }).map((_, index) => (
                   <AddressSkeleton key={index} />
@@ -234,7 +481,9 @@ function Address() {
                   />
                 ))
               ) : (
-                <p>No addresses found.</p>
+                <div className="text-center p-4 bg-light rounded mb-4">
+                  <p className="mb-2">No addresses found. Please add a shipping address.</p>
+                </div>
               )}
 
               {state.showAddressCard && (
@@ -256,16 +505,31 @@ function Address() {
             <Col xs={12} md={5} className="address-right-column">
               <Card className="address-checkout p-3 shadow">
                 <Card.Body>
-                  <div className="address-points-info text-center bg-light p-3">
+                  {/* Coupon Section */}
+                  {!state.loading && state.checkoutId && (
+                    <CouponSection 
+                      checkoutId={state.checkoutId}
+                      onCouponApplied={handleCouponApplied}
+                      availableCoupons={state.availableCoupons}
+                      loading={state.couponsLoading}
+                    />
+                  )}
+                  <p>Available Coins: {points}</p>
+                  <div className="address-points-info text-center bg-light p-3 mb-3">
                     <p className="m-0 address-points">
                       1 Point = 1 Rupee: For example, if you have 40 points, you
                       can use them as 40 rupees on your purchase.
                     </p>
-                    <button className="checkout-button1 mt-2">
-                      Claim with Syopi points
+                    <button 
+                      className="checkout-button1 mt-2"
+                      onClick={handleApplyCoins}
+                      disabled={state.applyingCoins || !state.checkoutId}
+                    >
+                      {state.applyingCoins ? "Applying..." : "Claim with Syopi points"}
                     </button>
                   </div>
 
+                  <h5>Order Summary</h5>
                   {state.loading ? (
                     Array.from({ length: 5 }).map((_, index) => (
                       <Skeleton
@@ -281,7 +545,7 @@ function Address() {
 
                   <button
                     className="w-100 mb-2 checkout-button"
-                    disabled={state.selectedAddress === null}
+                    disabled={state.selectedAddress === null || state.addresses.length === 0 || state.loading}
                     onClick={handleContinue}
                   >
                     Continue
@@ -292,8 +556,7 @@ function Address() {
           </Row>
         </Container>
       </div>
-      <ToastContainer></ToastContainer>
-      <LeavePageConfirmation></LeavePageConfirmation>
+      <Toaster position="top-right" />
     </ErrorBoundary>
   );
 }

@@ -1,18 +1,21 @@
 import React, { useState, useEffect, useCallback, useContext } from "react";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   addWishlistApi,
-  getProductApi,
+  getProductsWithSort, 
   getWishlistApi,
+  removefromWishlist,
 } from "../services/allApi";
 import { BASE_URL } from "../services/baseUrl";
 import { SearchContext } from "./SearchContext";
+import FilterPanel from "./FilterPanel";
 import "./Allproduct.css";
-import { Slider } from "@mui/material";
 import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 import { ToastContainer } from "react-toastify";
+import toast from "react-hot-toast";
 
 function Allproducts() {
   const [products, setProducts] = useState([]);
@@ -20,37 +23,164 @@ function Allproducts() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { searchQuery, searchResults } = useContext(SearchContext);
-  const { ref, inView } = useInView({ threshold: 0.2 });
+  const [ref, inView] = useInView({ threshold: 0.1, triggerOnce: true });
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const queryParams = new URLSearchParams(location.search);
+  const subcategoryFromUrl = queryParams.get("subcategory");
+
   const [price, setPrice] = useState([0, 1000]);
   const [selectedDiscount, setSelectedDiscount] = useState(null);
+  const [selectedProductType, setSelectedProductType] = useState([]);
+  const [sortOption, setSortOption] = useState("popularity");
+  const [isFilterOpen, setIsFilterOpen] = useState(true);
+  const [selectedSubcategory, setSelectedSubcategory] = useState(
+    subcategoryFromUrl || null
+  );
 
-  const fetchProducts = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await getProductApi();
-      console.log("Product response:", response);
-      setProducts(response.data.products);
-    } catch (err) {
-      setError("Failed to load products. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const productsPerPage = 12;
+  const [totalProducts, setTotalProducts] = useState(0);
+
+  const fetchProducts = useCallback(
+    async (resetProducts = false) => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const apiOptions = {
+          page: resetProducts ? 1 : page,
+          limit: productsPerPage,
+          search: searchQuery || null,
+          productType: selectedProductType.length > 0 ? selectedProductType : null,
+          subcategory: selectedSubcategory || null,
+          minPrice: price[0] > 0 ? price[0] : null,
+          maxPrice: price[1] < 1000 ? price[1] : null,
+          discountMin: selectedDiscount || null,
+        };
+
+        switch (sortOption) {
+          case "priceAsc":
+            apiOptions.sort = "asc";
+            apiOptions.sortField = "price";
+            break;
+          case "priceDesc":
+            apiOptions.sort = "desc";
+            apiOptions.sortField = "price";
+            break;
+          case "newest":
+            apiOptions.newArrivals = true;
+            break;
+          case "rating":
+            apiOptions.minRating = 4;
+            apiOptions.sort = "desc";
+            apiOptions.sortField = "averageRating";
+            break;
+          case "popularity":
+          default:
+            apiOptions.sortField = "popularity";
+            apiOptions.sort = "desc";
+            break;
+        }
+
+        console.log("API Options:", apiOptions);
+        
+        const response = await getProductsWithSort(apiOptions);
+        console.log("API Response:", response);
+
+        if (response.success) {
+          const newProducts = response.data.products;
+          setTotalProducts(response.data.total || 0);
+
+          if (newProducts.length < productsPerPage) {
+            setHasMore(false);
+          } else {
+            setHasMore(true);
+          }
+
+          setProducts((prevProducts) =>
+            resetProducts ? newProducts : [...prevProducts, ...newProducts]
+          );
+
+          if (resetProducts) {
+            setPage(1);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }
+        } else {
+          if (resetProducts) {
+            setProducts([]);
+          }
+          setHasMore(false);
+          setError(response.message || "Failed to load products");
+        }
+      } catch (err) {
+        setError("Failed to load products. Please try again.");
+        console.error("Error fetching products:", err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [
+      page,
+      searchQuery,
+      selectedProductType,
+      price,
+      selectedDiscount,
+      sortOption,
+      selectedSubcategory,
+    ]
+  );
 
   useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
+    const params = new URLSearchParams(location.search);
 
-  const displayedProducts = searchQuery ? searchResults : products;
+    // Remove timestamp parameter if present (URL cleaning)
+    const hasTimestamp = params.has("_k");
+    if (hasTimestamp) {
+      params.delete("_k");
+      const cleanUrl = `${location.pathname}${
+        params.toString() ? "?" + params.toString() : ""
+      }`;
+      navigate(cleanUrl, { replace: true });
+    }
 
+    // Get subcategory from URL and reset pagination
+    const newSubcategoryFromUrl = params.get("subcategory");
+    setSelectedSubcategory(newSubcategoryFromUrl || null);
+    setPage(1);
+
+    // Check if we need a refresh
+    if (location.state && location.state.refresh) {
+      navigate(location.pathname + location.search, {
+        replace: true,
+        state: {},
+      });
+      fetchProducts(true);
+    }
+  }, [
+    location.search,
+    searchQuery,
+    selectedSubcategory,
+    sortOption,
+    location.pathname,
+    location.state,
+    navigate,
+    fetchProducts,
+  ]);
+
+  useEffect(() => {
+    fetchProducts(true);
+  }, [selectedSubcategory, fetchProducts]);
 
   useEffect(() => {
     const fetchWishlist = async () => {
       try {
+        const token = localStorage.getItem("accessuserToken");
+        if (!token) return;
+
         const response = await getWishlistApi();
-        console.log(response);
         if (response?.data?.wishlist) {
           setWishlist(
             new Set(
@@ -65,396 +195,310 @@ function Allproducts() {
     fetchWishlist();
   }, []);
 
-  const toggleWishlist = async (id) => {
+  useEffect(() => {
+    if (inView && !loading && hasMore) {
+      setPage((prevPage) => prevPage + 1);
+    }
+  }, [inView, loading, hasMore]);
+
+  // When page changes, fetch more products
+  useEffect(() => {
+    if (page > 1) {
+      fetchProducts(false);
+    }
+  }, [page, fetchProducts]);
+
+  const handleApplyFilters = () => {
+    fetchProducts(true);
+  };
+
+  // Toggle wishlist handler
+  const toggleWishlist = async (e, productId) => {
+    e.stopPropagation();
+
     const token = localStorage.getItem("accessuserToken");
     if (!token) {
+      toast.info("Please sign in to add items to your wishlist");
       navigate("/signin");
       return;
     }
+
     try {
-      const response = await addWishlistApi(id);
-      console.log("Wishlist Response:", response);
-      if (!response.success) {
-        console.error("Failed to toggle wishlist:", response.error);
-        return;
+      const response = await addWishlistApi(productId);
+
+      if (response.success) {
+        setWishlist((prevWishlist) => {
+          const newWishlist = new Set(prevWishlist);
+          if (newWishlist.has(String(productId))) {
+            newWishlist.delete(String(productId));
+            toast.success("Removed from wishlist");
+          } else {
+            newWishlist.add(String(productId));
+            toast.success("Added to wishlist");
+          }
+          return newWishlist;
+        });
+      } else {
+        toast.error(response.message || "Failed to update wishlist");
       }
-      setProducts((prevProducts) =>
-        prevProducts.map((product) =>
-          product._id === id
-            ? { ...product, isWishlisted: !product.isWishlisted }
-            : product
-        )
-      );
     } catch (error) {
       console.error("Failed to toggle wishlist:", error);
+      toast.error("Something went wrong. Please try again.");
     }
   };
 
-  const handleNavigate = useCallback(
-    (id) => {
-      navigate(`/product/${id}`);
-    },
-    [navigate]
-  );
+  const handleNavigate = (id) => {
+    navigate(`/product/${id}`);
+  };
 
-  // Calculate filler count to always complete a row of 4 columns.
-  const totalColumns = 4;
-  const fillerCount =
-    displayedProducts.length > 0
-      ? (totalColumns - (displayedProducts.length % totalColumns)) %
-        totalColumns
-      : 0;
-  const fillers = Array.from({ length: fillerCount });
+  const handleSortChange = (e) => {
+    setSortOption(e.target.value);
+    setPage(1);
+    fetchProducts(true);
+  };
 
-  // Animation Variants (feel free to adjust)
+  const displayedProducts = products;
+
+  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.2, duration: 0.8 },
+      transition: { staggerChildren: 0.1, duration: 0.5 },
     },
   };
 
-  const cardVariants = {
-    hidden: { opacity: 0, y: 50 },
+  const productVariants = {
+    hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { type: "spring", stiffness: 120, damping: 15 },
+      transition: { type: "spring", stiffness: 300, damping: 25 },
     },
   };
 
-  const wishlistVariants = {
-    active: {
-      scale: 1.2,
-      color: "#e63946",
-      transition: { type: "spring", stiffness: 300 },
-    },
-    inactive: { scale: 1, color: "#333" },
-  };
-  const [selectedProductType, setSelectedProductType] = useState([]);
-
-
-// Memoize buildQueryParams to avoid warning
-const buildQueryParams = useCallback(() => {
-  const params = new URLSearchParams();
-
-  if (searchQuery) params.append("search", searchQuery);
-  if (selectedProductType.length > 0) {
-    params.append("productTypes", selectedProductType.join(","));
-  }
-  params.append("priceMin", price[0]);
-  params.append("priceMax", price[1]);
-  if (selectedDiscount) {
-    params.append("discountMin", selectedDiscount);
-  }
-
-  return params.toString();
-}, [searchQuery, selectedProductType, price, selectedDiscount]);
-
-const fetchFilteredProducts = useCallback(async () => {
-  try {
-    setLoading(true);
-    setError(null);
-    const queryParams = buildQueryParams();
-    const response = await getProductApi(queryParams);
-    if (response.success) {
-      setProducts(response.data.products);
-    } else {
-      setProducts([]);
-    }
-  } catch (err) {
-    setError("Failed to load products. Please try again.");
-  } finally {
-    setLoading(false);
-  }
-}, [buildQueryParams]);
-
-  // Handle Apply Filters
-  const handleApplyFilters = () => {
-    fetchFilteredProducts();
-    navigate(`/allproducts?${buildQueryParams()}`);
-  };
-  const handleDiscountChange = (discount) => {
-    setSelectedDiscount(discount);
-  };
-  const handleProductTypeChange = (type) => {
-    setSelectedProductType((prev) =>
-      prev.includes(type)
-        ? prev.filter((item) => item !== type)
-        : [...prev, type]
-    );
-  };
-
-  const renderSizeOptions = () => {
-    if (selectedProductType.includes("dress")) {
-      return ["S", "M", "L", "XL"].map((size) => (
-        <label key={size} className="unique-filter-label">
-          <input type="checkbox" value={size} /> {size}
-        </label>
-      ));
-    }
-    if (selectedProductType.includes("chappal")) {
-      return ["6", "7", "8", "9", "10"].map((size) => (
-        <label key={size} className="unique-filter-label">
-          <input type="checkbox" value={size} /> {size}
-        </label>
-      ));
-    }
-    return null;
-  };
-  return (
-    <div>
-      <motion.div
-        ref={ref}
-        className="allproduct"
-        initial="hidden"
-        animate={inView ? "visible" : "hidden"}
-        variants={containerVariants}
-      >
-        {loading ? (
-          <div className="allproduct-container">
-            {/* Left: Filter Skeleton */}
-            <div className="filter-section">
-              {[...Array(5)].map((_, index) => (
-                <Skeleton key={index} height={40} borderRadius={8} />
-              ))}
-            </div>
-
-            {/* Center: Product Skeleton */}
-            <div className="product-section">
-              {[...Array(8)].map((_, index) => (
-                <Skeleton key={index} height={220} borderRadius={12} />
-              ))}
-            </div>
+  // Render product cards
+  const renderProductCards = () => {
+    if (displayedProducts.length === 0 && !loading) {
+      return (
+        <div className="no-results">
+          <div className="no-results-icon">
+            <i className="fas fa-search"></i>
           </div>
-        ) : error ? (
-          <div className="error-message">
-            <p>{error}</p>
-            <button onClick={fetchProducts} className="retry-button">
-              Retry
-            </button>
-          </div>
-        ) : displayedProducts.length === 0 && searchQuery ? (
-          <div className="nr-container">
-            <div className="nr-card">
-              {/* Icon Section */}
-              <div className="nr-icon-wrapper">
-                <div className="nr-icon-bg"></div>
-                <div className="nr-icon-fg">
-                  {/* Replace the SVG below with your custom icon */}
-                  <svg viewBox="0 0 24 24" className="nr-icon-svg">
-                    <path d="M10,2A8,8,0,1,0,18,10,8.009,8.009,0,0,0,10,2Zm0,14A6,6,0,1,1,16,10,6.007,6.007,0,0,1,10,16ZM21.707,20.293l-5.375-5.375a1,1,0,1,0-1.414,1.414l5.375,5.375a1,1,0,0,0,1.414-1.414Z" />
-                  </svg>
-                </div>
-              </div>
-
-              {/* Main Message */}
-              <div className="nr-title">No Results Found</div>
-              <div className="nr-message">
-                We couldn’t find any matches for{" "}
-                <span className="nr-search-query">"your search"</span>.
-              </div>
-
-              {/* Suggestions */}
-              <div className="nr-suggestions">
-                <div className="nr-suggestions-title">Try these tips:</div>
-                <ul className="nr-suggestions-list">
-                  <li className="nr-suggestion-item">
-                    Check for spelling errors
-                  </li>
-                  <li className="nr-suggestion-item">
-                    Use fewer or different keywords
-                  </li>
-                  <li className="nr-suggestion-item">
-                    Try broader search terms
-                  </li>
-                  <li className="nr-suggestion-item">Remove any filters</li>
-                </ul>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="nr-buttons">
-                <button className="nr-btn nr-btn-clear">Clear Search</button>
-                <button className="nr-btn nr-btn-home">Return Home</button>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="unique-products-container">
-            {/* Left Filter Section */}
-            <aside className="unique-filter-panel">
-              <h3 className="unique-filter-title">Filter Products</h3>
-
-              {/* Product Type Filter */}
-              <div className="unique-filter-group">
-                <h4 className="unique-filter-group-title">Product Type</h4>
-                <label className="unique-filter-label">
-                  <input
-                    type="checkbox"
-                    value="dress"
-                    onChange={() => handleProductTypeChange("dress")}
-                  />{" "}
-                  Dress
-                </label>
-                <label className="unique-filter-label">
-                  <input
-                    type="checkbox"
-                    value="chappal"
-                    onChange={() => handleProductTypeChange("chappal")}
-                  />{" "}
-                  Chappal
-                </label>
-              </div>
-
-              {/* Size Filter */}
-              <div className="unique-filter-group">
-                <h4 className="unique-filter-group-title">Sizes</h4>
-                {renderSizeOptions()}
-              </div>
-
-              {/* Price Filter */}
-              <div className="unique-filter-group">
-                <h4 className="unique-filter-group-title">Price Range</h4>
-                <Slider
-                  value={price}
-                  onChange={(e, newValue) => setPrice(newValue)}
-                  valueLabelDisplay="auto"
-                  min={0}
-                  max={1000}
-                />
-                <div className="price-value">
-                  ${price[0]} - ${price[1]}
-                </div>
-              </div>
-
-              {/* Discount Filter */}
-              <div className="unique-filter-group">
-          <h4 className="unique-filter-group-title">Discount</h4>
-          <label className="unique-filter-label">
-            <input
-              type="radio"
-              name="discount"
-              value="10"
-              onChange={() => handleDiscountChange(10)}
-            />{" "}
-            10% or more
-          </label>
-          <label className="unique-filter-label">
-            <input
-              type="radio"
-              name="discount"
-              value="20"
-              onChange={() => handleDiscountChange(20)}
-            />{" "}
-            20% or more
-          </label>
-          <label className="unique-filter-label">
-            <input
-              type="radio"
-              name="discount"
-              value="30"
-              onChange={() => handleDiscountChange(30)}
-            />{" "}
-            30% or more
-          </label>
-        </div>
-
-        {/* Apply Button */}
-        <div className="unique-filter-group">
-          <button onClick={handleApplyFilters} className="unique-apply-button">
-            Apply Filters
+          <h3>No Products Found</h3>
+          <p>We couldn't find any products matching your criteria.</p>
+          <button
+            className="clear-filters-btn"
+            onClick={() => {
+              setSelectedProductType([]);
+              setSelectedDiscount(null);
+              setPrice([0, 1000]);
+              setSortOption("popularity");
+              fetchProducts(true);
+            }}
+          >
+            Clear Filters
           </button>
         </div>
-            </aside>
+      );
+    }
 
-            {/* Main Content Section */}
-            <div className="unique-main-content">
-              {/* Top Sort Section */}
-              <div className="unique-sort-bar">
-                <label
-                  htmlFor="unique-sort-select"
-                  className="unique-sort-label"
-                >
-                  Sort by:
-                </label>
-                <select id="unique-sort-select" className="unique-sort-select">
-                  <option value="popularity">Popularity</option>
-                  <option value="price-low-high">Price: Low to High</option>
-                  <option value="price-high-low">Price: High to Low</option>
-                  <option value="newest">Newest Arrivals</option>
-                </select>
+    return displayedProducts.map((product) => (
+      <motion.div
+        className="product-card"
+        key={product._id}
+        variants={productVariants}
+        whileHover={{ y: -5, transition: { duration: 0.2 } }}
+        onClick={() => handleNavigate(product._id)}
+      >
+        <div className="product-img-container">
+          <img
+            src={`${BASE_URL}/uploads/${product.images[0]}`}
+            alt={product.name}
+            className="product-img"
+            loading="lazy"
+          />
+
+          {product.variants &&
+            product.variants[0]?.offerPrice &&
+            product.variants[0]?.price && (
+              <div className="discount-tag">
+                {Math.round(
+                  ((product.variants[0].price -
+                    product.variants[0].offerPrice) /
+                    product.variants[0].price) *
+                    100
+                )}
+                % OFF
               </div>
+            )}
 
-              {/* Product Cards Section */}
-              <div className="unique-product-list">
-                <div className="allproduct-card-row">
-                  {displayedProducts.map((product) => (
-                    <motion.div
-                      className="allproduct-card"
-                      key={product._id}
-                      variants={cardVariants}
-                      onClick={() => handleNavigate(product._id)}
-                    >
-                      <div className="allproduct-card-image-container">
-                        <img
-                          src={`${BASE_URL}/uploads/${product.images[0]}`}
-                          alt={product.title}
-                          className="allproduct-card-image"
-                          loading="lazy"
-                        />
-                        <motion.div
-                          className={`wishlist-icon ${
-                            wishlist.has(String(product._id)) ? "active" : ""
-                          }`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleWishlist(product._id);
-                          }}
-                          variants={wishlistVariants}
-                          animate={
-                            wishlist.has(String(product._id))
-                              ? "active"
-                              : "inactive"
-                          }
-                        >
-                          <i
-                            className={
-                              wishlist.has(String(product._id))
-                                ? "fa-solid fa-heart"
-                                : "fa-regular fa-heart"
-                            }
-                          ></i>
-                        </motion.div>
-                      </div>
-                      <div className="allproduct-card">
-                        <p className="allproduct-card-title">{product.name}</p>
-                        <div className="allproduct-card-pricing">
-                          <p className="price">₹{product.variants[0].price}</p>
-                          {product.variants[0].offerPrice && (
-                            <p className="offer-price">
-                              ₹{product.variants[0].offerPrice}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
+          <button
+            className={`wishlist-btn ${
+              wishlist.has(String(product._id)) ? "active" : ""
+            }`}
+            onClick={(e) => toggleWishlist(e, product._id)}
+            aria-label={
+              wishlist.has(String(product._id))
+                ? "Remove from wishlist"
+                : "Add to wishlist"
+            }
+          >
+            <i
+              className={
+                wishlist.has(String(product._id))
+                  ? "fas fa-heart"
+                  : "far fa-heart"
+              }
+            ></i>
+          </button>
+        </div>
 
-                  {/* Render invisible fillers if the last row is incomplete */}
-                  {fillers.map((_, index) => (
-                    <div
-                      key={`filler-${index}`}
-                      className="allproduct-card filler"
-                    />
-                  ))}
-                </div>
+        <div className="product-info">
+          <h3 className="product-name">{product.name}</h3>
+          <div className="product-meta">
+            <p className="product-type">{product.productType}</p>
+            {product.averageRating && (
+              <div className="product-rating">
+                <i className="fas fa-star"></i>
+                <span>{product.averageRating.toFixed(1)}</span>
               </div>
+            )}
+          </div>
+          <div className="product-price">
+            {product.variants && product.variants[0]?.offerPrice ? (
+              <>
+                <span className="price-current">
+                  ₹{product.variants[0].offerPrice}
+                </span>
+                <span className="price-original">
+                  ₹{product.variants[0].price}
+                </span>
+              </>
+            ) : product.variants && product.variants[0]?.price ? (
+              <span className="price-current">
+                ₹{product.variants[0].price}
+              </span>
+            ) : (
+              <span className="price-current">Price not available</span>
+            )}
+          </div>
+        </div>
+      </motion.div>
+    ));
+  };
+
+  // Render skeleton loaders
+  const renderSkeletons = () => {
+    return Array(8)
+      .fill()
+      .map((_, index) => (
+        <div className="product-card skeleton" key={`skeleton-${index}`}>
+          <div className="product-img-container">
+            <Skeleton height={250} />
+          </div>
+          <div className="product-info">
+            <Skeleton height={24} width="80%" />
+            <Skeleton height={18} width="50%" />
+            <Skeleton height={22} width="60%" />
+          </div>
+        </div>
+      ));
+  };
+
+  return (
+    <div className="products-page">
+      <div
+        className={`products-container ${isFilterOpen ? "filter-open" : ""}`}
+      >
+        <FilterPanel
+          onApplyFilters={handleApplyFilters}
+          price={price}
+          setPrice={setPrice}
+          selectedProductType={selectedProductType}
+          setSelectedProductType={setSelectedProductType}
+          selectedDiscount={selectedDiscount}
+          setSelectedDiscount={setSelectedDiscount}
+          isFilterOpen={isFilterOpen}
+          setIsFilterOpen={setIsFilterOpen}
+        />
+
+        <main className="products-main">
+          <div className="products-sort-bar">
+            <div className="filter-toggle-container">
+              <button
+                onClick={() => setIsFilterOpen(!isFilterOpen)}
+                className="filter-toggle-btn"
+                aria-label={isFilterOpen ? "Close filters" : "Open filters"}
+              >
+                <i
+                  className={`fas fa-${isFilterOpen ? "times" : "filter"}`}
+                ></i>
+                <span>{isFilterOpen ? "Close Filters" : "Filters"}</span>
+              </button>
+            </div>
+
+            <div className="products-count">
+              {!loading && <span>{totalProducts} Products</span>}
+            </div>
+
+            <div className="sort-control">
+              <label htmlFor="sort-select">Sort by:</label>
+              <select
+                id="sort-select"
+                value={sortOption}
+                onChange={handleSortChange}
+              >
+                <option value="popularity">Popularity</option>
+                <option value="priceAsc">Price: Low to High</option>
+                <option value="priceDesc">Price: High to Low</option>
+                <option value="newest">Newest Arrivals</option>
+                <option value="rating">Customer Rating</option>
+              </select>
             </div>
           </div>
-        )}
-      </motion.div>
-      <ToastContainer></ToastContainer>
+
+          <motion.div
+            className="products-grid"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            {loading && page === 1 ? renderSkeletons() : renderProductCards()}
+
+            {loading && page > 1 && (
+              <div className="loading-more">
+                <div className="spinner"></div>
+                <p>Loading more products...</p>
+              </div>
+            )}
+
+            {!loading && hasMore && (
+              <div ref={ref} className="load-more-trigger"></div>
+            )}
+          </motion.div>
+
+          {error && (
+            <div className="error-message">
+              <p>{error}</p>
+              <button
+                onClick={() => fetchProducts(true)}
+                className="retry-button"
+              >
+                <i className="fas fa-redo"></i> Try Again
+              </button>
+            </div>
+          )}
+
+          {!loading && displayedProducts.length > 0 && !hasMore && (
+            <div className="no-more-products">
+              <p>You've seen all products</p>
+            </div>
+          )}
+        </main>
+      </div>
+
+      <ToastContainer position="bottom-right" autoClose={3000} />
     </div>
   );
 }

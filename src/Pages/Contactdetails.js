@@ -9,8 +9,7 @@ function Contactdetails() {
   const [formData, setFormData] = useState({
     firstName: "",
     phone: "",
-    location: "",
-    email:"",
+    email: "",
     gender: "",
   });
   const [loading, setLoading] = useState(false);
@@ -18,21 +17,21 @@ function Contactdetails() {
   const [error, setError] = useState("");
   const [coin, setCoin] = useState(0);
 
-
   const fetchProfile = useCallback(async () => {
     setLoading(true);
     try {
       const response = await getProfileApi();
+      console.log("profile",response);
+      
       if (response.success && response.data.user) {
         const user = response.data.user;
         setFormData({
           firstName: user.name || "",
           phone: user.phone || "",
           email: user.email || "",
-          location: user.location || "",
           gender: user.gender || "",
         });
-        setCoin(user.coins || 0); // Add this line
+        setCoin(user.coins || 0); 
       } else {
         setError(response.error || "Failed to fetch profile");
       }
@@ -60,7 +59,6 @@ function Contactdetails() {
         name: formData.firstName,
         phone: formData.phone,
         email: formData.email,
-        location: formData.location,
         gender: formData.gender,
       };
       const response = await updateProfileApi(profileData);
@@ -77,7 +75,6 @@ function Contactdetails() {
       setSaving(false);
     }
   };
-  
 
   return (
     <div>
@@ -91,22 +88,40 @@ function Contactdetails() {
           <Form className="mt-3 p-4">
             <div className="contact-details-container">
               <img className="contact-details-img" src={cd} alt="Profile" />
-              <button type="button" className="edit-profile-button">Edit Profile</button>
+              <button type="button" className="edit-profile-button">
+                Edit Profile
+              </button>
             </div>
             <div className="coin-display d-flex align-items-center mb-3">
-      <div className="coin-icon" style={{
-        width: '20px',
-        height: '20px',
-        backgroundColor: 'gold',
-        borderRadius: '50%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'black' }}>C</span>
-      </div>
-      <span className="coin-amount ms-2 fw-bold" style={{ fontSize: '16px' }}>{coin ?? 0}</span>
-    </div>
+              <div
+                className="coin-icon"
+                style={{
+                  width: "20px",
+                  height: "20px",
+                  backgroundColor: "gold",
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: "bold",
+                    color: "black",
+                  }}
+                >
+                  C
+                </span>
+              </div>
+              <span
+                className="coin-amount ms-2 fw-bold"
+                style={{ fontSize: "16px" }}
+              >
+                {coin ?? 0}
+              </span>
+            </div>
 
             {error && <p className="text-danger text-center">{error}</p>}
 
@@ -121,7 +136,11 @@ function Contactdetails() {
                     onChange={handleChange}
                     className="custom-placeholder"
                     placeholder="Enter Name"
-                    style={{ border: "1px solid #9F9F9F", borderRadius: "12px", padding: "10px" }}
+                    style={{
+                      border: "1px solid #9F9F9F",
+                      borderRadius: "12px",
+                      padding: "10px",
+                    }}
                   />
                 </Form.Group>
               </Col>
@@ -137,7 +156,11 @@ function Contactdetails() {
                     onChange={handleChange}
                     className="custom-placeholder"
                     placeholder="Enter Name"
-                    style={{ border: "1px solid #9F9F9F", borderRadius: "12px", padding: "10px" }}
+                    style={{
+                      border: "1px solid #9F9F9F",
+                      borderRadius: "12px",
+                      padding: "10px",
+                    }}
                   />
                 </Form.Group>
               </Col>
@@ -152,27 +175,20 @@ function Contactdetails() {
                 onChange={handleChange}
                 className="custom-placeholder"
                 placeholder="Enter Phone Number"
-                style={{ border: "1px solid #9F9F9F", borderRadius: "12px", padding: "10px" }}
+                style={{
+                  border: "1px solid #9F9F9F",
+                  borderRadius: "12px",
+                  padding: "10px",
+                }}
               />
             </Form.Group>
 
-            <Form.Group controlId="location" className="mb-3">
-              <Form.Label className="form-head">Location</Form.Label>
-              <Form.Control
-                type="text"
-                name="location"
-                value={formData.location}
-                onChange={handleChange}
-                className="custom-placeholder"
-                placeholder="Enter Location"
-                style={{ border: "1px solid #9F9F9F", borderRadius: "12px", padding: "10px" }}
-              />
-            </Form.Group>
+         
 
             <Form.Group controlId="gender" className="mb-3">
               <Form.Label className="form-head">Gender</Form.Label>
               <div style={{ display: "flex" }}>
-                {['male', 'female', 'other'].map((g) => (
+                {["male", "female", "other"].map((g) => (
                   <Form.Check
                     key={g}
                     inline
@@ -195,14 +211,32 @@ function Contactdetails() {
                 onClick={handleSave}
                 disabled={saving}
               >
-                {saving ? (<Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />) : "Save Changes"}
+                {saving ? (
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                  />
+                ) : (
+                  "Save Changes"
+                )}
               </button>
             </div>
           </Form>
         </div>
       )}
-          <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover />
-
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 }

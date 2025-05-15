@@ -15,7 +15,7 @@
 .lowest-cards-container {
     display: grid;
     grid-template-columns: repeat(3, 1fr); /* 3 cards per row for large screens */
-    gap: 25px; 
+    gap: 25px;
 }
 
 .lowest-card {
@@ -24,11 +24,11 @@
     background-position: center;
     border-radius: 10px;
     width: 100%;
-    aspect-ratio: 1; 
+    aspect-ratio: 1;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    padding: 10px; 
+    justify-content: flex-start;
+    padding: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     overflow: hidden;
 }
@@ -36,13 +36,20 @@
 .lowest-card-content {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    flex-grow: 1;
+    justify-content: flex-start;
+    z-index: 1;
+}
+
+.lowest-text {
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 12px;
+    border-radius: 8px;
+    width: fit-content;
 }
 
 .lowest-card-title {
     font-family: 'Inter', sans-serif;
-    font-size: 16px; 
+    font-size: 16px;
     font-weight: 500;
     line-height: 24px;
     text-align: left;
@@ -52,20 +59,12 @@
 
 .lowest-card-sub-title {
     font-family: 'Inter', sans-serif;
-    font-size: 20px; 
+    font-size: 20px;
     font-weight: 600;
     line-height: 28px;
     text-align: left;
     color: #2D2E2E;
-}
-
-.lowest-card-image {
-    position: absolute;
-    bottom: 0px; 
-    right: 10px; 
-    width: auto; 
-    height: 80%; 
-    object-fit: contain;
+    margin: 0;
 }
 
 /* Medium screens (between 768px and 1024px) */
@@ -73,11 +72,11 @@
     .lowest-cards-container {
         grid-template-columns: repeat(2, 1fr); /* 2 cards per row */
     }
-
+    
     .lowestheading {
         font-size: 28px; /* Adjust heading size */
     }
-
+    
     .lowest {
         padding: 30px;
     }
@@ -88,13 +87,13 @@
     .lowest-cards-container {
         grid-template-columns: repeat(2, 1fr); /* 2 cards per row */
     }
-
+    
     .lowestheading {
         font-size: 24px;
     }
-
+    
     .lowest {
-        padding:0 30px;
+        padding: 0 30px;
     }
 }
 
@@ -103,12 +102,12 @@
     .lowest-cards-container {
         grid-template-columns: 1fr; /* 1 card per row */
     }
-
+    
     .lowestheading {
         font-size: 24px;
     }
-
+    
     .lowest {
-        padding:0 30px;
+        padding: 0 30px;
     }
 }

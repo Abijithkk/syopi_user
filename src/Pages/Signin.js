@@ -1,16 +1,69 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { toast, Toaster } from "react-hot-toast";
 import signimg from "../images/Landing.jpeg";
 import "./signin.css";
-import { userLoginApi } from "../services/allApi";
-import { toast, ToastContainer } from "react-toastify";
+import { userLoginApi, googleLoginApi } from "../services/allApi";
+import { BASE_URL } from "../services/baseUrl";
 
 function Signin() {
   const [emailOrPhone, setEmailOrPhone] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const handleGoogleCallback = async () => {
+      const urlParams = new URLSearchParams(location.search);
+      const code = urlParams.get('code');
+      
+      if (code) {
+        setGoogleLoading(true);
+        const loadingToast = toast.loading("Completing Google sign-in...");
+        
+        try {
+          const response = await fetch(`${BASE_URL}/user/auth/google/callback?code=` + code, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          const data = await response.json();
+          
+          if (data && data.token) {
+            // Store authentication data
+            localStorage.setItem("userId", data.user.userId);
+            localStorage.setItem("accessuserToken", data.token);
+            localStorage.setItem("username", data.user.name);
+            localStorage.setItem("email", data.user.email);
+            
+            toast.success("Google sign-in successful!");
+            // Use a setTimeout to ensure the toast is visible before navigation
+            setTimeout(() => {
+              navigate("/");
+            }, 1000);
+          } else {
+            toast.error("Failed to complete Google sign-in");
+          }
+        } catch (error) {
+          console.error("Google Callback Error:", error);
+          toast.error(error.response?.data?.message || "Failed to authenticate with Google");
+        } finally {
+          toast.dismiss(loadingToast);
+          setGoogleLoading(false);
+          
+          // Clear the URL to remove the code
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      }
+    };
+
+    handleGoogleCallback();
+  }, [location, navigate]);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -23,38 +76,55 @@ function Signin() {
       toast.error("Please enter email/phone and password");
       return;
     }
+    
     setLoading(true);
+    const loadingToast = toast.loading("Signing you in...");
 
     try {
       const response = await userLoginApi({ emailOrPhone, password });
-  
-      console.log("Login Response:", response); // ✅ Debugging
-  
-      if (response.status === 200 && response.success) {
+      
+      console.log("Login Response:", response);
+      
+      // Check if login was successful based on the response structure you showed
+      if (response.success && response.status === 200) {
+        // Extract data from the response
+        const { accessToken, refreshToken, user } = response.data;
+        
+        // Store tokens and user data in localStorage
+        localStorage.setItem("userId", user?.id || user?.userId);
+        localStorage.setItem("accessuserToken", accessToken);
+        localStorage.setItem("refreshToken", refreshToken);
+        localStorage.setItem("username", user?.name || user?.username);
+        localStorage.setItem("email", user?.email);
+        
         toast.success("Login successful!");
-        localStorage.setItem("userId", response.data.user.userId);
-        localStorage.setItem("accessuserToken", response.data.accessToken);
-        localStorage.setItem("refreshuserToken", response.data.refreshToken);
-        navigate("/");
+        
+        // Use setTimeout to ensure the toast is visible before navigation
+        setTimeout(() => {
+          navigate("/");
+        }, 1000);
       } else {
-        // ✅ Show error message from response
-        const errorMessage = response.error?.message || response.message || "Login failed!";
+        // Show error message from response
+        const errorMessage = response.data?.error?.message || response.data?.message || "Login failed!";
         toast.error(errorMessage);
       }
     } catch (error) {
-      console.error("Login Error:", error); // ✅ Debugging
-  
-      toast.error("Something went wrong. Please try again.");
-    }
-    finally{
+      console.error("Login Error:", error);
+      toast.error(error.response?.data?.message || "Something went wrong. Please try again.");
+    } finally {
+      toast.dismiss(loadingToast);
       setLoading(false);
-
     }
   };
   
-  
-  
-  
+  // Handle Google Sign-In
+  const handleGoogleSignIn = () => {
+    setGoogleLoading(true);
+    
+    // Redirect to your backend's Google OAuth route
+    // This should be the URL returned by googleLoginApi()
+    window.location.href = googleLoginApi();
+  };
 
   return (
     <div className="signin-container">
@@ -88,15 +158,25 @@ function Signin() {
             <a href="/forget">Forgot Password?</a>
           </div>
 
-          <button type="submit" className="signin-btn" disabled={loading}>  {loading ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : "Sign In"}
+          <button type="submit" className="signin-btn" disabled={loading}>
+            {loading ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : "Sign In"}
           </button>
         </form>
 
         <div className="signin-alternatives">
           <button className="or">Or</button>
-          <button className="social-btn google">
+          <button 
+            className="social-btn google"
+            onClick={handleGoogleSignIn}
+            disabled={googleLoading}
+          >
             <span className="icon google-icon"></span>
-            <span className="textt">Sign in with Google</span>
+            <span className="textt">
+              {googleLoading ? 
+                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : 
+                "Sign in with Google"
+              }
+            </span>
           </button>
           <button className="social-btn facebook">
             <span className="icon facebook-icon"></span>
@@ -116,7 +196,48 @@ function Signin() {
       <div className="signin-right">
         <img src={signimg} alt="Sign In" />
       </div>
-      <ToastContainer></ToastContainer>
+      
+      {/* React Hot Toast container with improved configuration */}
+      <Toaster
+        position="top-center"
+        reverseOrder={false}
+        gutter={8}
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#333',
+            color: '#fff',
+            padding: '16px',
+            borderRadius: '8px',
+          },
+          success: {
+            duration: 3000,
+            style: {
+              background: '#10B981',
+            },
+            iconTheme: {
+              primary: '#fff',
+              secondary: '#10B981',
+            },
+          },
+          error: {
+            duration: 4000,
+            style: {
+              background: '#EF4444',
+            },
+            iconTheme: {
+              primary: '#fff',
+              secondary: '#EF4444',
+            },
+          },
+          loading: {
+            duration: Infinity,
+            style: {
+              background: '#333',
+            },
+          },
+        }}
+      />
     </div>
   );
 }

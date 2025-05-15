@@ -6,8 +6,9 @@ import fb1 from '../images/Fbrand1.jpeg';
 import fb2 from '../images/Fbrand2.jpeg';
 import fb3 from '../images/Fbrand3.jpeg';
 import fb4 from '../images/Fbrand4.jpeg';
+import { BASE_URL } from '../services/baseUrl';
 
-function Featuringbrands() {
+function Featuringbrands({brands}) {
   const [wishlist, setWishlist] = useState({});
 
   const products = [
@@ -69,7 +70,7 @@ function Featuringbrands() {
 
       {/* Animated Cards */}
       <div className="feature-brand-card-row" ref={cardsRef}>
-        {products.map((product, index) => (
+        {brands.map((product, index) => (
           <motion.div
             className="feature-brand-card"
             key={product.id}
@@ -79,7 +80,11 @@ function Featuringbrands() {
             variants={cardVariants}
           >
             <div className="feature-card-brand-image-container">
-              <img src={product.image} alt={product.title} className="feature-brand-card-image" />
+            <img
+  src={`${BASE_URL}/uploads/${encodeURIComponent(product.images[0])}`}
+  alt={product.title}
+  className="feature-brand-card-image"
+/>
               <div
                 className={`brand-wishlist-icon ${wishlist[product.id] ? 'active' : ''}`}
                 onClick={() => toggleWishlist(product.id)}
@@ -87,7 +92,7 @@ function Featuringbrands() {
                 <i className={wishlist[product.id] ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}></i>
               </div>
             </div>
-            <p className="feature-brand-card-title">{product.title}</p>
+            <p className="feature-brand-card-title">{product.name}</p>
             <p className="feature-brand-card-description">{product.description}</p>
           </motion.div>
         ))}

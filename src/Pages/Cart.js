@@ -31,12 +31,15 @@ function Cart() {
 
   const fetchCart = async () => {
     const userId = localStorage.getItem("userId");
+
     if (!userId) {
       setLoading(false);
       return;
     }
 
     const response = await getUserCartApi(userId);
+    console.log("cart", response);
+
     if (response.success) {
       setCartData(response.data);
     } else {
@@ -45,68 +48,68 @@ function Cart() {
     setLoading(false);
   };
 
-const handleQuantityChange = async (itemId, productId, action) => {
-  const userId = localStorage.getItem("userId");
-  if (!userId) return;
+  const handleQuantityChange = async (itemId, productId, action) => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) return;
 
-  // Set loading state for this item
-  setLoadingItems((prev) => ({ ...prev, [itemId]: true }));
+    // Set loading state for this item
+    setLoadingItems((prev) => ({ ...prev, [itemId]: true }));
 
-  // Optimistic update: Update local state immediately before API response
-  setCartData((prevCartData) => {
-    const updatedItems = prevCartData.items.map((item) => {
-      if (item._id === itemId) {
-        const newQuantity = action === "increment" 
-          ? item.quantity + 1 
-          : item.quantity - 1;
-        
-        
-        return {
-          ...item,
-          quantity: newQuantity
-        };
-      }
-      return item;
+    // Optimistic update: Update local state immediately before API response
+    setCartData((prevCartData) => {
+      const updatedItems = prevCartData.items.map((item) => {
+        if (item._id === itemId) {
+          const newQuantity =
+            action === "increment" ? item.quantity + 1 : item.quantity - 1;
+
+          return {
+            ...item,
+            quantity: newQuantity,
+          };
+        }
+        return item;
+      });
+
+      // Calculate new cart totals
+      const newSubtotal =
+        prevCartData.subtotal +
+        (action === "increment"
+          ? updatedItems.find((item) => item._id === itemId).productId.price
+          : -updatedItems.find((item) => item._id === itemId).productId.price);
+
+      // Recalculate total price (assuming discount doesn't change)
+      const newTotalPrice = newSubtotal - prevCartData.discount;
+
+      return {
+        ...prevCartData,
+        items: updatedItems,
+        subtotal: newSubtotal,
+        totalPrice: newTotalPrice,
+      };
     });
 
-    // Calculate new cart totals
-    const newSubtotal = prevCartData.subtotal + (action === "increment" ? 
-      updatedItems.find(item => item._id === itemId).productId.price : 
-      -updatedItems.find(item => item._id === itemId).productId.price);
-    
-    // Recalculate total price (assuming discount doesn't change)
-    const newTotalPrice = newSubtotal - prevCartData.discount;
+    // Make API call in background
+    const response = await updateCartQuantityApi(
+      userId,
+      productId,
+      itemId,
+      action
+    );
 
-    return {
-      ...prevCartData,
-      items: updatedItems,
-      subtotal: newSubtotal,
-      totalPrice: newTotalPrice
-    };
-  });
+    // Remove loading state after API response
+    setLoadingItems((prev) => ({ ...prev, [itemId]: false }));
 
-  // Make API call in background
-  const response = await updateCartQuantityApi(
-    userId,
-    productId,
-    itemId,
-    action
-  );
-
-  // Remove loading state after API response
-  setLoadingItems((prev) => ({ ...prev, [itemId]: false }));
-
-  if (response.success) {
-    // Optionally fetch cart data to ensure sync with server
-    // You could do this less frequently, not on every quantity change
-    fetchCart(); 
-  } else {
-    // Revert the optimistic update if the API call fails
-    fetchCart();
-    console.error(response.error);
-    // You might want to show an error message to the user here
-  }
-};
+    if (response.success) {
+      // Optionally fetch cart data to ensure sync with server
+      // You could do this less frequently, not on every quantity change
+      fetchCart();
+    } else {
+      // Revert the optimistic update if the API call fails
+      fetchCart();
+      console.error(response.error);
+      // You might want to show an error message to the user here
+    }
+  };
   const handleRemoveItem = async (itemId) => {
     const userId = localStorage.getItem("userId");
     if (!userId) return;
@@ -140,10 +143,14 @@ const handleQuantityChange = async (itemId, productId, action) => {
         toast.success("Checkout successful!");
         navigate(`/address/${response.data.checkout._id}`);
       } else {
-        throw new Error(response?.error || "Checkout failed. Please try again.");
+        throw new Error(
+          response?.error || "Checkout failed. Please try again."
+        );
       }
     } catch (error) {
-      toast.error(error.message || "An unexpected error occurred. Please try again.");
+      toast.error(
+        error.message || "An unexpected error occurred. Please try again."
+      );
     } finally {
       setCheckoutLoading(false); // Stop checkout loading
     }
@@ -157,7 +164,7 @@ const handleQuantityChange = async (itemId, productId, action) => {
           <Col xs={12} md={7} className="cart-left-column mb-4 mb-md-0">
             {loading ? (
               <Skeleton count={3} height={140} className="mb-3" />
-            ) : cartData?.items?.length > 0 ?(
+            ) : cartData?.items?.length > 0 ? (
               cartData?.items?.map((item) => (
                 <Card
                   className="cart-item mb-4 p-3 border-0 shadow-sm"
@@ -166,81 +173,125 @@ const handleQuantityChange = async (itemId, productId, action) => {
                   <Row className="align-items-center">
                     <Col xs={12} sm={4} className="mb-3 mb-sm-0">
                       <img
-                        src={`${BASE_URL}/uploads/${item.productId.images[0]}`}
-                        alt={item.productId.name}
+                        src={
+                          item?.productId?.images?.[0]
+                            ? `${BASE_URL}/uploads/${item.productId.images[0]}`
+                            : "/placeholder.jpg"
+                        }
+                        alt={item?.productId?.name || "Product Image"}
                         className="cart-image img-fluid rounded"
                       />
                     </Col>
                     <Col xs={12} sm={8}>
                       <Card.Body className="p-0">
                         <Card.Title className="cart-title">
-                          {item.productId.name}
+                          {item?.productId?.name || "Product "}
                         </Card.Title>
                         <Card.Text>
-      <p className="color-size">Color: {item.color}</p>
-      <p className="color-size">Size: {item.size}</p>
-      
-      <div className="cart-quantity">
-        <div className="quantity-wrapper flex items-center space-x-2">
-          {/* Decrement button with improved loading state */}
-          <button
-            className={`quantity-btn minus w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
-              isLoading ? 'bg-gray-100 cursor-not-allowed' : 'hover:bg-gray-100 active:bg-gray-200'
-            }`}
-            onClick={() => handleQuantityChange(item._id, item.productId._id, "decrement")}
-            disabled={item.quantity <= 1 || isLoading}
-            aria-label="Decrease quantity"
-          >
-            <Minus className={`w-4 h-4 ${isLoading ? 'text-gray-400' : 'text-gray-600'}`} />
-          </button>
-          
-          {/* Quantity display with subtle loading indicator */}
-          <div className="relative">
-            <span className={`quantity-number font-medium ${isLoading ? 'text-gray-400' : 'text-gray-800'}`}>
-              {item.quantity}
-            </span>
-            {isLoading && (
-              <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gray-200 overflow-hidden">
-                <div className="loading-bar h-full bg-blue-500 animate-pulse"></div>
-              </div>
-            )}
-          </div>
-          
-          {/* Increment button with improved loading state */}
-          <button
-            className={`quantity-btn plus w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
-              isLoading ? 'bg-gray-100 cursor-not-allowed' : 'hover:bg-gray-100 active:bg-gray-200'
-            }`}
-            onClick={() => handleQuantityChange(item._id, item.productId._id, "increment")}
-            disabled={isLoading}
-            aria-label="Increase quantity"
-          >
-            <Plus className={`w-4 h-4 ${isLoading ? 'text-gray-400' : 'text-gray-600'}`} />
-          </button>
-        </div>
-      </div>
-      
-      <p className="cart-delivery text-sm text-gray-500 mt-2">
-        Delivery: Free Delivery
-      </p>
-      
-      {/* Remove Button with improved loading state */}
-      <button
-        onClick={() => handleRemoveItem(item._id)}
-        disabled={removeLoading || isLoading}
-        className={`btn p-2 rounded-full transition-all duration-200 ${
-          removeLoading ? 'bg-red-50 cursor-not-allowed' : 'hover:bg-red-50'
-        }`}
-        aria-label="Remove item"
-      >
-        <Trash2 className={`w-5 h-5 ${removeLoading ? 'text-red-300' : 'text-red-500'}`} />
-        {removeLoading && (
-          <span className="absolute inset-0 flex items-center justify-center">
-            <div className="w-4 h-4 border-2 border-red-200 border-t-red-500 rounded-full animate-spin"></div>
-          </span>
-        )}
-      </button>
-    </Card.Text>
+                          <p className="color-size">Color: {item.color}</p>
+                          <p className="color-size">Size: {item.size}</p>
+
+                          <div className="cart-quantity">
+                            <div className="quantity-wrapper flex items-center space-x-2">
+                              {/* Decrement button with improved loading state */}
+                              <button
+                                className={`quantity-btn minus w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
+                                  isLoading
+                                    ? "bg-gray-100 cursor-not-allowed"
+                                    : "hover:bg-gray-100 active:bg-gray-200"
+                                }`}
+                                onClick={() =>
+                                  handleQuantityChange(
+                                    item._id,
+                                    item.productId._id,
+                                    "decrement"
+                                  )
+                                }
+                                disabled={item.quantity <= 1 || isLoading}
+                                aria-label="Decrease quantity"
+                              >
+                                <Minus
+                                  className={`w-4 h-4 ${
+                                    isLoading
+                                      ? "text-gray-400"
+                                      : "text-gray-600"
+                                  }`}
+                                />
+                              </button>
+
+                              {/* Quantity display with subtle loading indicator */}
+                              <div className="relative">
+                                <span
+                                  className={`quantity-number font-medium ${
+                                    isLoading
+                                      ? "text-gray-400"
+                                      : "text-gray-800"
+                                  }`}
+                                >
+                                  {item.quantity}
+                                </span>
+                                {isLoading && (
+                                  <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gray-200 overflow-hidden">
+                                    <div className="loading-bar h-full bg-blue-500 animate-pulse"></div>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Increment button with improved loading state */}
+                              <button
+                                className={`quantity-btn plus w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
+                                  isLoading
+                                    ? "bg-gray-100 cursor-not-allowed"
+                                    : "hover:bg-gray-100 active:bg-gray-200"
+                                }`}
+                                onClick={() =>
+                                  handleQuantityChange(
+                                    item._id,
+                                    item.productId._id,
+                                    "increment"
+                                  )
+                                }
+                                disabled={isLoading}
+                                aria-label="Increase quantity"
+                              >
+                                <Plus
+                                  className={`w-4 h-4 ${
+                                    isLoading
+                                      ? "text-gray-400"
+                                      : "text-gray-600"
+                                  }`}
+                                />
+                              </button>
+                            </div>
+                          </div>
+
+                          <p className="cart-delivery text-sm text-gray-500 mt-2">
+                            Delivery: Free Delivery
+                          </p>
+
+                          {/* Remove Button with improved loading state */}
+                          <button
+                            onClick={() => handleRemoveItem(item._id)}
+                            disabled={removeLoading || isLoading}
+                            className={`btn p-2 rounded-full transition-all duration-200 ${
+                              removeLoading
+                                ? "bg-red-50 cursor-not-allowed"
+                                : "hover:bg-red-50"
+                            }`}
+                            aria-label="Remove item"
+                          >
+                            <Trash2
+                              className={`w-5 h-5 ${
+                                removeLoading ? "text-red-300" : "text-red-500"
+                              }`}
+                            />
+                            {removeLoading && (
+                              <span className="absolute inset-0 flex items-center justify-center">
+                                <div className="w-4 h-4 border-2 border-red-200 border-t-red-500 rounded-full animate-spin"></div>
+                              </span>
+                            )}
+                          </button>
+                        </Card.Text>
                       </Card.Body>
                     </Col>
                   </Row>
@@ -249,36 +300,33 @@ const handleQuantityChange = async (itemId, productId, action) => {
             ) : (
               // Show "No Products" Message and Continue Shopping Button
               <div className="empty-cart-container">
-              <div className="icon-container-empty">
-                <div className="icon-background" />
-                <ShoppingBag className="shopping-icon" />
+                <div className="icon-container-empty">
+                  <div className="icon-background" />
+                  <ShoppingBag className="shopping-icon" />
+                </div>
+
+                <h2 className="empty-cart-title">Your Cart is Empty</h2>
+
+                <p className="empty-cart-description">
+                  Looks like you haven't added anything to your cart yet.
+                  Discover our amazing products and start shopping!
+                </p>
+
+                <button
+                  onClick={() => (window.location.href = "/")}
+                  className="shopping-button"
+                >
+                  <ShoppingBag className="button-icon" />
+                  <span>Continue Shopping</span>
+                  <div className="button-overlay" />
+                </button>
+
+                <div className="decorative-blobs">
+                  <div className="blob blob-1" />
+                  <div className="blob blob-2" />
+                  <div className="blob blob-3" />
+                </div>
               </div>
-        
-              <h2 className="empty-cart-title">
-                Your Cart is Empty
-              </h2>
-              
-              <p className="empty-cart-description">
-                Looks like you haven't added anything to your cart yet. 
-                Discover our amazing products and start shopping!
-              </p>
-        
-              <button
-                onClick={() => window.location.href = '/'}
-                className="shopping-button"
-              >
-                <ShoppingBag className="button-icon" />
-                <span>Continue Shopping</span>
-                <div className="button-overlay" />
-              </button>
-        
-              <div className="decorative-blobs">
-                <div className="blob blob-1" />
-                <div className="blob blob-2" />
-                <div className="blob blob-3" />
-              </div>
-            </div>
-            
             )}
           </Col>
 
@@ -288,8 +336,9 @@ const handleQuantityChange = async (itemId, productId, action) => {
               <Card.Body>
                 <div className="cart-points-info text-center bg-light p-3">
                   <p className="m-0 cart-points">
-                        1 Point = 1 Rupee: For example, if you have 40 points, you can use them as 40 rupees on your purchase.
-                      </p>
+                    1 Point = 1 Rupee: For example, if you have 40 points, you
+                    can use them as 40 rupees on your purchase.
+                  </p>
                   <button className="checkout-button1 mt-2">
                     Claim with Syopi points
                   </button>
@@ -327,16 +376,20 @@ const handleQuantityChange = async (itemId, productId, action) => {
                 </Card.Text>
 
                 <button
-      className="w-100 mb-2 checkout-button"
-      onClick={handleCheckout}
-      disabled={checkoutLoading}
-    >
-      {checkoutLoading ? (
-        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-      ) : (
-        "Checkout"
-      )}
-    </button>
+                  className="w-100 mb-2 checkout-button"
+                  onClick={handleCheckout}
+                  disabled={checkoutLoading}
+                >
+                  {checkoutLoading ? (
+                    <span
+                      className="spinner-border spinner-border-sm me-2"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                  ) : (
+                    "Checkout"
+                  )}
+                </button>
               </Card.Body>
             </Card>
           </Col>

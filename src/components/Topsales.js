@@ -1,21 +1,13 @@
 import './Topsales.css';
-import Ts1 from '../images/Ts1.jpeg';
-import Ts2 from '../images/Ts2.jpeg';
-import Ts3 from '../images/Ts3.jpeg';
-import Ts4 from '../images/Ts4.jpeg';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { useRef, useState, useEffect } from 'react';
+import { BASE_URL } from '../services/baseUrl';
 
-function Topsales() {
-  const products = [
-    { id: 1, image: Ts1, title: 'Flash Sale' },
-    { id: 2, image: Ts2, title: 'Flash Sale' },
-    { id: 3, image: Ts3, title: 'Flash Sale' },
-    { id: 4, image: Ts4, title: 'Flash Sale' },
-    { id: 5, image: Ts3, title: 'Flash Sale' },
-    { id: 6, image: Ts2, title: 'Flash Sale' },
-  ];
+function Topsales({products}) {
+console.log("top-sales",products);
+
+
 
   const { ref, inView } = useInView({
     triggerOnce: false,
@@ -101,10 +93,10 @@ function Topsales() {
         {products.map((product) => (
           <motion.div className="top-sales-card" key={product.id} variants={cardVariants} layout>
             <div className="top-sales-card-image-container">
-              <img src={product.image} alt={product.title} className="Top-sales-card-image" />
+              <img src={`${BASE_URL}/uploads/${product.image}`} alt={product.title} className="Top-sales-card-image" />
               <div className="card-text-overlay">
                 <p className="topsalesheading">{product.title}</p>
-                <p className="topsalessubheading">Men's Outfit</p>
+                <p className="topsalessubheading">{product.description}</p>
               </div>
             </div>
           </motion.div>

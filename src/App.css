@@ -1,11 +1,10 @@
 .home {
-    background-color: #F2F6FF; 
+    background-color: #d5fff921; 
 }
-/* App.css */
 html {
     scroll-behavior: smooth;
     overflow-y: scroll;
-    -webkit-overflow-scrolling: touch; /* Improves smoothness on mobile */
+    -webkit-overflow-scrolling: touch;
   }
   
   .home {

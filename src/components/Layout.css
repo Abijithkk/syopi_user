@@ -1,0 +1,8 @@
+:root {
+    --header-height: 0px; /* Default value, will be updated by JS */
+  }
+  
+  .content-container {
+    margin-top: var(--header-height); /* Use the dynamic header height */
+  }
+  

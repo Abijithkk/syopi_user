@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import ContentLoader from 'react-content-loader';
-import './Similarproduct.css';
-import { getSimilarProductApi } from '../services/allApi';
-import { BASE_URL } from '../services/baseUrl';
+import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import ContentLoader from "react-content-loader";
+import "./Similarproduct.css";
+import { getSimilarProductApi } from "../services/allApi";
+import { BASE_URL } from "../services/baseUrl";
 
 function SimilarProduct() {
   const { id } = useParams();
@@ -18,22 +18,21 @@ function SimilarProduct() {
     }
   }, [id]);
   const fetchSimilarProducts = async (productId) => {
-    setLoading(true); // Start loading
+    setLoading(true);
     try {
       const response = await getSimilarProductApi(productId);
       console.log("similar", response);
-  
-      if (response.status === 200 && Array.isArray(response.data.products)) { 
+
+      if (response.status === 200 && Array.isArray(response.data.products)) {
         setProducts(response.data.products);
       } else {
-        setProducts([]); // Set an empty array if no products are found
+        setProducts([]);
       }
     } catch (error) {
       console.error("Error fetching similar products:", error);
     }
     setLoading(false); // Stop loading
   };
-  
 
   const toggleWishlist = (productId) => {
     setWishlist((prev) => ({
@@ -41,15 +40,13 @@ function SimilarProduct() {
       [productId]: !prev[productId],
     }));
   };
-   const handleNavigate = useCallback(
-      (id) => {
-        navigate(`/product/${id}`);
-        window.scrollTo(0, 0); // Scroll to the top
-
-      },
-      [navigate]
-    );
-  
+  const handleNavigate = useCallback(
+    (id) => {
+      navigate(`/product/${id}`);
+      window.scrollTo(0, 0); // Scroll to the top
+    },
+    [navigate]
+  );
 
   return (
     <div className="similar-product">
@@ -63,8 +60,11 @@ function SimilarProduct() {
       ) : products.length > 0 ? (
         <div className="similar-card-row">
           {products.map((product) => (
-            <div className="similar-card" key={product._id}               onClick={() => handleNavigate(product._id)}
->
+            <div
+              className="similar-card"
+              key={product._id}
+              onClick={() => handleNavigate(product._id)}
+            >
               <div className="similar-card-image-container">
                 <img
                   src={`${BASE_URL}/uploads/${product.images[0]}`}
@@ -72,13 +72,31 @@ function SimilarProduct() {
                   className="similar-card-image"
                 />
                 <div
-                  className={`wishlist-icon ${wishlist[product._id] ? 'active' : ''}`}
+                  className={`wishlist-icon ${
+                    wishlist[product._id] ? "active" : ""
+                  }`}
                   onClick={() => toggleWishlist(product._id)}
                 >
-                  <i className={wishlist[product._id] ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}></i>
+                  <i
+                    className={
+                      wishlist[product._id]
+                        ? "fa-solid fa-heart"
+                        : "fa-regular fa-heart"
+                    }
+                  ></i>
                 </div>
               </div>
-              <p className="similar-card-title">{product.name}</p>
+              <p className="similar-card-title">
+                {product.name.length > 25
+                  ? product.name.slice(0, 25) + "..."
+                  : product.name}
+              </p>
+              <p className="similar-card-title">
+                ₹
+                {product?.variants?.length > 0
+                  ? product.variants[0].offerPrice
+                  : product.defaultPrice}
+              </p>
             </div>
           ))}
         </div>
@@ -86,8 +104,12 @@ function SimilarProduct() {
         <div className="no-products">No similar products found.</div>
       )}
 
-      <button className="product-prev" type="button">&#10094;</button>
-      <button className="product-next" type="button">&#10095;</button>
+      <button className="product-prev" type="button">
+        &#10094;
+      </button>
+      <button className="product-next" type="button">
+        &#10095;
+      </button>
     </div>
   );
 }

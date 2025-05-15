@@ -3,11 +3,13 @@ import tr1 from '../images/tr1.jpeg';
 import tr2 from '../images/tr2.jpeg';
 import tr3 from '../images/tr3.jpeg';
 import tr4 from '../images/tr4.jpeg';
+import { BASE_URL } from '../services/baseUrl';
 
 
-function Trending() {
+function Trending({products}) {
+console.log("trending",products);
 
-  const products = [
+  const products3 = [
     { id: 1, image: tr1, title: 'Product 1', description: 'This is product 1' },
     { id: 2, image: tr2, title: 'Product 2', description: 'This is product 2' },
     { id: 3, image: tr3, title: 'Product 3', description: 'This is product 3' },
@@ -24,11 +26,11 @@ function Trending() {
         {products.map((product) => (
           <div className="trending-card" key={product.id}>
             <div className="trending-card-image-container">
-              <img src={product.image} alt={product.title} className="trending-card-image" />
+              <img src={`${BASE_URL}/uploads/${product.image}`} alt={product.title} className="trending-card-image" />
              
             </div>
-            <p className="trending-card-title">{product.title}</p>
-            <p className="trending-card-description">{product.description}</p>
+            <p className="trending-card-title">{product.description}</p>
+            <p className="trending-card-description">From {product.affordablePrice}</p>
           </div>
         ))}
       </div>
