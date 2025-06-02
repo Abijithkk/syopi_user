@@ -112,26 +112,36 @@
     cursor: pointer;
     transition: transform 0.2s, background-color 0.2s;
 }
-.feature-brand-card-title {
-    font-family: 'Inter', sans-serif;
-    font-size: 18px; 
-    font-weight: 400;
-    line-height: 28px;
-    text-align: left;
-    color: #2D2E2E;    
-    margin-top: 10px;
-}
-
+.feature-brand-card-title,
 .feature-brand-card-description {
     font-family: 'Inter', sans-serif;
     font-size: 18px; 
     font-weight: 400;
-    line-height: 5px;
-    text-align: left;
-    color: #2D2E2E;    
-    margin-top: 0px; /* Reduced gap */
+    line-height: 24px;
+    color: #2D2E2E;
+    margin-top: 10px;
+
+    display: -webkit-box;
+    -webkit-box-orient: vertical;  
+    overflow: hidden;
 }
 
+.price-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .original-price {
+    text-decoration: line-through;
+    color: #666;
+    font-size: 0.9em;
+  }
+  
+  .offer-price {
+    color: #e74c3c;
+    font-weight: 600;
+  }
 
 
 .brand-wishlist-icon .fa-heart {

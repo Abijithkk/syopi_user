@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useContext } from "react";
+import React, { useState, useEffect, useCallback, useContext, useRef } from "react";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -14,7 +14,6 @@ import FilterPanel from "./FilterPanel";
 import "./Allproduct.css";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import { ToastContainer } from "react-toastify";
 import toast from "react-hot-toast";
 
 function Allproducts() {
@@ -22,7 +21,7 @@ function Allproducts() {
   const [wishlist, setWishlist] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { searchQuery, searchResults } = useContext(SearchContext);
+  const { searchQuery } = useContext(SearchContext);
   const [ref, inView] = useInView({ threshold: 0.1, triggerOnce: true });
   const navigate = useNavigate();
   const location = useLocation();
@@ -30,11 +29,16 @@ function Allproducts() {
   const queryParams = new URLSearchParams(location.search);
   const subcategoryFromUrl = queryParams.get("subcategory");
 
-  const [price, setPrice] = useState([0, 1000]);
+  const [price, setPrice] = useState([0, 5000]);
   const [selectedDiscount, setSelectedDiscount] = useState(null);
   const [selectedProductType, setSelectedProductType] = useState([]);
   const [sortOption, setSortOption] = useState("popularity");
-  const [isFilterOpen, setIsFilterOpen] = useState(true);
+  const [isFilterOpen, setIsFilterOpen] = useState(() => {
+  if (typeof window !== 'undefined') {
+    return window.innerWidth >= 768; 
+  }
+  return true; 
+});
   const [selectedSubcategory, setSelectedSubcategory] = useState(
     subcategoryFromUrl || null
   );
@@ -43,137 +47,214 @@ function Allproducts() {
   const [hasMore, setHasMore] = useState(true);
   const productsPerPage = 12;
   const [totalProducts, setTotalProducts] = useState(0);
+  const [selectedBrands, setSelectedBrands] = useState([]);
+  const [selectedRating, setSelectedRating] = useState(null);
 
-  const fetchProducts = useCallback(
-    async (resetProducts = false) => {
-      try {
-        setLoading(true);
-        setError(null);
+  const parseUrlFilters = useCallback(() => {
+  const params = new URLSearchParams(location.search);
+  
+  // Parse price filter
+  const minPrice = params.get("minPrice");
+  const maxPrice = params.get("maxPrice");
+  if (minPrice || maxPrice) {
+    setPrice([
+      minPrice ? parseInt(minPrice) : 0,
+      maxPrice ? parseInt(maxPrice) : 5000
+    ]);
+  }
+  
+  // Parse brand filter
+  const brandParam = params.get("brand");
+  if (brandParam) {
+    const brandsArray = brandParam.includes(",") ? 
+      brandParam.split(",").map(brand => brand.trim()) : 
+      [brandParam.trim()];
+    setSelectedBrands(brandsArray);
+  } else {
+    setSelectedBrands([]);
+  }
+  
+  // Parse product type filter
+  const productType = params.get("productType");
+  if (productType) {
+    setSelectedProductType([productType]);
+  } else {
+    setSelectedProductType([]);
+  }
+  
+  // Parse discount filter
+  const discountMin = params.get("discountMin");
+  if (discountMin) {
+    setSelectedDiscount(parseInt(discountMin));
+  } else {
+    setSelectedDiscount(null);
+  }
+  
+  // Parse rating filter - FIX: Convert rating URL parameter correctly
+  const minRating = params.get("minRating");
+  if (minRating) {
+    const ratingValue = parseFloat(minRating);
+    // Map the rating values to match your FilterPanel options
+    if (ratingValue < 3) {
+      setSelectedRating(1);
+    } else if (ratingValue >= 3 && ratingValue < 4) {
+      setSelectedRating(3);
+    } else if (ratingValue >= 4) {
+      setSelectedRating(4);
+    }
+  } else {
+    setSelectedRating(null);
+  }
+}, [location.search]);
+// Update your fetchProducts function to handle brands correctly
+const fetchProducts = useCallback(async (resetProducts = false) => {
+  try {
+    setLoading(true);
+    setError(null);
 
-        const apiOptions = {
-          page: resetProducts ? 1 : page,
-          limit: productsPerPage,
-          search: searchQuery || null,
-          productType: selectedProductType.length > 0 ? selectedProductType : null,
-          subcategory: selectedSubcategory || null,
-          minPrice: price[0] > 0 ? price[0] : null,
-          maxPrice: price[1] < 1000 ? price[1] : null,
-          discountMin: selectedDiscount || null,
-        };
-
-        switch (sortOption) {
-          case "priceAsc":
-            apiOptions.sort = "asc";
-            apiOptions.sortField = "price";
-            break;
-          case "priceDesc":
-            apiOptions.sort = "desc";
-            apiOptions.sortField = "price";
-            break;
-          case "newest":
-            apiOptions.newArrivals = true;
-            break;
-          case "rating":
-            apiOptions.minRating = 4;
-            apiOptions.sort = "desc";
-            apiOptions.sortField = "averageRating";
-            break;
-          case "popularity":
-          default:
-            apiOptions.sortField = "popularity";
-            apiOptions.sort = "desc";
-            break;
-        }
-
-        console.log("API Options:", apiOptions);
-        
-        const response = await getProductsWithSort(apiOptions);
-        console.log("API Response:", response);
-
-        if (response.success) {
-          const newProducts = response.data.products;
-          setTotalProducts(response.data.total || 0);
-
-          if (newProducts.length < productsPerPage) {
-            setHasMore(false);
-          } else {
-            setHasMore(true);
-          }
-
-          setProducts((prevProducts) =>
-            resetProducts ? newProducts : [...prevProducts, ...newProducts]
-          );
-
-          if (resetProducts) {
-            setPage(1);
-            window.scrollTo({ top: 0, behavior: "smooth" });
-          }
-        } else {
-          if (resetProducts) {
-            setProducts([]);
-          }
-          setHasMore(false);
-          setError(response.message || "Failed to load products");
-        }
-      } catch (err) {
-        setError("Failed to load products. Please try again.");
-        console.error("Error fetching products:", err);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [
-      page,
-      searchQuery,
-      selectedProductType,
-      price,
-      selectedDiscount,
-      sortOption,
-      selectedSubcategory,
-    ]
-  );
-
-  useEffect(() => {
     const params = new URLSearchParams(location.search);
+    
+    // Build API options object
+    const apiOptions = {
+      page: resetProducts ? 1 : page,
+      limit: productsPerPage,
+      search: searchQuery || params.get('search') || undefined,
+      brand: selectedBrands.length > 0 ? selectedBrands.join(',') : undefined,
+      minRating: selectedRating || undefined,
+      minPrice: price[0] > 0 ? price[0] : undefined,
+      maxPrice: price[1] < 5000 ? price[1] : undefined,
+      productType: selectedProductType || undefined,
+      discountMin: selectedDiscount || undefined,
+      sortBy: sortOption || 'popularity'
+    };
 
-    // Remove timestamp parameter if present (URL cleaning)
-    const hasTimestamp = params.has("_k");
-    if (hasTimestamp) {
-      params.delete("_k");
-      const cleanUrl = `${location.pathname}${
-        params.toString() ? "?" + params.toString() : ""
-      }`;
-      navigate(cleanUrl, { replace: true });
+    // Clean undefined options
+    Object.keys(apiOptions).forEach(key => {
+      if (apiOptions[key] === undefined) {
+        delete apiOptions[key];
+      }
+    });
+
+    console.log("Final API Options:", apiOptions); 
+
+    const response = await getProductsWithSort(apiOptions);
+
+    if (response.success) {
+      const newProducts = response.data.products;
+      console.log("Filtered Products:", newProducts); 
+      
+      setTotalProducts(response.data.total || 0);
+      setHasMore(newProducts.length >= productsPerPage);
+      setProducts(prevProducts => 
+        resetProducts ? newProducts : [...prevProducts, ...newProducts]
+      );
+
+      if (resetProducts) {
+        setPage(1);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    } else {
+      setError(response.message || "Failed to load products");
+      if (resetProducts) setProducts([]);
+      setHasMore(false);
     }
+  } catch (err) {
+    setError("Failed to load products. Please try again.");
+    console.error("Error fetching products:", err);
+  } finally {
+    setLoading(false);
+  }
+}, [page, searchQuery, selectedProductType, price, selectedDiscount, sortOption, selectedBrands, selectedRating, location.search]);
 
-    // Get subcategory from URL and reset pagination
-    const newSubcategoryFromUrl = params.get("subcategory");
-    setSelectedSubcategory(newSubcategoryFromUrl || null);
-    setPage(1);
 
-    // Check if we need a refresh
-    if (location.state && location.state.refresh) {
-      navigate(location.pathname + location.search, {
-        replace: true,
-        state: {},
-      });
-      fetchProducts(true);
-    }
-  }, [
-    location.search,
-    searchQuery,
-    selectedSubcategory,
-    sortOption,
-    location.pathname,
-    location.state,
-    navigate,
-    fetchProducts,
-  ]);
 
-  useEffect(() => {
-    fetchProducts(true);
-  }, [selectedSubcategory, fetchProducts]);
+useEffect(() => {
+  const params = new URLSearchParams(location.search);
+  
+  // Parse brand filter
+  const brandParam = params.get("brand");
+  if (brandParam) {
+    setSelectedBrands(brandParam.split(","));
+  }
+  
+  // Parse rating filter
+  const ratingParam = params.get("minRating");
+  if (ratingParam) {
+    setSelectedRating(Number(ratingParam));
+  }
+}, [location.search]);
+useEffect(() => {
+  const params = new URLSearchParams(location.search);
+  const ratingParam = params.get("minRating");
+  
+  if (ratingParam) {
+    setSelectedRating(Number(ratingParam));
+  }
+}, [location.search]);
 
+const handleBrandChange = useCallback((brands) => {
+  const brandsArray = Array.isArray(brands) ? brands : [brands];
+  
+  // Update URL
+  const params = new URLSearchParams(location.search);
+  if (brandsArray.length > 0) {
+    params.set("brand", brandsArray.join(","));
+  } else {
+    params.delete("brand");
+  }
+  
+  // Navigate without triggering a full page reload
+  const newUrl = `${location.pathname}?${params.toString()}`;
+  navigate(newUrl, { replace: true });
+  
+  // Update state
+  setSelectedBrands(brandsArray);
+  setPage(1);
+  
+  // Fetch products with new filters
+  setTimeout(() => fetchProducts(true), 100);
+}, [location.search, location.pathname, navigate, fetchProducts]);
+
+const fetchProductsRef = useRef();
+fetchProductsRef.current = fetchProducts;
+useEffect(() => {
+  const params = new URLSearchParams(location.search); 
+  const urlBrands = params.get("brand");
+  setSelectedBrands(urlBrands ? urlBrands.split(",") : []);
+  
+  fetchProducts(true);
+}, [location.search]);
+
+useEffect(() => {
+  const params = new URLSearchParams(location.search);
+
+  const hasTimestamp = params.has("_k");
+  if (hasTimestamp) {
+    params.delete("_k");
+    const cleanUrl = `${location.pathname}${
+      params.toString() ? "?" + params.toString() : ""
+    }`;
+    navigate(cleanUrl, { replace: true });
+    return; 
+  }
+
+  const needsRefresh = location.state?.refresh;
+  if (needsRefresh) {
+    navigate(location.pathname + location.search, {
+      replace: true,
+      state: {},
+    });
+  }
+
+  parseUrlFilters();
+
+  const newSubcategoryFromUrl = params.get("subcategory");
+  setSelectedSubcategory(newSubcategoryFromUrl || null);
+  setPage(1);
+
+  fetchProductsRef.current(true);
+
+}, [location.search, location.pathname, location.state?.refresh, navigate, parseUrlFilters]);
   useEffect(() => {
     const fetchWishlist = async () => {
       try {
@@ -200,8 +281,12 @@ function Allproducts() {
       setPage((prevPage) => prevPage + 1);
     }
   }, [inView, loading, hasMore]);
-
-  // When page changes, fetch more products
+useEffect(() => {
+  const params = new URLSearchParams(location.search);
+  if (params.has("discountMin") && selectedDiscount === null) {
+    setSelectedDiscount(Number(params.get("discountMin")));
+  }
+}, [location.search]);
   useEffect(() => {
     if (page > 1) {
       fetchProducts(false);
@@ -212,45 +297,124 @@ function Allproducts() {
     fetchProducts(true);
   };
 
-  // Toggle wishlist handler
-  const toggleWishlist = async (e, productId) => {
-    e.stopPropagation();
+ 
+const toggleWishlist = async (e, productId, productName = "Product") => {
+  e.stopPropagation();
 
-    const token = localStorage.getItem("accessuserToken");
-    if (!token) {
-      toast.info("Please sign in to add items to your wishlist");
-      navigate("/signin");
+  const token = localStorage.getItem("accessuserToken");
+  if (!token) {
+    toast.error("Please sign in to add items to wishlist", {
+      duration: 3000,
+      position: "top-center",
+    });
+    navigate("/signin");
+    return;
+  }
+
+  const isCurrentlyWishlisted = wishlist.has(String(productId));
+  const loadingToastId = toast.loading(
+    isCurrentlyWishlisted ? "Removing from wishlist..." : "Adding to wishlist...",
+    {
+      position: "top-center",
+    }
+  );
+
+  try {
+    let response;
+    
+    if (isCurrentlyWishlisted) {
+      response = await removefromWishlist(productId);
+    } else {
+      response = await addWishlistApi(productId);
+    }
+
+
+    if (!response.success) {
+      console.error("Failed to toggle wishlist:", response.error);
+      toast.error("Failed to update wishlist. Please try again.", {
+        id: loadingToastId,
+        duration: 3000,
+        position: "top-center",
+      });
       return;
     }
 
-    try {
-      const response = await addWishlistApi(productId);
-
-      if (response.success) {
-        setWishlist((prevWishlist) => {
-          const newWishlist = new Set(prevWishlist);
-          if (newWishlist.has(String(productId))) {
-            newWishlist.delete(String(productId));
-            toast.success("Removed from wishlist");
-          } else {
-            newWishlist.add(String(productId));
-            toast.success("Added to wishlist");
-          }
-          return newWishlist;
-        });
+    // Update wishlist state
+    setWishlist((prevWishlist) => {
+      const updatedWishlist = new Set(prevWishlist);
+      if (isCurrentlyWishlisted) {
+        updatedWishlist.delete(String(productId));
       } else {
-        toast.error(response.message || "Failed to update wishlist");
+        updatedWishlist.add(String(productId));
       }
-    } catch (error) {
-      console.error("Failed to toggle wishlist:", error);
-      toast.error("Something went wrong. Please try again.");
+      return updatedWishlist;
+    });
+
+    // Show success toast
+    if (isCurrentlyWishlisted) {
+      toast.success(`${productName} removed from wishlist`, {
+        id: loadingToastId,
+        duration: 2000,
+        position: "top-center",
+        icon: "💔",
+      });
+    } else {
+      toast.success(`${productName} added to wishlist`, {
+        id: loadingToastId,
+        duration: 2000,
+        position: "top-center",
+        icon: "❤️",
+      });
     }
-  };
+  } catch (error) {
+    console.error("Failed to toggle wishlist:", error);
+    toast.error("Something went wrong. Please try again.", {
+      id: loadingToastId,
+      duration: 3000,
+      position: "top-center",
+    });
+  }
+};
 
   const handleNavigate = (id) => {
     navigate(`/product/${id}`);
   };
+const handleRatingChange = useCallback((ratingNumber) => {
+  const params = new URLSearchParams(location.search);
+  
+  // Preserve existing discount parameter
+  const currentDiscount = selectedDiscount;
+  
+  if (ratingNumber !== null) {
+    let minRatingValue;
+    switch(ratingNumber) {
+      case 1: minRatingValue = 0; break;
+      case 3: minRatingValue = 3; break;
+      case 4: minRatingValue = 4; break;
+      default: minRatingValue = null;
+    }
+    
+    if (minRatingValue !== null) {
+      params.set("minRating", minRatingValue);
+    } else {
+      params.delete("minRating");
+    }
+  } else {
+    params.delete("minRating");
+  }
 
+  // Restore discount if it exists
+  if (currentDiscount !== null) {
+    params.set("discountMin", currentDiscount);
+  }
+
+  const newUrl = `${location.pathname}?${params.toString()}`;
+  navigate(newUrl, { replace: true });
+  
+  setSelectedRating(ratingNumber);
+  setPage(1);
+  setTimeout(() => fetchProducts(true), 100);
+}, [location.search, location.pathname, navigate, fetchProducts, selectedDiscount]);
   const handleSortChange = (e) => {
     setSortOption(e.target.value);
     setPage(1);
@@ -276,6 +440,18 @@ function Allproducts() {
       transition: { type: "spring", stiffness: 300, damping: 25 },
     },
   };
+  
+  const clearAllFilters = () => {
+    setSelectedProductType([]);
+    setSelectedDiscount(null);
+    setSelectedBrands([]);
+    setSelectedRating(null);
+    setPrice([0, 5000]);
+    setSortOption("popularity");
+    
+    // Clear URL parameters as well
+    navigate("/allproducts", { replace: true });
+  };
 
   // Render product cards
   const renderProductCards = () => {
@@ -289,13 +465,7 @@ function Allproducts() {
           <p>We couldn't find any products matching your criteria.</p>
           <button
             className="clear-filters-btn"
-            onClick={() => {
-              setSelectedProductType([]);
-              setSelectedDiscount(null);
-              setPrice([0, 1000]);
-              setSortOption("popularity");
-              fetchProducts(true);
-            }}
+            onClick={clearAllFilters}
           >
             Clear Filters
           </button>
@@ -333,11 +503,11 @@ function Allproducts() {
               </div>
             )}
 
-          <button
+<button
             className={`wishlist-btn ${
               wishlist.has(String(product._id)) ? "active" : ""
             }`}
-            onClick={(e) => toggleWishlist(e, product._id)}
+            onClick={(e) => toggleWishlist(e, product._id, product.name)}
             aria-label={
               wishlist.has(String(product._id))
                 ? "Remove from wishlist"
@@ -411,17 +581,32 @@ function Allproducts() {
       <div
         className={`products-container ${isFilterOpen ? "filter-open" : ""}`}
       >
-        <FilterPanel
-          onApplyFilters={handleApplyFilters}
-          price={price}
-          setPrice={setPrice}
-          selectedProductType={selectedProductType}
-          setSelectedProductType={setSelectedProductType}
-          selectedDiscount={selectedDiscount}
-          setSelectedDiscount={setSelectedDiscount}
-          isFilterOpen={isFilterOpen}
-          setIsFilterOpen={setIsFilterOpen}
-        />
+      <FilterPanel
+  onApplyFilters={handleApplyFilters}
+  price={price}
+  setPrice={setPrice}
+  selectedProductType={selectedProductType}
+  setSelectedProductType={setSelectedProductType}
+  selectedDiscount={selectedDiscount}
+   setSelectedDiscount={(discount) => {
+    setSelectedDiscount(discount);
+    // Immediately update URL without resetting other filters
+    const params = new URLSearchParams(location.search);
+    if (discount !== null) {
+      params.set("discountMin", discount);
+    } else {
+      params.delete("discountMin");
+    }
+    navigate(`${location.pathname}?${params.toString()}`, { replace: true });
+    setTimeout(() => fetchProducts(true), 100);
+  }}
+  selectedBrands={selectedBrands}
+  setSelectedBrands={handleBrandChange}
+  selectedRating={selectedRating}
+ setSelectedRating={handleRatingChange}
+  isFilterOpen={isFilterOpen}
+  setIsFilterOpen={setIsFilterOpen}
+/>
 
         <main className="products-main">
           <div className="products-sort-bar">
@@ -494,11 +679,10 @@ function Allproducts() {
             <div className="no-more-products">
               <p>You've seen all products</p>
             </div>
-          )}
+            )}
         </main>
       </div>
 
-      <ToastContainer position="bottom-right" autoClose={3000} />
     </div>
   );
 }

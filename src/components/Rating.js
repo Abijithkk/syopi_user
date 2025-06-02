@@ -2,7 +2,6 @@ import React from 'react';
 import './Rating.css';
 
 function Rating({ reviews }) {
-console.log("reviews",reviews);
 
   const defaultRatings = {
     averageRating: 0,

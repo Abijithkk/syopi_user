@@ -7,11 +7,12 @@
     padding: 1rem; 
     width: 100%;
     box-shadow: var(--bs-box-shadow) !important;
+   
   }
   .address-container {
     padding-left: 25px;
     padding-right: 25px;
-    margin-top: 5%;
+    margin-top: 7%;
   }
   
   .address-left-column {

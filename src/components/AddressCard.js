@@ -122,7 +122,6 @@ function AddressCard({ onSuccess }) {
 
     try {
       const response = await addAddressApi({ ...formData, addressType: selectedType });
-      console.log("API Response:", response); // Debugging step
     
       if (response.success) {
         toast.success("Address added successfully!");

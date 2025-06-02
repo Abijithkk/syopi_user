@@ -46,6 +46,8 @@ export const googleLoginApi = () => {
   return `${BASE_URL}/user/auth/google`;
 };
 
+
+
 // Google Login for Android
 export const androidGoogleLoginApi = async (idTokenData) => {
   const url = `${BASE_URL}/user/auth/google/android`;
@@ -82,6 +84,28 @@ export const getProfileApi = async () => {
     return { success: false, error: error.message || "Error fetching profile" };
   }
 };
+export const deleteUserProfileApi = async () => {
+  const url = `${BASE_URL}/user/profile/delete`;
+
+  const accessToken = localStorage.getItem("accessuserToken");
+  if (!accessToken) {
+    return { success: false, error: "No token provided" };
+  }
+
+  try {
+    const response = await commonApi("DELETE", url, null, {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    });
+
+    return response;
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message || "Error deleting user profile",
+    };
+  }
+};
 
 export const getBrandApi = async () => {
   const url = `${BASE_URL}/user/brand/view`;
@@ -111,6 +135,25 @@ export const updateProfileApi = async (profileData) => {
     return response;
   } catch (error) {
     return { success: false, error: error.message || "Error updating profile" };
+  }
+};
+export const getNotificationsApi = async () => {
+  const url = `${BASE_URL}/user/notification/view`;
+
+  const accessToken = localStorage.getItem("accessuserToken");
+
+  if (!accessToken) {
+    return { success: false, error: "No token provided" };
+  }
+
+  try {
+    const response = await commonApi("GET", url, null, {
+      Authorization: `Bearer ${accessToken}`,
+    });
+
+    return response;
+  } catch (error) {
+    return { success: false, error: error.message || "Error fetching notifications" };
   }
 };
 
@@ -187,15 +230,15 @@ export const getProductsWithSort = async (options = {}) => {
     maxPrice = null,
     discountMin = null,
     sort = null,
-    sortField = "price",
+    sortField = "createdAt", // Default to newest first
     newArrivals = null,
-    minRating = null,
   } = options;
 
   const params = new URLSearchParams();
   params.append("page", page);
   params.append("limit", limit);
 
+  // Add filters
   if (search) params.append("search", search);
   if (productType) {
     if (Array.isArray(productType) && productType.length > 0) {
@@ -208,12 +251,12 @@ export const getProductsWithSort = async (options = {}) => {
   if (minPrice !== null) params.append("minPrice", minPrice);
   if (maxPrice !== null) params.append("maxPrice", maxPrice);
   if (discountMin !== null) params.append("discountMin", discountMin);
-  if (newArrivals) params.append("newArrivals", newArrivals);
-  if (minRating !== null) params.append("minRating", minRating);
+  if (newArrivals) params.append("newArrivals", "true");
 
+  // Add sorting
   if (sort) {
+    params.append("sort", sort);
     params.append("sortField", sortField);
-    params.append("sortOrder", sort);
   }
 
   return getProductApi(params.toString());
@@ -598,7 +641,6 @@ export const getAvailableCouponsApi = async (checkoutId) => {
   }
 };
 
-// Apply coins to checkout
 export const applyCoinsApi = async (checkoutId) => {
   const url = `${BASE_URL}/user/checkout/apply/coin`;
 
@@ -621,7 +663,6 @@ export const applyCoinsApi = async (checkoutId) => {
   }
 };
 
-// Create a buy now checkout
 export const buyNowCheckoutApi = async (productData) => {
   const url = `${BASE_URL}/user/checkout/buy-now`;
 
@@ -684,6 +725,50 @@ export const getAddressApi = async () => {
     return {
       success: false,
       error: error.message || "Error fetching addresses",
+    };
+  }
+};
+export const updateAddressApi = async (addressId, updatedData) => {
+  const url = `${BASE_URL}/user/address/update/${addressId}`;
+
+  const accessToken = localStorage.getItem("accessuserToken");
+  if (!accessToken) {
+    return { success: false, error: "No token provided" };
+  }
+
+  try {
+    const response = await commonApi("PATCH", url, updatedData, {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    });
+
+    return response;
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message || "Error updating address",
+    };
+  }
+};
+export const deleteAddressApi = async (addressId) => {
+  const url = `${BASE_URL}/user/address/delete/${addressId}`;
+
+  const accessToken = localStorage.getItem("accessuserToken");
+  if (!accessToken) {
+    return { success: false, error: "No token provided" };
+  }
+
+  try {
+    const response = await commonApi("DELETE", url, null, {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    });
+
+    return response;
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message || "Error deleting address",
     };
   }
 };

@@ -1,11 +1,40 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import './footer.css';
-import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa';
+import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import f1 from '../images/f1.png';
 import f2 from '../images/f2.png';
+import { getCategoriesApi } from '../services/allApi';
 
 function Footer() {
+  const [categories, setCategories] = useState([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch categories when dropdown is opened for the first time
+  const fetchCategories = async () => {
+    if (categories.length === 0) {
+      setLoading(true);
+      try {
+        const response = await getCategoriesApi();
+        
+        
+        setCategories(response.data.categories || response || []); // Handle different response structures
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const toggleDropdown = () => {
+    if (!isDropdownOpen) {
+      fetchCategories();
+    }
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
   return (
     <footer className="footer">
       <Container className="footer-container">
@@ -89,11 +118,41 @@ function Footer() {
           </Col>
         </Row>
 
-
         <hr />
+        
+        {/* Category Section with Dropdown */}
         <Row>
-          <p className='f-text'>Popular Categories</p>
+          <Col xs={12} className="footer-category-section">
+            <div className="footer-category-header" onClick={toggleDropdown}>
+              <p className='f-text'>Popular Categories</p>
+              <div className="footer-dropdown-icon">
+                {isDropdownOpen ? <FaChevronUp /> : <FaChevronDown />}
+              </div>
+            </div>
+            
+            {/* Dropdown Content */}
+            {isDropdownOpen && (
+              <div className="footer-category-dropdown">
+                {loading ? (
+                  <div className="footer-loading-text">Loading categories...</div>
+                ) : (
+                  <ul className="footer-category-list">
+                    {categories.length > 0 ? (
+                      categories.map((category, index) => (
+                        <li key={index} className="footer-category-item">
+                          {category.name || category.title || category}
+                        </li>
+                      ))
+                    ) : (
+                      <li className="footer-no-categories">No categories available</li>
+                    )}
+                  </ul>
+                )}
+              </div>
+            )}
+          </Col>
         </Row>
+        
         <hr />
       </Container>
     </footer>

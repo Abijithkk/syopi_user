@@ -50,7 +50,6 @@ const FilterPanel = ({
   const fetchBrands = async () => {
     try {
       const response = await getBrandApi();
-      console.log("Brands", response);
       if (response.data) {
         setBrands(response.data);
       }
@@ -70,72 +69,36 @@ const FilterPanel = ({
     }
   }, []);
 
-  const handleProductTypeChange = (type) => {
-    setSelectedProductType((prev) =>
-      prev.includes(type)
-        ? prev.filter((item) => item !== type)
-        : [...prev, type]
-    );
-  };
-
   const handleDiscountChange = (discount) => {
-    setSelectedDiscount(discount === selectedDiscount ? null : discount);
+    if (typeof setSelectedDiscount === 'function') {
+      setSelectedDiscount(discount === selectedDiscount ? null : discount);
+    } else {
+      console.error("setSelectedDiscount is not a function");
+    }
   };
 
-  const handleBrandChange = (brand) => {
-    setSelectedBrands((prev) =>
-      prev.includes(brand)
-        ? prev.filter((item) => item !== brand)
-        : [...prev, brand]
-    );
+  const handleBrandChange = (brandId) => {
+    const updatedBrands = selectedBrands.includes(brandId)
+      ? selectedBrands.filter(id => id !== brandId)
+      : [...selectedBrands, brandId];
+    
+    if (typeof setSelectedBrands === 'function') {
+      setSelectedBrands(updatedBrands);
+    }
   };
 
   const handleRatingChange = (rating) => {
-    setSelectedRating(rating === selectedRating ? null : rating);
+    if (typeof setSelectedRating === 'function') {
+      setSelectedRating(rating === selectedRating ? null : rating);
+    } else {
+      console.error("setSelectedRating is not a function");
+    }
   };
 
-  const renderSizeOptions = () => {
-    if (selectedProductType.includes("dress")) {
-      return ["XS", "S", "M", "L", "XL", "XXL"].map((size) => (
-        <div key={size} className="filter-option">
-          <input 
-            type="checkbox" 
-            id={`size-${size}`} 
-            className="filter-checkbox" 
-          />
-          <label htmlFor={`size-${size}`} className="filter-label">{size}</label>
-        </div>
-      ));
-    }
-    
-    if (selectedProductType.includes("chappal")) {
-      return ["6", "7", "8", "9", "10", "11", "12"].map((size) => (
-        <div key={size} className="filter-option">
-          <input 
-            type="checkbox" 
-            id={`size-${size}`} 
-            className="filter-checkbox" 
-          />
-          <label htmlFor={`size-${size}`} className="filter-label">{size}</label>
-        </div>
-      ));
-    }
-    
-    return (
-      <p className="no-sizes-message">Select a product type to see available sizes</p>
-    );
-  };
+  const safeSelectedBrands = selectedBrands || [];
 
   return (
     <>
-      <button 
-        className="filter-toggle-btn"
-        onClick={() => setIsFilterOpen(!isFilterOpen)}
-      >
-        <i className="fas fa-filter"></i>
-        <span>Filters</span>
-      </button>
-      
       {isFilterOpen && (
         <div 
           className="filter-overlay"
@@ -161,33 +124,6 @@ const FilterPanel = ({
         
         <div className="filter-content">
           <div className="filter-section">
-            <h3 className="filter-title">Product Type</h3>
-            <div className="filter-options">
-              <div className="filter-option">
-                <input 
-                  type="checkbox" 
-                  id="type-dress" 
-                  checked={selectedProductType.includes("dress")}
-                  onChange={() => handleProductTypeChange("dress")}
-                  className="filter-checkbox"
-                />
-                <label htmlFor="type-dress" className="filter-label">Dress</label>
-              </div>
-              <div className="filter-option">
-                <input 
-                  type="checkbox" 
-                  id="type-chappal" 
-                  checked={selectedProductType.includes("chappal")}
-                  onChange={() => handleProductTypeChange("chappal")}
-                  className="filter-checkbox"
-                />
-                <label htmlFor="type-chappal" className="filter-label">Chappal</label>
-              </div>
-            </div>
-          </div>
-          
-          {/* Brand Filter Section */}
-          <div className="filter-section">
             <h3 className="filter-title">Brands</h3>
             <div className="filter-options brand-options">
               {brands && brands.length > 0 ? (
@@ -196,8 +132,8 @@ const FilterPanel = ({
                     <input 
                       type="checkbox" 
                       id={`brand-${brand._id}`} 
-                      checked={selectedBrands && selectedBrands.includes(brand._id)}
-                      onChange={() => handleBrandChange(brand._id)}
+                      checked={safeSelectedBrands.includes(brand._id)}
+                      onChange={() => handleBrandChange(brand._id)} 
                       className="filter-checkbox"
                     />
                     <label htmlFor={`brand-${brand._id}`} className="filter-label">{brand.name}</label>
@@ -209,29 +145,21 @@ const FilterPanel = ({
             </div>
           </div>
           
-          <div className="filter-section">
-            <h3 className="filter-title">Size</h3>
-            <div className="filter-options size-options">
-              {renderSizeOptions()}
-            </div>
-          </div>
-          
           <div className="filter-section price-filter">
             <h3 className="filter-title">Price Range</h3>
             <Slider
-              value={price}
-              onChange={(e, newValue) => setPrice(newValue)}
+              value={price || [0, 5000]}
+              onChange={(e, newValue) => typeof setPrice === 'function' ? setPrice(newValue) : console.error("setPrice is not a function")}
               valueLabelDisplay="auto"
               min={priceRange.min}
               max={priceRange.max}
               className="price-slider"
             />
             <div className="price-range-display">
-              <span className="currency">₹</span>{price[0]} - <span className="currency">₹</span>{price[1]}
+              <span className="currency">₹</span>{price ? price[0] : 0} - <span className="currency">₹</span>{price ? price[1] : 5000}
             </div>
           </div>
           
-          {/* Rating Filter Section */}
           <div className="filter-section">
             <h3 className="filter-title">Rating</h3>
             <div className="filter-options rating-options">
@@ -239,9 +167,9 @@ const FilterPanel = ({
                 <input 
                   type="radio" 
                   id="rating-1" 
-                  name="rating"
-                  checked={selectedRating === "less-than-3"}
-                  onChange={() => handleRatingChange("less-than-3")}
+                  name="rating-filter"
+                  checked={selectedRating === 1}
+                  onChange={() => handleRatingChange(1)}
                   className="filter-radio"
                 />
                 <label htmlFor="rating-1" className="filter-label">Less than 3★</label>
@@ -250,9 +178,9 @@ const FilterPanel = ({
                 <input 
                   type="radio" 
                   id="rating-2" 
-                  name="rating"
-                  checked={selectedRating === "3-to-4"}
-                  onChange={() => handleRatingChange("3-to-4")}
+                  name="rating-filter"
+                  checked={selectedRating === 3}
+                  onChange={() => handleRatingChange(3)}
                   className="filter-radio"
                 />
                 <label htmlFor="rating-2" className="filter-label">3★ to 4★</label>
@@ -261,12 +189,23 @@ const FilterPanel = ({
                 <input 
                   type="radio" 
                   id="rating-3" 
-                  name="rating"
-                  checked={selectedRating === "4-to-5"}
-                  onChange={() => handleRatingChange("4-to-5")}
+                  name="rating-filter"
+                  checked={selectedRating === 4}
+                  onChange={() => handleRatingChange(4)}
                   className="filter-radio"
                 />
                 <label htmlFor="rating-3" className="filter-label">4★ to 5★</label>
+              </div>
+              <div className="filter-option">
+                <input 
+                  type="radio" 
+                  id="rating-none" 
+                  name="rating-filter"
+                  checked={selectedRating === null}
+                  onChange={() => handleRatingChange(null)}
+                  className="filter-radio"
+                />
+                <label htmlFor="rating-none" className="filter-label">Any Rating</label>
               </div>
             </div>
           </div>
@@ -278,7 +217,7 @@ const FilterPanel = ({
                 <input 
                   type="radio" 
                   id="discount-10" 
-                  name="discount"
+                  name="discount-filter"
                   checked={selectedDiscount === 10}
                   onChange={() => handleDiscountChange(10)}
                   className="filter-radio"
@@ -289,7 +228,7 @@ const FilterPanel = ({
                 <input 
                   type="radio" 
                   id="discount-20" 
-                  name="discount"
+                  name="discount-filter"
                   checked={selectedDiscount === 20}
                   onChange={() => handleDiscountChange(20)}
                   className="filter-radio"
@@ -300,7 +239,7 @@ const FilterPanel = ({
                 <input 
                   type="radio" 
                   id="discount-30" 
-                  name="discount"
+                  name="discount-filter"
                   checked={selectedDiscount === 30}
                   onChange={() => handleDiscountChange(30)}
                   className="filter-radio"
@@ -311,12 +250,23 @@ const FilterPanel = ({
                 <input 
                   type="radio" 
                   id="discount-50" 
-                  name="discount"
+                  name="discount-filter"
                   checked={selectedDiscount === 50}
                   onChange={() => handleDiscountChange(50)}
                   className="filter-radio"
                 />
                 <label htmlFor="discount-50" className="filter-label">50% or more</label>
+              </div>
+              <div className="filter-option">
+                <input 
+                  type="radio" 
+                  id="discount-none" 
+                  name="discount-filter"
+                  checked={selectedDiscount === null}
+                  onChange={() => handleDiscountChange(null)}
+                  className="filter-radio"
+                />
+                <label htmlFor="discount-none" className="filter-label">No Discount</label>
               </div>
             </div>
           </div>
@@ -324,11 +274,11 @@ const FilterPanel = ({
         
         <div className="filter-actions">
           <button className="reset-btn" onClick={() => {
-            setSelectedProductType([]);
-            setSelectedDiscount(null);
-            setSelectedBrands([]);
-            setSelectedRating(null);
-            setPrice([priceRange.min, priceRange.max]);
+            if (typeof setSelectedProductType === 'function') setSelectedProductType([]);
+            if (typeof setSelectedDiscount === 'function') setSelectedDiscount(null);
+            if (typeof setSelectedBrands === 'function') setSelectedBrands([]);
+            if (typeof setSelectedRating === 'function') setSelectedRating(null);
+            if (typeof setPrice === 'function') setPrice([priceRange.min, priceRange.max]);
           }}>
             Reset All
           </button>

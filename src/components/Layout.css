@@ -1,8 +1,69 @@
-:root {
-    --header-height: 0px; /* Default value, will be updated by JS */
+.app-layout-wrapper {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.main-outlet-content {
+  position: relative;
+  width: 100%;
+  min-height: calc(100vh - 140px);
+  padding: 0;
+  margin: 0;
+  z-index: 1;
+}
+
+/* Mobile-specific content adjustments */
+@media (max-width: 768px) {
+  .main-outlet-content {
+    padding-top: 90px; /* Space for fixed header */
+    padding-bottom: 75px; /* Space for fixed bottom nav */
+    min-height: calc(100vh - 165px);
   }
   
-  .content-container {
-    margin-top: var(--header-height); /* Use the dynamic header height */
+  /* Ensure no conflicting positioning on child elements */
+  .main-outlet-content > * {
+    position: relative;
+    z-index: auto;
   }
-  
+}
+
+
+@media (min-width: 769px) {
+  .main-outlet-content {
+    padding-top: 35px; 
+    padding-bottom: 0;
+    min-height: calc(100vh - 35px); 
+  }
+}
+
+
+/* Reset any conflicting styles */
+.main-outlet-content,
+.main-outlet-content * {
+  box-sizing: border-box;
+}
+
+/* Prevent any transform or positioning issues */
+.main-outlet-content {
+  transform: none;
+  -webkit-transform: none;
+}
+
+/* Ensure proper stacking context */
+.app-layout-wrapper {
+  isolation: isolate;
+}
+
+/* Body class modifiers for layout state */
+body.mobile-app-layout {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin: 0 !important;
+}
+
+body.desktop-app-layout {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin: 0 !important;
+}

@@ -89,7 +89,6 @@ function Signup() {
       };
 
       const response = await verifyotpApi(verificationData);
-      console.log("OTP verification successful:", response);
 
       // Handle successful verification
       // You might want to redirect to another page or show a success message

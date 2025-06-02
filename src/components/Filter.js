@@ -1,19 +1,38 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import "./filter.css";
-import f1 from '../images/four-squares-10585.png'
-import f2 from '../images/salefilter.png'
-const categories = [
-  { label: "All", imgSrc: f1 },
-  { label: "Sale", imgSrc: f2 },
-  { label: "Men", imgSrc: "https://via.placeholder.com/50" },
-  { label: "Women", imgSrc: "https://via.placeholder.com/50" },
-  { label: "Kids", imgSrc: "https://via.placeholder.com/50" },
-  { label: "Accessories", imgSrc: "https://via.placeholder.com/50" },
-];
+import { getCategoriesApi } from "../services/allApi";
+import { BASE_URL } from "../services/baseUrl";
+
+
 
 function Filter() {
+  const [categories, setCategories] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("All");
-
+  const fetchCategories = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await getCategoriesApi();
+      
+      if (response.data) {
+        setCategories(response.data.categories);
+        if (response.data.categories.length > 0) {
+          setSelectedCategory(response.data.categories[0]._id);
+        }
+      } else {
+        throw new Error("Invalid data format received.");
+      }
+    } catch (err) {
+      setError(err.message || "Failed to load categories.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+    useEffect(() => {
+      fetchCategories();
+    }, [fetchCategories]);
   return (
     <div className="filter-container">
       <div className="scrolling-content">
@@ -23,8 +42,8 @@ function Filter() {
             className={`filter-item ${selectedCategory === category.label ? "active" : ""}`}
             onClick={() => setSelectedCategory(category.label)}
           >
-            <img src={category.imgSrc} alt={category.label} className="filter-img" />
-            <span className="filter-label">{category.label}</span>
+            <img  src={`${BASE_URL}/uploads/${category.image}`} alt={category.name} className="filter-img" />
+            <span className="filter-label2">{category.name}</span>
           </div>
         ))}
       </div>

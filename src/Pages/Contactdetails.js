@@ -21,7 +21,6 @@ function Contactdetails() {
     setLoading(true);
     try {
       const response = await getProfileApi();
-      console.log("profile",response);
       
       if (response.success && response.data.user) {
         const user = response.data.user;

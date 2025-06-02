@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, memo } from "react";
 import { Container, Row, Col, Card, Form, InputGroup } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import "./address.css";
@@ -64,7 +64,6 @@ const AddressItem = memo(({ address, index, selectedAddress, onSelect }) => (
   </Card>
 ));
 
-// Memoized checkout summary component
 const CheckoutSummary = memo(({ checkoutData }) => (
   <Card.Text className="mt-3">
     <div className="d-flex justify-content-between">
@@ -293,7 +292,6 @@ function Address() {
     try {
       setState(prev => ({ ...prev, couponsLoading: true }));
       const response = await getAvailableCouponsApi(checkoutId);
-      console.log("available-coins",response);
       
       
       if (response.status === 200 && response.coupons) {
@@ -316,7 +314,6 @@ function Address() {
       setState(prev => ({ ...prev, couponsLoading: true }));
   
       const response = await getProfileApi();
-      console.log("available-coinss", response);
   
       if (response.status === 200 && response.data?.user) {
         setPoints(response.data.user.coins); // directly assign coins even if 0
@@ -333,34 +330,38 @@ function Address() {
     fetchSyopiPoints();
   }, []);
   // Apply coins
-  const handleApplyCoins = async () => {
-    if (!state.checkoutId) {
-      toast.error("Checkout information is missing");
-      return;
-    }
+const handleApplyCoins = async () => {
+  if (!state.checkoutId) {
+    toast.error("Checkout information is missing");
+    return;
+  }
 
-    setState(prev => ({ ...prev, applyingCoins: true }));
-    try {
-      const response = await applyCoinsApi(state.checkoutId);
-      console.log("apply",response);
-      if (response.status === 200) {
-        toast.success("Syopi points applied successfully!");
-        // Update checkout data
-        setState(prev => ({
-          ...prev,
-          checkoutData: response.checkout || response.data,
-          applyingCoins: false
-        }));
-      } else {
-        toast.error(response.message || "Failed to apply points");
-        setState(prev => ({ ...prev, applyingCoins: false }));
-      }
-    } catch (error) {
-      console.error("Error applying points:", error);
-      toast.error("Error applying Syopi points");
+  setState(prev => ({ ...prev, applyingCoins: true }));
+  try {
+    const response = await applyCoinsApi(state.checkoutId);
+    
+    if (response.status === 200) {
+      toast.success("Syopi points applied successfully!");
+      // Update checkout data
+      setState(prev => ({
+        ...prev,
+        checkoutData: response.checkout || response.data,
+        applyingCoins: false
+      }));
+    } else {
+      // Handle non-200 status codes (like 400) and show the API error message
+      const errorMessage = response.error?.message || response.message || response.data?.message || "Failed to apply points";
+      toast.error(errorMessage);
       setState(prev => ({ ...prev, applyingCoins: false }));
     }
-  };
+  } catch (error) {
+    console.error("Error applying points:", error);
+    // Handle network errors or other exceptions
+    const errorMessage = error.response?.data?.message || error.message || "Error applying Syopi points";
+    toast.error(errorMessage);
+    setState(prev => ({ ...prev, applyingCoins: false }));
+  }
+};
 
   // Handle coupon applied
   const handleCouponApplied = useCallback((updatedCheckout) => {
@@ -556,7 +557,6 @@ function Address() {
           </Row>
         </Container>
       </div>
-      <Toaster position="top-right" />
     </ErrorBoundary>
   );
 }

@@ -13,7 +13,6 @@ import Brand from '../components/Brand';
 import Toppicks from '../components/Toppicks';
 import Lowest from '../components/Lowest';
 import Footer from '../components/Footer';
-import Header2 from '../components/Header2';
 import Filter from '../components/Filter';
 import { SearchContext } from '../components/SearchContext';
 import Allproducts from '../components/Allproducts';
@@ -40,7 +39,6 @@ function Home() {
     try {
       setLoading(true);
       const response = await getUserHomePageApi();
-      console.log('home', response);
       
       if (response.status === 200 && response.success) {
         setHomeData(response.data);
@@ -56,13 +54,10 @@ function Home() {
     fetchHome();
   }, []); 
   const content = useMemo(() => {
-    if (loading) {
-      return <div className="loading">Loading...</div>; 
-    }
+   
 
     return (
       <>
-        <Header2 />
         {searchQuery ? (
           <Allproducts />
         ) : (
@@ -75,7 +70,7 @@ function Home() {
             <Offer offerData={homeData.OfferSection} />
             <Featuringbrands brands={homeData.featuringBrandsNow} />
             <Premium sliders={homeData.ProductSliders} />
-            <Delight products={homeData.affordableProducts} />
+            <Delight brands={homeData.brands} />
             <Trending products={homeData.affordableProducts} />
             <Brandoffer sliders={homeData.BrandSliders} />
             <Brand brands={homeData.brands} />
@@ -92,3 +87,6 @@ function Home() {
 }
 
 export default Home;
+
+
+

@@ -109,8 +109,8 @@
   }
   
   .filter-checkbox:checked, .filter-radio:checked {
-    background-color: #4f46e5;
-    border-color: #4f46e5;
+    background-color: #00a8ff;
+    border-color: #00a8ff;
   }
   
   .filter-checkbox:checked::after {
@@ -207,7 +207,7 @@
   
   .filter-toggle-btn {
     display: none; 
-    background-color: #4f46e5;
+    background-color: #007BFF;
     color: white;
     border: none;
     padding: 0.75rem 1.25rem;
@@ -235,7 +235,70 @@
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 99;
   }
-  
+  /* Add these styles to your existing header2.css file */
+
+.mobile-search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.mobile-search-icon {
+  position: absolute;
+  left: 12px;
+  color: #666;
+  cursor: pointer;
+  z-index: 1;
+  font-size: 16px;
+  transition: color 0.2s ease;
+}
+
+.mobile-search-icon:hover {
+  color: #00A8FF;
+}
+
+.custom-search-input {
+  padding-left: 40px !important;
+  border-radius: 20px;
+  border: 1px solid #ddd;
+  height: 40px;
+  font-size: 14px;
+  background-color: #f8f9fa;
+  transition: all 0.2s ease;
+}
+
+.custom-search-input:focus {
+  border-color: #00A8FF;
+  box-shadow: 0 0 0 0.2rem rgba(0, 168, 255, 0.25);
+  background-color: white;
+}
+
+.custom-search-wrapper {
+  flex: 1;
+  margin-right: 10px;
+}
+
+.custom-search-form {
+  margin: 0;
+}
+
+.custom-icons-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.custom-icons-wrapper > * {
+  font-size: 20px;
+  color: #666;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.custom-icons-wrapper > *:hover {
+  color: #00A8FF;
+}
   @media (max-width: 992px) {
     .filter-panel {
       position: fixed;

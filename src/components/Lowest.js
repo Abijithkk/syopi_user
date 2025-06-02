@@ -1,9 +1,31 @@
+
 import "./Lowest.css";
 import { BASE_URL } from "../services/baseUrl";
+import { useLocation, useNavigate } from "react-router-dom";
 
 function Lowest({products}) {
-  console.log("lowest", products);
   
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const navigateWithKey = (url) => {
+    const separator = url.includes('?') ? '&' : '?';
+    const uniqueUrl = `${url}${separator}_k=${Date.now()}`;
+    navigate(uniqueUrl);
+  };
+
+  const handleProductClick = (product) => {
+    const params = new URLSearchParams(location.search);
+    const currentSearch = params.get("search");
+    
+    let url = `/allproducts?minPrice=${product.startingPrice}`;
+    
+    if (currentSearch) {
+      url += `&search=${currentSearch}`;
+    }
+    
+    navigateWithKey(url);
+  };
 
   return (
     <div className="lowest">
@@ -16,18 +38,15 @@ function Lowest({products}) {
             <div
             className="lowest-card"
             key={index}
-            style={{ backgroundImage: `url(${imageUrl})` }}
-          >
-             
-              
+            onClick={() => handleProductClick(card)}
+            style={{ backgroundImage: `url(${imageUrl})`,cursor:'pointer' }}
+          >  
               <div className="lowest-card-content">
                 <div className="lowest-text">
                   <p className="lowest-card-title">{card.description}</p>
                   <p className="lowest-card-sub-title">{card.startingPrice}</p>
                 </div>
               </div>
-              
-           
             </div>
           );
         })}

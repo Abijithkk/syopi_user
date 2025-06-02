@@ -13,7 +13,6 @@ function Wishlist() {
   const fetchWishlist = async () => {
     try {
       const response = await getWishlistApi();
-      console.log("wishlist", response);
 
       if (response.success) {
         setWishlist(response.data.wishlist);

@@ -26,6 +26,9 @@ import OrderSuccess from "./Pages/OrderSuccess";
 import SingleOrder from "./Pages/SingleOrder";
 import Profile from "./Pages/Profile";
 import Earn from "./Pages/Earn";
+import Notification from "./Pages/Notification";
+import AddressCard from "./components/AddressCard";
+import ManageAddress from "./Pages/ManageAddress";
 function App() {
   return (
     <SearchProvider>
@@ -42,6 +45,7 @@ function App() {
             <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/category" element={<Category />} />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/notifications" element={<Notification />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/address/:id" element={<Address />} />
             <Route path="/cod/:id" element={<Cod />} />
@@ -59,6 +63,8 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/allproducts" element={<Allproducts />} />
             <Route path="/earn" element={<Earn />} />
+            <Route path="/manage-address" element={<ManageAddress />} />
+
 
 
           </Route>

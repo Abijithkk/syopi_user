@@ -67,7 +67,6 @@ function Cod() {
       try {
         setState((prev) => ({ ...prev, loading: true }));
         const response = await getCheckoutByIdApi(id);
-        console.log("checkout data response:", response);
         
         if (response.success) {
           setState((prev) => ({
@@ -79,8 +78,7 @@ function Cod() {
           }));
           
           // For debugging
-          console.log("Set checkout ID:", response.data._id);
-          console.log("Set address ID:", response.data.addressId);
+        
         } else {
           throw new Error(response.error || "Failed to fetch checkout details");
         }
@@ -153,10 +151,8 @@ function Cod() {
         paymentMethod: paymentMethod
       };
 
-      console.log("Sending order data:", orderData);
       
       const response = await placeOrderApi(orderData);
-      console.log("Place order response:", response);
 
       if (response.success) {
         toast.success("Order placed successfully!");

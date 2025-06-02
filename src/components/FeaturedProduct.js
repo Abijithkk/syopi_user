@@ -2,9 +2,9 @@ import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import {
   addWishlistApi,
-  getProductApi,
   getWishlistApi,
   removefromWishlist,
 } from "../services/allApi";
@@ -12,39 +12,18 @@ import {
 import "./FProduct.css";
 import { BASE_URL } from "../services/baseUrl";
 
-function FeaturedProduct() {
-  const [products, setProducts] = useState([]);
+function FeaturedProduct({ products = [] }) {
   const [wishlist, setWishlist] = useState(new Set());
-
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { ref, inView } = useInView({ threshold: 0.2 });
   const navigate = useNavigate();
 
-  const fetchProducts = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await getProductApi();
-      console.log("productresponse", response);
-
-      setProducts(response.data.products);
-    } catch (err) {
-      setError("Failed to load products. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
-
   useEffect(() => {
     const fetchWishlist = async () => {
       try {
+        setLoading(true);
         const response = await getWishlistApi();
-        console.log(response);
 
         if (response?.data?.wishlist) {
           setWishlist(
@@ -55,48 +34,55 @@ function FeaturedProduct() {
         }
       } catch (error) {
         console.error("Failed to fetch wishlist:", error);
+        setError("Failed to load wishlist");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchWishlist();
   }, []);
 
-  const toggleWishlist = async (id) => {
+  const toggleWishlist = async (id, productName = "Product") => {
     const token = localStorage.getItem("accessuserToken");
   
     if (!token) {
+      toast.error("Please sign in to add items to wishlist", {
+        duration: 3000,
+        position: "top-center",
+      });
       navigate("/signin");
       return;
     }
+
+    const isCurrentlyWishlisted = wishlist.has(String(id));
+    const loadingToastId = toast.loading(
+      isCurrentlyWishlisted ? "Removing from wishlist..." : "Adding to wishlist...",
+      {
+        position: "top-center",
+      }
+    );
   
     try {
       let response;
       
-      if (wishlist.has(String(id))) {
-        // If already wishlisted, remove from wishlist
+      if (isCurrentlyWishlisted) {
         response = await removefromWishlist(id);
       } else {
-        // Otherwise, add to wishlist
         response = await addWishlistApi(id);
       }
   
-      console.log("Wishlist Response:", response);
   
       if (!response.success) {
         console.error("Failed to toggle wishlist:", response.error);
+        toast.error("Failed to update wishlist. Please try again.", {
+          id: loadingToastId,
+          duration: 3000,
+          position: "top-center",
+        });
         return;
       }
   
-      // Update the `isWishlisted` state in the products array
-      setProducts((prevProducts) =>
-        prevProducts.map((product) =>
-          product._id === id
-            ? { ...product, isWishlisted: !product.isWishlisted }
-            : product
-        )
-      );
-  
-      // Update local wishlist state
       setWishlist((prevWishlist) => {
         const updatedWishlist = new Set(prevWishlist);
         if (updatedWishlist.has(String(id))) {
@@ -106,11 +92,32 @@ function FeaturedProduct() {
         }
         return updatedWishlist;
       });
+
+      if (isCurrentlyWishlisted) {
+        toast.success(`${productName} removed from wishlist`, {
+          id: loadingToastId,
+          duration: 2000,
+          position: "top-center",
+          icon: "💔",
+        });
+      } else {
+        toast.success(`${productName} added to wishlist`, {
+          id: loadingToastId,
+          duration: 2000,
+          position: "top-center",
+          icon: "❤️",
+        });
+      }
     } catch (error) {
       console.error("Failed to toggle wishlist:", error);
+      toast.error("Something went wrong. Please try again.", {
+        id: loadingToastId,
+        duration: 3000,
+        position: "top-center",
+      });
+      setError("Failed to update wishlist");
     }
   };
-  
 
   const handleNavigate = useCallback(
     (id) => {
@@ -119,7 +126,6 @@ function FeaturedProduct() {
     [navigate]
   );
 
-  // Animation Variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -146,6 +152,11 @@ function FeaturedProduct() {
     inactive: { scale: 1, color: "#333" },
   };
 
+  const isLoading = loading && products.length === 0;
+  const truncateText = (text, maxLength = 25) => {
+    if (text.length <= maxLength) return text;
+    return text.slice(0, maxLength) + "...";
+  };
   return (
     <motion.div
       ref={ref}
@@ -166,18 +177,27 @@ function FeaturedProduct() {
         Featured Products
       </motion.p>
 
-      {loading ? (
+      {error && (
+        <div className="error-message">
+          <p>{error}</p>
+          <button 
+            onClick={() => setError(null)} 
+            className="retry-button"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {isLoading ? (
         <div className="feature-card-row">
           {[...Array(4)].map((_, index) => (
             <div key={index} className="feature-card skeleton-loader"></div>
           ))}
         </div>
-      ) : error ? (
-        <div className="error-message">
-          <p>{error}</p>
-          <button onClick={fetchProducts} className="retry-button">
-            Retry
-          </button>
+      ) : products.length === 0 ? (
+        <div className="no-products-message">
+          <p>No featured products available</p>
         </div>
       ) : (
         <div className="feature-card-row">
@@ -190,10 +210,13 @@ function FeaturedProduct() {
             >
               <div className="feature-card-image-container">
                 <img
-                  src={`${BASE_URL}/uploads/${product.images[0]}`}
-                  alt={product.title}
+                  src={`${BASE_URL}/uploads/${product.images?.[0] || 'placeholder.jpg'}`}
+                  alt={product.title || product.name || 'Product'}
                   className="feature-card-image"
                   loading="lazy"
+                  onError={(e) => {
+                    e.target.src = '/placeholder-image.jpg';
+                  }}
                 />
                 <motion.div
                   className={`wishlist-icon ${
@@ -217,28 +240,35 @@ function FeaturedProduct() {
                   ></i>
                 </motion.div>
               </div>
-              <p className="feature-card-title">{product.name}</p>
+              <p className="feature-card-title">
+              {truncateText(product.name)}
+              </p>
+              
             </motion.div>
           ))}
         </div>
       )}
 
-      <button
-        className="product-prev"
-        type="button"
-        data-bs-target="#homeCarousel"
-        data-bs-slide="prev"
-      >
-        &#10094;
-      </button>
-      <button
-        className="product-next"
-        type="button"
-        data-bs-target="#homeCarousel"
-        data-bs-slide="next"
-      >
-        &#10095;
-      </button>
+      {products.length > 0 && (
+        <>
+          <button
+            className="product-prev"
+            type="button"
+            data-bs-target="#homeCarousel"
+            data-bs-slide="prev"
+          >
+            &#10094;
+          </button>
+          <button
+            className="product-next"
+            type="button"
+            data-bs-target="#homeCarousel"
+            data-bs-slide="next"
+          >
+            &#10095;
+          </button>
+        </>
+      )}
     </motion.div>
   );
 }

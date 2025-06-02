@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
 import signimg from "../images/Landing.jpeg";
 import "./signin.css";
-import { userLoginApi, googleLoginApi } from "../services/allApi";
+import { userLoginApi, googleLoginApi, appleLoginApi } from "../services/allApi";
 import { BASE_URL } from "../services/baseUrl";
 
 function Signin() {
@@ -12,57 +12,102 @@ function Signin() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [appleLoading, setAppleLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    const handleGoogleCallback = async () => {
+    const handleOAuthCallback = async () => {
       const urlParams = new URLSearchParams(location.search);
-      const code = urlParams.get('code');
+      const googleCode = urlParams.get('code');
+      const appleCode = urlParams.get('code');
+      const provider = urlParams.get('provider');
+      const state = urlParams.get('state');
       
-      if (code) {
+      if (googleCode && (!provider || provider === 'google' || state === 'google')) {
         setGoogleLoading(true);
         const loadingToast = toast.loading("Completing Google sign-in...");
         
         try {
-          const response = await fetch(`${BASE_URL}/user/auth/google/callback?code=` + code, {
-            method: 'GET',
+          const response = await fetch(`${BASE_URL}/user/auth/google/callback`, {
+            method: 'POST',
             headers: {
               'Content-Type': 'application/json'
-            }
+            },
+            body: JSON.stringify({ code: googleCode })
           });
           
           const data = await response.json();
-          
-          if (data && data.token) {
-            // Store authentication data
-            localStorage.setItem("userId", data.user.userId);
-            localStorage.setItem("accessuserToken", data.token);
-            localStorage.setItem("username", data.user.name);
+
+          if (response.ok && data && data.token) {
+            localStorage.setItem("userId", data.user.userId || data.user._id || data.user.id);
+            localStorage.setItem("accessuserToken", data.token || data.accessToken);
+            localStorage.setItem("username", data.user.name || data.user.username);
             localStorage.setItem("email", data.user.email);
+            localStorage.setItem("role", data.user.role || "user");
             
             toast.success("Google sign-in successful!");
-            // Use a setTimeout to ensure the toast is visible before navigation
+            
             setTimeout(() => {
               navigate("/");
             }, 1000);
           } else {
-            toast.error("Failed to complete Google sign-in");
+            toast.error(data.message || "Failed to complete Google sign-in");
           }
         } catch (error) {
           console.error("Google Callback Error:", error);
-          toast.error(error.response?.data?.message || "Failed to authenticate with Google");
+          toast.error("Failed to authenticate with Google");
         } finally {
           toast.dismiss(loadingToast);
           setGoogleLoading(false);
           
-          // Clear the URL to remove the code
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      }
+      
+      if (appleCode && (provider === 'apple' || state === 'apple')) {
+        setAppleLoading(true);
+        const loadingToast = toast.loading("Completing Apple sign-in...");
+        
+        try {
+          const response = await fetch(`${BASE_URL}/user/auth/apple/callback`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ code: appleCode })
+          });
+          
+          const data = await response.json();
+          
+          if (response.ok && data && data.token) {
+            localStorage.setItem("userId", data.user.userId || data.user._id || data.user.id);
+            localStorage.setItem("accessuserToken", data.token || data.accessToken);
+            localStorage.setItem("username", data.user.name || data.user.username);
+            localStorage.setItem("email", data.user.email);
+            localStorage.setItem("role", data.user.role || "user");
+            
+            toast.success("Apple sign-in successful!");
+            
+            setTimeout(() => {
+              navigate("/");
+            }, 1000);
+          } else {
+            toast.error(data.message || "Failed to complete Apple sign-in");
+          }
+        } catch (error) {
+          console.error("Apple Callback Error:", error);
+          toast.error("Failed to authenticate with Apple");
+        } finally {
+          toast.dismiss(loadingToast);
+          setAppleLoading(false);
+          
           window.history.replaceState({}, document.title, window.location.pathname);
         }
       }
     };
 
-    handleGoogleCallback();
+    handleOAuthCallback();
   }, [location, navigate]);
 
   const togglePasswordVisibility = () => {
@@ -83,28 +128,22 @@ function Signin() {
     try {
       const response = await userLoginApi({ emailOrPhone, password });
       
-      console.log("Login Response:", response);
       
-      // Check if login was successful based on the response structure you showed
       if (response.success && response.status === 200) {
-        // Extract data from the response
-        const { accessToken, refreshToken, user } = response.data;
+        const { user } = response.data;
         
-        // Store tokens and user data in localStorage
-        localStorage.setItem("userId", user?.id || user?.userId);
-        localStorage.setItem("accessuserToken", accessToken);
-        localStorage.setItem("refreshToken", refreshToken);
+        localStorage.setItem("userId", user?.userId || user?._id || user?.id);
+        localStorage.setItem("accessuserToken", response.data.accessToken);
         localStorage.setItem("username", user?.name || user?.username);
         localStorage.setItem("email", user?.email);
+        localStorage.setItem("role", user?.role || "user");
         
         toast.success("Login successful!");
         
-        // Use setTimeout to ensure the toast is visible before navigation
         setTimeout(() => {
           navigate("/");
         }, 1000);
       } else {
-        // Show error message from response
         const errorMessage = response.data?.error?.message || response.data?.message || "Login failed!";
         toast.error(errorMessage);
       }
@@ -117,13 +156,16 @@ function Signin() {
     }
   };
   
-  // Handle Google Sign-In
   const handleGoogleSignIn = () => {
     setGoogleLoading(true);
-    
-    // Redirect to your backend's Google OAuth route
-    // This should be the URL returned by googleLoginApi()
     window.location.href = googleLoginApi();
+  };
+
+  const handleAppleSignIn = () => {
+    setAppleLoading(true);
+    
+   
+    window.location.href = appleLoginApi();
   };
 
   return (
@@ -178,13 +220,18 @@ function Signin() {
               }
             </span>
           </button>
-          <button className="social-btn facebook">
-            <span className="icon facebook-icon"></span>
-            <span className="textt">Sign in with Facebook</span>
-          </button>
-          <button className="social-btn apple">
+          <button 
+            className="social-btn apple"
+            onClick={handleAppleSignIn}
+            disabled={appleLoading}
+          >
             <span className="icon apple-icon"></span>
-            <span className="textt">Sign in with Apple</span>
+            <span className="textt">
+              {appleLoading ? 
+                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : 
+                "Sign in with Apple"
+              }
+            </span>
           </button>
         </div>
 
@@ -197,7 +244,6 @@ function Signin() {
         <img src={signimg} alt="Sign In" />
       </div>
       
-      {/* React Hot Toast container with improved configuration */}
       <Toaster
         position="top-center"
         reverseOrder={false}

@@ -1,8 +1,7 @@
-/* Main scrolling container */
 .filter-container {
-  overflow-x: scroll;  /* Allow horizontal scrolling */
-  -ms-overflow-style: none;  /* For Internet Explorer */
-  scrollbar-width: none;  /* For Firefox */
+  overflow-x: scroll;  
+  -ms-overflow-style: none; 
+  scrollbar-width: none; 
   white-space: nowrap;
   width: 100%;
   background-color: #ffffff;
@@ -29,7 +28,6 @@
 }
 
 
-/* Individual filter item */
 .filter-item {
   display: flex;
   align-items: center;
@@ -41,13 +39,11 @@
   scroll-snap-align: center;
 }
 
-/* Make 5th item partially visible */
 .filter-item:last-child {
   min-width: 12%;
   max-width: 12%;
 }
 
-/* Image styling */
 .filter-img {
   width: 40px;
   height: 40px;
@@ -57,28 +53,21 @@
   transition: transform 0.2s;
 }
 
-/* Label styling */
-.filter-label {
-  font-size: 16px;
+.filter-label2 {
+  font-size: 10px;
   color: #555;
   font-weight: 600;
 }
 
-/* Hover effects */
-.filter-item:hover .filter-label {
+.filter-item:hover .filter-label2 {
   color: #007bff;
 }
 .filter-item:hover .filter-img {
   transform: scale(1.1);
 }
 
-/* Active category with underline */
-.filter-item.active .filter-label {
-  color: #007bff;
-  position: relative;
-}
 
-.filter-item.active .filter-label::after {
+.filter-item.active .filter-label2::after {
   content: "";
   display: block;
   width: 100%;

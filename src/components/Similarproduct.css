@@ -88,6 +88,7 @@
     color: #2D2E2E;    
     margin-top: 10px;
     
+    
 }
 
 .similar-card-description {
@@ -113,9 +114,7 @@
     color: red;
 }
 
-/* Responsive Breakpoints */
 
-/* For larger screens (desktops) */
 @media (min-width: 1024px) {
     .similar-card {
         flex: 0 0 calc(25% - 16px); 

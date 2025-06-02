@@ -3,7 +3,7 @@ import { Container, Row, Col, Card } from "react-bootstrap";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import "./Cart.css";
-import Recommend from "../components/Recommend";
+// import Recommend from "../components/Recommend";
 import {
   checkoutCreateApi,
   getUserCartApi,
@@ -38,7 +38,6 @@ function Cart() {
     }
 
     const response = await getUserCartApi(userId);
-    console.log("cart", response);
 
     if (response.success) {
       setCartData(response.data);
@@ -158,7 +157,7 @@ function Cart() {
 
   return (
     <div>
-      <Container fluid className="cart-container my-5">
+      <Container fluid className="cart-container ">
         <Row className="no-gutters">
           {/* Left Column - Cart Items */}
           <Col xs={12} md={7} className="cart-left-column mb-4 mb-md-0">
@@ -334,7 +333,7 @@ function Cart() {
           <Col xs={12} md={5} className="cart-right-column">
             <Card className="cart-checkout p-3 shadow">
               <Card.Body>
-                <div className="cart-points-info text-center bg-light p-3">
+                {/* <div className="cart-points-info text-center bg-light p-3">
                   <p className="m-0 cart-points">
                     1 Point = 1 Rupee: For example, if you have 40 points, you
                     can use them as 40 rupees on your purchase.
@@ -342,7 +341,7 @@ function Cart() {
                   <button className="checkout-button1 mt-2">
                     Claim with Syopi points
                   </button>
-                </div>
+                </div> */}
 
                 <Card.Text className="mt-3">
                   {loading ? (
@@ -397,7 +396,7 @@ function Cart() {
       </Container>
 
       {/* Separate loading state for Recommend */}
-      {loading ? (
+      {/* {loading ? (
         <Container fluid className="recommend-container my-5">
           <Row>
             {[1, 2, 3, 4].map((_, index) => (
@@ -409,7 +408,7 @@ function Cart() {
         </Container>
       ) : (
         <Recommend />
-      )}
+      )} */}
       <ToastContainer></ToastContainer>
     </div>
   );

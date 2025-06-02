@@ -181,6 +181,65 @@ text-decoration-skip-ink: none;
 .icon-column{
   margin-left: -6px;
 }
+
+
+
+
+
+
+/* Footer category dropdown styles */
+.footer-category-section {
+  position: relative;
+}
+
+.footer-category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding: 10px 0;
+}
+
+.footer-category-header .f-text {
+  margin: 0;
+}
+
+.footer-dropdown-icon {
+  margin-left: auto;
+}
+
+.footer-category-dropdown {
+  margin-top: 10px;
+}
+
+.footer-category-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.footer-category-item {
+  cursor: pointer;
+}
+
+.footer-loading-text,
+.footer-no-categories {
+  text-align: left;
+  color: #666;
+}
+
+/* Responsive - stack vertically on mobile */
+@media (max-width: 768px) {
+  .footer-category-list {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+
   @media (max-width: 768px) {
     .footer {
       text-align: center;

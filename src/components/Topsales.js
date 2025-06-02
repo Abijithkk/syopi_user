@@ -2,13 +2,14 @@ import './Topsales.css';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { useRef, useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { BASE_URL } from '../services/baseUrl';
 
 function Topsales({products}) {
-console.log("top-sales",products);
 
-
-
+  const navigate = useNavigate();
+  const location = useLocation();
+  
   const { ref, inView } = useInView({
     triggerOnce: false,
     threshold: 0.2,
@@ -51,6 +52,35 @@ console.log("top-sales",products);
     });
   };
 
+  // Navigate with a unique key to force re-render of target component
+  const navigateWithKey = (url) => {
+    // Add a timestamp to force a reload
+    const separator = url.includes('?') ? '&' : '?';
+    const uniqueUrl = `${url}${separator}_k=${Date.now()}`;
+    navigate(uniqueUrl);
+  };
+
+  // Handle top sales card click
+  const handleTopSalesClick = (product) => {
+    const params = new URLSearchParams(location.search);
+    const currentSearch = params.get("search");
+    
+    // Build URL with category and subcategory filters
+    let url = `/allproducts?category=${product.category}`;
+    
+    // Add subcategory if available
+    if (product.subcategory) {
+      url += `&subcategory=${product.subcategory}`;
+    }
+    
+    // Preserve current search query if exists
+    if (currentSearch) {
+      url += `&search=${currentSearch}`;
+    }
+    
+    navigateWithKey(url);
+  };
+
   const containerVariants = {
     hidden: { opacity: 0, y: 50 },
     visible: {
@@ -91,9 +121,22 @@ console.log("top-sales",products);
         }}
       >
         {products.map((product) => (
-          <motion.div className="top-sales-card" key={product.id} variants={cardVariants} layout>
+          <motion.div 
+            className="top-sales-card" 
+            key={product._id} 
+            variants={cardVariants} 
+            layout
+            onClick={() => handleTopSalesClick(product)}
+            style={{ cursor: 'pointer' }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
             <div className="top-sales-card-image-container">
-              <img src={`${BASE_URL}/uploads/${product.image}`} alt={product.title} className="Top-sales-card-image" />
+              <img 
+                src={`${BASE_URL}/uploads/${product.image}`} 
+                alt={product.title} 
+                className="Top-sales-card-image" 
+              />
               <div className="card-text-overlay">
                 <p className="topsalesheading">{product.title}</p>
                 <p className="topsalessubheading">{product.description}</p>

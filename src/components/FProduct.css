@@ -274,18 +274,19 @@
   text-align: center;
   color: #2D2E2E;
   margin-top: 10px;
+  margin-bottom: 4px; 
 }
 
 .feature-card-description {
   font-family: 'Inter', sans-serif;
-  font-size: 18px;
+  font-size: 16px; 
   font-weight: 400;
-  line-height: 5px;
+  line-height: 22px; 
   text-align: center;
   color: #2D2E2E;
-  margin-top: 0px;
-  /* Reduced gap */
+  margin-top: 0; 
 }
+
 
 .wishlist-icon.active {
   background-color: white;

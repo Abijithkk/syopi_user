@@ -6,11 +6,12 @@ import SimilarProduct from "../components/SimilarProduct";
 import Footer from "../components/Footer";
 import {
   addToCartApi,
-  getAddressApi,
+  buyNowCheckoutApi,
   getDeliveryDateApi,
   getProductByIdApi,
   getUserCartApi,
 } from "../services/allApi";
+
 import { useNavigate, useParams } from "react-router-dom";
 import { BASE_URL } from "../services/baseUrl";
 import { Skeleton } from "@mui/material";
@@ -30,19 +31,19 @@ function SingleProduct() {
   const [currentImages, setCurrentImages] = useState([]);
   const [isInCart, setIsInCart] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isBuyNowLoading, setIsBuyNowLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
   const { id } = useParams();
   const navigate = useNavigate();
-  const [address, setAddress] = useState([]);
+  // const [address, setAddress] = useState([]);
   const [pincode, setPincode] = useState("");
   const [deliveryInfo, setDeliveryInfo] = useState(null);
+  
   useEffect(() => {
     const fetchProductAndCartData = async () => {
       try {
         const response = await getProductByIdApi(id);
-        console.log("single-product", response);
         if (response.data) {
           setProduct(response.data.product);
           setReviews(response.data.reviews);
@@ -84,51 +85,7 @@ function SingleProduct() {
     fetchProductAndCartData();
   }, [id]);
 
-  const fetchAddresses = async () => {
-    try {
-      setAddress((prev) => ({ ...prev, loading: true }));
-      const response = await getAddressApi();
-      console.log("Address", response);
-
-      if (response.success && response.data) {
-        setAddress((prev) => ({
-          ...prev,
-          addresses: response.data,
-          loading: false,
-        }));
-      } else if (
-        response.status === 404 ||
-        (response.message && response.message.includes("No addresses found"))
-      ) {
-        setAddress((prev) => ({
-          ...prev,
-          addresses: [],
-          loading: false,
-        }));
-        toast.info("No addresses found. Please add a shipping address.");
-      }
-      else {
-        throw new Error(
-          response.error || response.message || "Failed to fetch addresses"
-        );
-      }
-    } catch (error) {
-      console.error("Address fetch error:", error);
-      setAddress((prev) => ({
-        ...prev,
-        addresses: [],
-        loading: false,
-        error: error.message,
-      }));
-      toast.error("Error loading addresses. Please try again later.");
-    }
-  };
-
-  useEffect(() => {
-    fetchAddresses();
-  }, []);
-
-  // Check if product is already in user's cart
+ 
   const checkIfInCart = async (productId) => {
     const userId = localStorage.getItem("userId");
     if (!userId) return;
@@ -193,9 +150,12 @@ function SingleProduct() {
     [selectedVariant]
   );
 
-  const originalPrice = selectedVariant?.price || 0;
-  const discountedPrice = selectedVariant?.offerPrice || originalPrice;
-  const discountAmount = originalPrice - discountedPrice;
+const toTwoDecimals = (num) => Math.round(num * 100) / 100;
+
+const originalPrice = toTwoDecimals(selectedVariant?.price || 0);
+const discountedPrice = toTwoDecimals(selectedVariant?.offerPrice || originalPrice);
+const discountAmount = toTwoDecimals(originalPrice - discountedPrice);
+
 
   useEffect(() => {
     if (!sizesForSelectedColor.some((s) => s.size === selectedSize)) {
@@ -215,7 +175,7 @@ function SingleProduct() {
 
   const addToCart = async () => {
     if (!selectedColor || !selectedSize) {
-      toast.warn("Please select a color and size before adding to cart.");
+      toast.error("Please select a color and size before adding to cart.");
       return;
     }
 
@@ -267,6 +227,63 @@ function SingleProduct() {
     }
   };
 
+  const handleBuyNow = async () => {
+    if (!selectedColor || !selectedSize) {
+      toast.error("Please select a color and size before buying.");
+      return;
+    }
+
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      toast.error("Please log in to proceed with purchase");
+      setTimeout(() => navigate("/login"), 1500);
+      return;
+    }
+
+    setIsBuyNowLoading(true);
+
+    try {
+      const buyNowData = {
+        productId: id,
+        quantity: 1,
+        color: selectedColor,
+        size: selectedSize,
+        colorName: selectedColorName,
+        price: discountedPrice,
+      };
+
+      const response = await buyNowCheckoutApi(buyNowData);
+
+      if (response.success) {
+        toast.success(`Proceeding to checkout - ₹${discountedPrice} for ${product.name}`, {
+          duration: 2000,
+          icon: '🛒',
+        });
+        
+        // Navigate to address page after short delay
+        setTimeout(() => {
+          navigate(`/address/${response.data.checkoutId || '683ad85b48e6caddbea652f9'}`);
+        }, 1000);
+      } else {
+        if (response.status === 401) {
+          toast.error("Session expired. Redirecting to login...");
+          localStorage.removeItem("accessuserToken");
+          localStorage.removeItem("userId");
+          setTimeout(() => navigate("/signin"), 1500);
+        } else {
+          toast.error(response.message || "Failed to proceed with purchase");
+        }
+      }
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message ||
+        "Something went wrong. Please try again.";
+      toast.error(errorMessage);
+      console.error("Failed to process buy now:", error);
+    } finally {
+      setIsBuyNowLoading(false);
+    }
+  };
 
   const handleMouseEnter = (e) => {
     if (!mainImage) return;
@@ -323,6 +340,7 @@ function SingleProduct() {
   const handleMouseLeave = () => {
     setIsZoomVisible(false);
   };
+  
   const handlePincodeChange = (e) => {
     // Allow only numbers and limit to 6 digits
     const value = e.target.value.replace(/\D/g, "").slice(0, 6);
@@ -357,6 +375,7 @@ function SingleProduct() {
       setLoading(false);
     }
   };
+  
   if (!product) {
     return (
       <div>
@@ -554,10 +573,16 @@ function SingleProduct() {
                 </div>
               </div>
 
-              <div className="action-card">
+              <div 
+                className="action-card buy-now"
+                onClick={handleBuyNow}
+                disabled={isBuyNowLoading || !selectedColor || !selectedSize}
+              >
                 <div className="icon-container">
-                  <i className="fas fa-heart"></i>
-                  <p className="wishlist-text">Add to Wishlist</p>
+                  <i className="fa-solid fa-bag-shopping"></i>
+                  <p className="wishlist-text">
+                    {isBuyNowLoading ? "Processing..." : "Buy Now"}
+                  </p>
                 </div>
               </div>
             </div>
