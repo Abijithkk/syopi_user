@@ -45,93 +45,125 @@ function Featuringbrands({ brands }) {
     }
   }, []);
 
-  const toggleWishlist = async (id, event) => {
-    event.stopPropagation();
+const toggleWishlist = async (id, event) => {
+  event.stopPropagation();
+  
+  const token = localStorage.getItem("accessuserToken");
+  
+  if (!token) {
+    toast.error("Please login to manage wishlist");
+    navigate("/signin");
+    return;
+  }
+
+  // Prevent multiple simultaneous requests for the same product
+  if (loadingWishlist[id]) {
+    return;
+  }
+
+  // Set loading state
+  setLoadingWishlist(prev => ({
+    ...prev,
+    [id]: true
+  }));
+
+  const isCurrentlyWishlisted = wishlist.has(String(id));
+  
+  try {
+    let response;
     
-    const token = localStorage.getItem("accessuserToken");
+    // Show loading toast
+    toast.loading(
+      isCurrentlyWishlisted ? "Removing from wishlist..." : "Adding to wishlist...", 
+      { id: 'wishlist-action' }
+    );
     
-    if (!token) {
-      toast.error("Please login to manage wishlist");
-      navigate("/signin");
+    if (isCurrentlyWishlisted) {
+      // If already wishlisted, remove from wishlist
+      response = await removefromWishlist(id);
+    } else {
+      // Otherwise, add to wishlist
+      response = await addWishlistApi(id);
+    }
+
+    // Check for authentication failure (401 or "Login Required." message)
+    if (response?.message === "Login Required." || 
+        response?.status === 401 || 
+        response?.error?.includes("Login Required") ||
+        response?.error?.includes("Unauthorized")) {
+      
+      toast.error("Session expired. Please login again", { id: 'wishlist-action' });
+      
+      // Clear invalid token
+      localStorage.removeItem("accessuserToken");
+      
+      // Navigate to signin after showing toast
+      setTimeout(() => {
+        navigate("/signin");
+      }, 1000);
       return;
     }
 
-    // Prevent multiple simultaneous requests for the same product
-    if (loadingWishlist[id]) {
+    if (!response.success) {
+      console.error("Failed to toggle wishlist:", response.error);
+      toast.error(response.error || "Failed to update wishlist", { id: 'wishlist-action' });
       return;
     }
 
-    // Set loading state
+    // Update the `isWishlisted` state in the products array
+    setProducts((prevProducts) =>
+      prevProducts.map((product) =>
+        product._id === id
+          ? { ...product, isWishlisted: !product.isWishlisted }
+          : product
+      )
+    );
+
+    // Update local wishlist state
+    setWishlist((prevWishlist) => {
+      const updatedWishlist = new Set(prevWishlist);
+      if (updatedWishlist.has(String(id))) {
+        updatedWishlist.delete(String(id));
+        toast.success("Removed from wishlist", { id: 'wishlist-action' });
+      } else {
+        updatedWishlist.add(String(id));
+        toast.success("Added to wishlist", { id: 'wishlist-action' });
+      }
+      return updatedWishlist;
+    });
+
+  } catch (error) {
+    console.error("Failed to toggle wishlist:", error);
+    
+    // Handle different types of errors
+    if (error.message === "No token provided") {
+      toast.error("Please login to manage wishlist", { id: 'wishlist-action' });
+      localStorage.removeItem("accessuserToken");
+      setTimeout(() => {
+        navigate("/signin");
+      }, 1000);
+    } else if (error.response?.status === 401 || 
+               error.message?.includes("401") || 
+               error.message?.includes("Unauthorized") ||
+               error.message?.includes("Login Required")) {
+      toast.error("Session expired. Please login again", { id: 'wishlist-action' });
+      localStorage.removeItem("accessuserToken");
+      setTimeout(() => {
+        navigate("/signin");
+      }, 1000);
+    } else if (error.message?.includes("Network") || error.code === 'NETWORK_ERROR') {
+      toast.error("Network error. Please check your connection", { id: 'wishlist-action' });
+    } else {
+      toast.error("Failed to update wishlist. Please try again", { id: 'wishlist-action' });
+    }
+  } finally {
+    // Clear loading state
     setLoadingWishlist(prev => ({
       ...prev,
-      [id]: true
+      [id]: false
     }));
-
-    try {
-      let response;
-      
-      if (wishlist.has(String(id))) {
-        // If already wishlisted, remove from wishlist
-        response = await removefromWishlist(id);
-        toast.loading("Removing from wishlist...", { id: 'wishlist-action' });
-      } else {
-        // Otherwise, add to wishlist
-        response = await addWishlistApi(id);
-        toast.loading("Adding to wishlist...", { id: 'wishlist-action' });
-      }
-
-
-      if (!response.success) {
-        console.error("Failed to toggle wishlist:", response.error);
-        toast.error(response.error || "Failed to update wishlist", { id: 'wishlist-action' });
-        return;
-      }
-
-      // Update the `isWishlisted` state in the products array
-      setProducts((prevProducts) =>
-        prevProducts.map((product) =>
-          product._id === id
-            ? { ...product, isWishlisted: !product.isWishlisted }
-            : product
-        )
-      );
-
-      // Update local wishlist state
-      setWishlist((prevWishlist) => {
-        const updatedWishlist = new Set(prevWishlist);
-        if (updatedWishlist.has(String(id))) {
-          updatedWishlist.delete(String(id));
-          toast.success("Removed from wishlist", { id: 'wishlist-action' });
-        } else {
-          updatedWishlist.add(String(id));
-          toast.success("Added to wishlist", { id: 'wishlist-action' });
-        }
-        return updatedWishlist;
-      });
-
-    } catch (error) {
-      console.error("Failed to toggle wishlist:", error);
-      
-      // Handle different types of errors
-      if (error.message === "No token provided") {
-        toast.error("Please login to manage wishlist", { id: 'wishlist-action' });
-        navigate("/signin");
-      } else if (error.message?.includes("Network")) {
-        toast.error("Network error. Please check your connection", { id: 'wishlist-action' });
-      } else if (error.message?.includes("401") || error.message?.includes("Unauthorized")) {
-        toast.error("Session expired. Please login again", { id: 'wishlist-action' });
-        navigate("/signin");
-      } else {
-        toast.error("Failed to update wishlist. Please try again", { id: 'wishlist-action' });
-      }
-    } finally {
-      // Clear loading state
-      setLoadingWishlist(prev => ({
-        ...prev,
-        [id]: false
-      }));
-    }
-  };
+  }
+};
 
   const handleProductClick = (productId) => {
     navigate(`/product/${productId}`);

@@ -12,15 +12,16 @@ import {
 } from "../services/allApi";
 import { BASE_URL } from "../services/baseUrl";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
-import { toast, ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 function Cart() {
   const [loading, setLoading] = useState(true);
   const [cartData, setCartData] = useState([]);
   const [loadingItems, setLoadingItems] = useState({});
   const [removeLoading, setRemoveLoading] = useState(false);
-  const [checkoutLoading, setCheckoutLoading] = useState(false); // Initially false
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [authHandled, setAuthHandled] = useState(false); // Flag to prevent multiple auth toasts
   const isLoading = loadingItems[cartData._id];
 
   const navigate = useNavigate();
@@ -29,23 +30,97 @@ function Cart() {
     fetchCart();
   }, []);
 
-  const fetchCart = async () => {
-    const userId = localStorage.getItem("userId");
+  // Helper function to handle authentication failures
+  const handleAuthFailure = (message = "Session expired. Please sign in again.") => {
+    if (authHandled) return; // Prevent multiple auth handling
+    
+    setAuthHandled(true);
+    console.log("Authentication failure detected");
+    
+    // Dismiss any existing toasts before showing new one
+    toast.dismiss();
+    toast.error(message);
+    
+    // Clear invalid tokens
+    localStorage.removeItem("accessuserToken");
+    localStorage.removeItem("userId");
+    
+    // Navigate to signin after showing toast
+    setTimeout(() => {
+      navigate("/signin");
+    }, 1000);
+  };
 
-    if (!userId) {
-      setLoading(false);
+  // Helper function to check if error is authentication related
+  const isAuthError = (error, response) => {
+    const authErrorMessages = [
+      "No token provided",
+      "Login Required",
+      "Unauthorized"
+    ];
+    
+    return (
+      response?.status === 401 ||
+      authErrorMessages.some(msg => 
+        response?.error?.includes(msg) ||
+        error?.response?.data?.error?.includes(msg) ||
+        error?.message?.includes(msg)
+      ) ||
+      error?.response?.status === 401
+    );
+  };
+
+const fetchCart = async () => {
+  console.log("Fetching cart data...");
+  
+  const userId = localStorage.getItem("userId");
+  console.log("Retrieved userId from localStorage:", userId);
+  
+  if (!userId) {
+    console.warn("No userId found in localStorage.");
+    toast.dismiss(); // Clear any existing toasts
+    toast.error("Please sign in.");
+    setTimeout(() => {
+      navigate("/signin");
+    }, 1000);
+    setLoading(false);
+    return;
+  }
+
+  try {
+    const response = await getUserCartApi(userId);
+    console.log("Cart API response:", response);
+
+    // Check for authentication failure
+    if (isAuthError(null, response)) {
+      handleAuthFailure();
       return;
     }
 
-    const response = await getUserCartApi(userId);
-
     if (response.success) {
+      console.log("Cart data fetched successfully.");
       setCartData(response.data);
     } else {
-      console.error(response.error);
+      console.error("Cart fetch failed:", response.error);
+      toast.dismiss();
+      toast.error(response.error || "Failed to load cart");
     }
+  } catch (error) {
+    console.error("Error while fetching cart data:", error);
+    
+    // Handle authentication errors in catch block
+    if (isAuthError(error, null)) {
+      handleAuthFailure();
+    } else {
+      // Handle other errors
+      toast.dismiss();
+      toast.error("Failed to load cart data");
+    }
+  } finally {
     setLoading(false);
-  };
+    console.log("Loading state set to false.");
+  }
+};
 
   const handleQuantityChange = async (itemId, productId, action) => {
     const userId = localStorage.getItem("userId");
@@ -100,15 +175,16 @@ function Cart() {
 
     if (response.success) {
       // Optionally fetch cart data to ensure sync with server
-      // You could do this less frequently, not on every quantity change
       fetchCart();
     } else {
       // Revert the optimistic update if the API call fails
       fetchCart();
       console.error(response.error);
-      // You might want to show an error message to the user here
+      toast.dismiss();
+      toast.error("Failed to update quantity");
     }
   };
+
   const handleRemoveItem = async (itemId) => {
     const userId = localStorage.getItem("userId");
     if (!userId) return;
@@ -122,23 +198,30 @@ function Cart() {
     setRemoveLoading((prev) => ({ ...prev, [itemId]: false }));
 
     if (response.success) {
+      toast.dismiss();
+      toast.success("Item removed from cart");
       fetchCart(); // Refresh cart after removing item
     } else {
       console.error(response.error);
+      toast.dismiss();
+      toast.error("Failed to remove item");
     }
   };
+
   const handleCheckout = async () => {
     if (!cartData?._id) {
+      toast.dismiss();
       toast.error("Cart ID is missing. Please add items to your cart first.");
       return;
     }
 
-    setCheckoutLoading(true); // Start checkout-specific loading
+    setCheckoutLoading(true);
 
     try {
       const response = await checkoutCreateApi(cartData._id);
 
       if (response?.success) {
+        toast.dismiss();
         toast.success("Checkout successful!");
         navigate(`/address/${response.data.checkout._id}`);
       } else {
@@ -147,11 +230,12 @@ function Cart() {
         );
       }
     } catch (error) {
+      toast.dismiss();
       toast.error(
         error.message || "An unexpected error occurred. Please try again."
       );
     } finally {
-      setCheckoutLoading(false); // Stop checkout loading
+      setCheckoutLoading(false);
     }
   };
 
@@ -333,16 +417,6 @@ function Cart() {
           <Col xs={12} md={5} className="cart-right-column">
             <Card className="cart-checkout p-3 shadow">
               <Card.Body>
-                {/* <div className="cart-points-info text-center bg-light p-3">
-                  <p className="m-0 cart-points">
-                    1 Point = 1 Rupee: For example, if you have 40 points, you
-                    can use them as 40 rupees on your purchase.
-                  </p>
-                  <button className="checkout-button1 mt-2">
-                    Claim with Syopi points
-                  </button>
-                </div> */}
-
                 <Card.Text className="mt-3">
                   {loading ? (
                     <Skeleton height={20} width="100%" count={5} />
@@ -394,22 +468,6 @@ function Cart() {
           </Col>
         </Row>
       </Container>
-
-      {/* Separate loading state for Recommend */}
-      {/* {loading ? (
-        <Container fluid className="recommend-container my-5">
-          <Row>
-            {[1, 2, 3, 4].map((_, index) => (
-              <Col key={index} xs={6} md={3} className="mb-3">
-                <Skeleton height={200} />
-              </Col>
-            ))}
-          </Row>
-        </Container>
-      ) : (
-        <Recommend />
-      )} */}
-      <ToastContainer></ToastContainer>
     </div>
   );
 }

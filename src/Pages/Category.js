@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import "./category.css";
 import {
   getCategoriesApi,
@@ -9,6 +9,7 @@ import { BASE_URL } from "../services/baseUrl";
 
 function Category() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -25,7 +26,15 @@ function Category() {
       if (response.data) {
         setCategories(response.data.categories);
         
-        if (response.data.categories.length > 0) {
+        // Check if there's a categoryId in URL parameters
+        const categoryIdFromUrl = searchParams.get('categoryId');
+        
+        if (categoryIdFromUrl) {
+          // Use the category ID from URL
+          setSelectedCategory(categoryIdFromUrl);
+          fetchSubcategories(categoryIdFromUrl);
+        } else if (response.data.categories.length > 0) {
+          // Default to first category if no URL parameter
           setSelectedCategory(response.data.categories[0]._id);
           fetchSubcategories(response.data.categories[0]._id);
         }
@@ -37,7 +46,7 @@ function Category() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [searchParams]);
 
   const fetchSubcategories = async (categoryId) => {
     if (!categoryId) return;
@@ -66,6 +75,8 @@ function Category() {
   const handleCategoryClick = (categoryId) => {
     setSelectedCategory(categoryId);
     fetchSubcategories(categoryId);
+    // Update URL parameter when category is selected
+    navigate(`/category?categoryId=${categoryId}`, { replace: true });
   };
 
   const handleSubcategoryClick = (subcategoryId) => {

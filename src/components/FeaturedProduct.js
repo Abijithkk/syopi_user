@@ -43,81 +43,122 @@ function FeaturedProduct({ products = [] }) {
     fetchWishlist();
   }, []);
 
-  const toggleWishlist = async (id, productName = "Product") => {
-    const token = localStorage.getItem("accessuserToken");
+const toggleWishlist = async (id, productName = "Product") => {
+  const token = localStorage.getItem("accessuserToken");
   
-    if (!token) {
-      toast.error("Please sign in to add items to wishlist", {
+  // Check if token exists locally
+  if (!token) {
+    toast.error("Please sign in to add items to wishlist", {
+      duration: 3000,
+      position: "top-center",
+    });
+    navigate("/signin");
+    return;
+  }
+
+  const isCurrentlyWishlisted = wishlist.has(String(id));
+  const loadingToastId = toast.loading(
+    isCurrentlyWishlisted ? "Removing from wishlist..." : "Adding to wishlist...",
+    {
+      position: "top-center",
+    }
+  );
+
+  try {
+    let response;
+    
+    if (isCurrentlyWishlisted) {
+      response = await removefromWishlist(id);
+    } else {
+      response = await addWishlistApi(id);
+    }
+
+    // Check if response indicates authentication failure
+    if (response?.message === "Login Required." || response?.status === 401) {
+      toast.error("Session expired. Please sign in .", {
+        id: loadingToastId,
         duration: 3000,
         position: "top-center",
       });
-      navigate("/signin");
+      
+      // Clear invalid token
+      localStorage.removeItem("accessuserToken");
+      
+      // Navigate to signin after a brief delay to show the toast
+      setTimeout(() => {
+        navigate("/signin");
+      }, 1000);
       return;
     }
 
-    const isCurrentlyWishlisted = wishlist.has(String(id));
-    const loadingToastId = toast.loading(
-      isCurrentlyWishlisted ? "Removing from wishlist..." : "Adding to wishlist...",
-      {
+    // Check for other API failures
+    if (!response.success) {
+      console.error("Failed to toggle wishlist:", response.error);
+      toast.error("Failed to update wishlist. Please try again.", {
+        id: loadingToastId,
+        duration: 3000,
         position: "top-center",
-      }
-    );
-  
-    try {
-      let response;
-      
-      if (isCurrentlyWishlisted) {
-        response = await removefromWishlist(id);
-      } else {
-        response = await addWishlistApi(id);
-      }
-  
-  
-      if (!response.success) {
-        console.error("Failed to toggle wishlist:", response.error);
-        toast.error("Failed to update wishlist. Please try again.", {
-          id: loadingToastId,
-          duration: 3000,
-          position: "top-center",
-        });
-        return;
-      }
-  
-      setWishlist((prevWishlist) => {
-        const updatedWishlist = new Set(prevWishlist);
-        if (updatedWishlist.has(String(id))) {
-          updatedWishlist.delete(String(id));
-        } else {
-          updatedWishlist.add(String(id));
-        }
-        return updatedWishlist;
       });
+      return;
+    }
 
-      if (isCurrentlyWishlisted) {
-        toast.success(`${productName} removed from wishlist`, {
-          id: loadingToastId,
-          duration: 2000,
-          position: "top-center",
-          icon: "💔",
-        });
+    // Update wishlist state on success
+    setWishlist((prevWishlist) => {
+      const updatedWishlist = new Set(prevWishlist);
+      if (updatedWishlist.has(String(id))) {
+        updatedWishlist.delete(String(id));
       } else {
-        toast.success(`${productName} added to wishlist`, {
-          id: loadingToastId,
-          duration: 2000,
-          position: "top-center",
-          icon: "❤️",
-        });
+        updatedWishlist.add(String(id));
       }
-    } catch (error) {
-      console.error("Failed to toggle wishlist:", error);
+      return updatedWishlist;
+    });
+
+    // Show success toast
+    if (isCurrentlyWishlisted) {
+      toast.success(`${productName} removed from wishlist`, {
+        id: loadingToastId,
+        duration: 2000,
+        position: "top-center",
+        icon: "💔",
+      });
+    } else {
+      toast.success(`${productName} added to wishlist`, {
+        id: loadingToastId,
+        duration: 2000,
+        position: "top-center",
+        icon: "❤️",
+      });
+    }
+  } catch (error) {
+    console.error("Failed to toggle wishlist:", error);
+    
+    // Handle network/authentication errors specifically
+    if (error.response?.status === 401 || error.message?.includes("401")) {
+      toast.error("Session expired. Please sign in again.", {
+        id: loadingToastId,
+        duration: 3000,
+        position: "top-center",
+      });
+      
+      // Clear invalid token
+      localStorage.removeItem("accessuserToken");
+      
+      // Navigate to signin after showing toast
+      setTimeout(() => {
+        navigate("/signin");
+      }, 1000);
+    } else {
+      // Handle other errors
       toast.error("Something went wrong. Please try again.", {
         id: loadingToastId,
         duration: 3000,
         position: "top-center",
       });
-      setError("Failed to update wishlist");
     }
-  };
+    
+    setError("Failed to update wishlist");
+  }
+};
 
   const handleNavigate = useCallback(
     (id) => {

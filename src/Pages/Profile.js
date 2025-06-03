@@ -23,6 +23,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import "./profile.css"
 import { deleteUserProfileApi } from "../services/allApi";
+import toast from "react-hot-toast";
 
 const Profile = () => {
   const [activeItem, setActiveItem] = useState(null);
@@ -75,7 +76,33 @@ const Profile = () => {
     setShowFeedbackPortal(false);
     setFeedbackMessage("");
   };
-
+const handleLogout = async () => {
+  try {
+    // Show loading toast while logging out
+    const loadingToast = toast.loading("Logging you out...");
+    
+    // Clear all user data from localStorage
+    localStorage.removeItem("userId");
+    localStorage.removeItem("accessuserToken");
+    localStorage.removeItem("username");
+    localStorage.removeItem("email");
+    localStorage.removeItem("role");
+    
+   
+    toast.success("Logged out successfully!");
+    
+    toast.dismiss(loadingToast);
+    
+    // Navigate to signin page after a brief delay
+    setTimeout(() => {
+      navigate("/signin"); 
+    }, 1000);
+    
+  } catch (error) {
+    console.error("Logout Error:", error);
+    toast.error("Something went wrong during logout. Please try again.");
+  }
+};
   const handleDeleteAccount = async () => {
     try {
       setIsDeleting(true);
@@ -84,7 +111,6 @@ const Profile = () => {
       const response = await deleteUserProfileApi();
       
       if (response.status === 200 || response.status === 204) {
-        // Success - clear any stored user data and redirect
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         sessionStorage.clear();
@@ -364,7 +390,7 @@ const Profile = () => {
 
       <div className="logout-container">
         <button
-          onClick={() => handleNavigation("/logout", null)}
+         onClick={handleLogout}
           className="logout-button"
         >
           <LogOut size={20} className="logout-icon" />

@@ -50,10 +50,9 @@ function Allproducts() {
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [selectedRating, setSelectedRating] = useState(null);
 
-  const parseUrlFilters = useCallback(() => {
+const parseUrlFilters = useCallback(() => {
   const params = new URLSearchParams(location.search);
   
-  // Parse price filter
   const minPrice = params.get("minPrice");
   const maxPrice = params.get("maxPrice");
   if (minPrice || maxPrice) {
@@ -63,7 +62,6 @@ function Allproducts() {
     ]);
   }
   
-  // Parse brand filter
   const brandParam = params.get("brand");
   if (brandParam) {
     const brandsArray = brandParam.includes(",") ? 
@@ -74,125 +72,142 @@ function Allproducts() {
     setSelectedBrands([]);
   }
   
-  // Parse product type filter
   const productType = params.get("productType");
   if (productType) {
     setSelectedProductType([productType]);
-  } else {
-    setSelectedProductType([]);
   }
   
-  // Parse discount filter
   const discountMin = params.get("discountMin");
   if (discountMin) {
     setSelectedDiscount(parseInt(discountMin));
-  } else {
-    setSelectedDiscount(null);
   }
   
-  // Parse rating filter - FIX: Convert rating URL parameter correctly
+  const newArrivals = params.get("newArrivals");
+  if (newArrivals === "true") {
+   
+    
+  }
+  
   const minRating = params.get("minRating");
   if (minRating) {
-    const ratingValue = parseFloat(minRating);
-    // Map the rating values to match your FilterPanel options
-    if (ratingValue < 3) {
-      setSelectedRating(1);
-    } else if (ratingValue >= 3 && ratingValue < 4) {
-      setSelectedRating(3);
-    } else if (ratingValue >= 4) {
-      setSelectedRating(4);
-    }
-  } else {
-    setSelectedRating(null);
+    setSelectedRating(parseFloat(minRating));
+  }
+  
+  const size = params.get("size");
+  if (size) {
+   
   }
 }, [location.search]);
-// Update your fetchProducts function to handle brands correctly
-const fetchProducts = useCallback(async (resetProducts = false) => {
-  try {
-    setLoading(true);
-    setError(null);
 
-    const params = new URLSearchParams(location.search);
-    
-    // Build API options object
-    const apiOptions = {
-      page: resetProducts ? 1 : page,
-      limit: productsPerPage,
-      search: searchQuery || params.get('search') || undefined,
-      brand: selectedBrands.length > 0 ? selectedBrands.join(',') : undefined,
-      minRating: selectedRating || undefined,
-      minPrice: price[0] > 0 ? price[0] : undefined,
-      maxPrice: price[1] < 5000 ? price[1] : undefined,
-      productType: selectedProductType || undefined,
-      discountMin: selectedDiscount || undefined,
-      sortBy: sortOption || 'popularity'
-    };
+const fetchProducts = useCallback(
+  async (resetProducts = false) => {
+    try {
+      setLoading(true);
+      setError(null);
 
-    // Clean undefined options
-    Object.keys(apiOptions).forEach(key => {
-      if (apiOptions[key] === undefined) {
-        delete apiOptions[key];
-      }
-    });
-
-    console.log("Final API Options:", apiOptions); 
-
-    const response = await getProductsWithSort(apiOptions);
-
-    if (response.success) {
-      const newProducts = response.data.products;
-      console.log("Filtered Products:", newProducts); 
+      const params = new URLSearchParams(location.search);
       
-      setTotalProducts(response.data.total || 0);
-      setHasMore(newProducts.length >= productsPerPage);
-      setProducts(prevProducts => 
-        resetProducts ? newProducts : [...prevProducts, ...newProducts]
-      );
+      let brandFromUrl = null;
+     const urlBrandParam = params.get("brand");
+      const urlBrands = urlBrandParam ? 
+        urlBrandParam.split(",").map(brand => brand.trim()) : 
+        null;
 
-      if (resetProducts) {
-        setPage(1);
-        window.scrollTo({ top: 0, behavior: "smooth" });
+      const activeBrands = selectedBrands.length > 0 ? selectedBrands : urlBrands;
+
+      const apiOptions = {
+        page: resetProducts ? 1 : page,
+        limit: productsPerPage,
+        search: searchQuery || params.get("search") || null,
+        productType: selectedProductType.length > 0 ? selectedProductType : 
+                    (params.get("productType") ? [params.get("productType")] : null),
+        subcategory: selectedSubcategory || params.get("subcategory") || null,
+        category: params.get("category") || null,
+        minPrice: price[0] > 0 ? price[0] : (params.get("minPrice") ? parseInt(params.get("minPrice")) : null),
+        maxPrice: price[1] < 5000 ? price[1] : (params.get("maxPrice") ? parseInt(params.get("maxPrice")) : null),
+        discountMin: selectedDiscount || (params.get("discountMin") ? parseInt(params.get("discountMin")) : null),
+        
+        // Fixed brand parameter - prioritize state over URL
+        brand: activeBrands ? activeBrands.join(",") : null,
+        
+        minRating: selectedRating || (params.get("minRating") ? parseFloat(params.get("minRating")) : null),
+        newArrivals: params.get("newArrivals") === "true" || null,
+      };
+
+      Object.keys(apiOptions).forEach(key => {
+        if (apiOptions[key] === null || 
+            apiOptions[key] === undefined || 
+            (Array.isArray(apiOptions[key]) && apiOptions[key].length === 0)) {
+          delete apiOptions[key];
+        }
+      });
+
+      
+      switch (sortOption) {
+        case "priceAsc":
+          apiOptions.sort = "asc";
+          apiOptions.sortField = "price";
+          break;
+        case "priceDesc":
+          apiOptions.sort = "desc";
+          apiOptions.sortField = "price";
+          break;
+        case "newest":
+          apiOptions.sort = "desc";
+          apiOptions.sortField = "createdAt";
+          break;
+        case "popularity":
+        default:
+          apiOptions.sort = "desc";
+          apiOptions.sortField = "popularity";
+          break;
       }
-    } else {
-      setError(response.message || "Failed to load products");
-      if (resetProducts) setProducts([]);
-      setHasMore(false);
+
+
+      const response = await getProductsWithSort(apiOptions);
+
+      if (response.success) {
+        const newProducts = response.data.products;
+        setTotalProducts(response.data.total || 0);
+        console.log("URL brand param:", urlBrandParam);
+        console.log("Selected brands in state:", selectedBrands);
+        console.log("Active brands being sent to API:", activeBrands);
+        console.log("Final API options being sent:", apiOptions);
+        setHasMore(newProducts.length >= productsPerPage);
+        setProducts(prevProducts =>
+          resetProducts ? newProducts : [...prevProducts, ...newProducts]
+        );
+
+        if (resetProducts) {
+          setPage(1);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+      } else {
+        if (resetProducts) setProducts([]);
+        setHasMore(false);
+        setError(response.message || "Failed to load products");
+      }
+    } catch (err) {
+      setError("Failed to load products. Please try again.");
+      console.error("Error fetching products:", err);
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    setError("Failed to load products. Please try again.");
-    console.error("Error fetching products:", err);
-  } finally {
-    setLoading(false);
-  }
-}, [page, searchQuery, selectedProductType, price, selectedDiscount, sortOption, selectedBrands, selectedRating, location.search]);
-
-
-
+  },
+  [page, searchQuery, selectedProductType, price, selectedDiscount, sortOption, selectedSubcategory, selectedBrands, selectedRating, location.search]
+);
 useEffect(() => {
   const params = new URLSearchParams(location.search);
-  
-  // Parse brand filter
   const brandParam = params.get("brand");
+  
   if (brandParam) {
-    setSelectedBrands(brandParam.split(","));
-  }
-  
-  // Parse rating filter
-  const ratingParam = params.get("minRating");
-  if (ratingParam) {
-    setSelectedRating(Number(ratingParam));
-  }
-}, [location.search]);
-useEffect(() => {
-  const params = new URLSearchParams(location.search);
-  const ratingParam = params.get("minRating");
-  
-  if (ratingParam) {
-    setSelectedRating(Number(ratingParam));
+    const brandsArray = brandParam.split(",").map(brand => brand.trim());
+    setSelectedBrands(brandsArray);
   }
 }, [location.search]);
 
-const handleBrandChange = useCallback((brands) => {
+
+const handleBrandChange = (brands) => {
   const brandsArray = Array.isArray(brands) ? brands : [brands];
   
   // Update URL
@@ -202,18 +217,14 @@ const handleBrandChange = useCallback((brands) => {
   } else {
     params.delete("brand");
   }
-  
-  // Navigate without triggering a full page reload
-  const newUrl = `${location.pathname}?${params.toString()}`;
-  navigate(newUrl, { replace: true });
+  navigate(`${location.pathname}?${params.toString()}`, { replace: true });
   
   // Update state
   setSelectedBrands(brandsArray);
   setPage(1);
-  
-  // Fetch products with new filters
-  setTimeout(() => fetchProducts(true), 100);
-}, [location.search, location.pathname, navigate, fetchProducts]);
+  fetchProducts(true);
+};
+
 
 const fetchProductsRef = useRef();
 fetchProductsRef.current = fetchProducts;
@@ -221,7 +232,6 @@ useEffect(() => {
   const params = new URLSearchParams(location.search); 
   const urlBrands = params.get("brand");
   setSelectedBrands(urlBrands ? urlBrands.split(",") : []);
-  
   fetchProducts(true);
 }, [location.search]);
 
@@ -281,12 +291,7 @@ useEffect(() => {
       setPage((prevPage) => prevPage + 1);
     }
   }, [inView, loading, hasMore]);
-useEffect(() => {
-  const params = new URLSearchParams(location.search);
-  if (params.has("discountMin") && selectedDiscount === null) {
-    setSelectedDiscount(Number(params.get("discountMin")));
-  }
-}, [location.search]);
+
   useEffect(() => {
     if (page > 1) {
       fetchProducts(false);
@@ -379,42 +384,21 @@ const toggleWishlist = async (e, productId, productName = "Product") => {
   const handleNavigate = (id) => {
     navigate(`/product/${id}`);
   };
-const handleRatingChange = useCallback((ratingNumber) => {
-  const params = new URLSearchParams(location.search);
-  
-  // Preserve existing discount parameter
-  const currentDiscount = selectedDiscount;
-  
-  if (ratingNumber !== null) {
-    let minRatingValue;
-    switch(ratingNumber) {
-      case 1: minRatingValue = 0; break;
-      case 3: minRatingValue = 3; break;
-      case 4: minRatingValue = 4; break;
-      default: minRatingValue = null;
-    }
+  const handleRatingChange = (rating) => {
+    const params = new URLSearchParams(location.search);
     
-    if (minRatingValue !== null) {
-      params.set("minRating", minRatingValue);
+    if (rating) {
+      params.set("minRating", rating === "less-than-3" ? 1 : rating === "3-to-4" ? 3 : 4);
     } else {
       params.delete("minRating");
     }
-  } else {
-    params.delete("minRating");
-  }
+    
+    navigate(`${location.pathname}?${params.toString()}`, { replace: true });
+    setSelectedRating(rating);
+    setPage(1);
+    fetchProducts(true);
+  };
 
-  // Restore discount if it exists
-  if (currentDiscount !== null) {
-    params.set("discountMin", currentDiscount);
-  }
-
-  const newUrl = `${location.pathname}?${params.toString()}`;
-  navigate(newUrl, { replace: true });
-  
-  setSelectedRating(ratingNumber);
-  setPage(1);
-  setTimeout(() => fetchProducts(true), 100);
-}, [location.search, location.pathname, navigate, fetchProducts, selectedDiscount]);
   const handleSortChange = (e) => {
     setSortOption(e.target.value);
     setPage(1);
@@ -588,18 +572,7 @@ const handleRatingChange = useCallback((ratingNumber) => {
   selectedProductType={selectedProductType}
   setSelectedProductType={setSelectedProductType}
   selectedDiscount={selectedDiscount}
-   setSelectedDiscount={(discount) => {
-    setSelectedDiscount(discount);
-    // Immediately update URL without resetting other filters
-    const params = new URLSearchParams(location.search);
-    if (discount !== null) {
-      params.set("discountMin", discount);
-    } else {
-      params.delete("discountMin");
-    }
-    navigate(`${location.pathname}?${params.toString()}`, { replace: true });
-    setTimeout(() => fetchProducts(true), 100);
-  }}
+  setSelectedDiscount={setSelectedDiscount}
   selectedBrands={selectedBrands}
   setSelectedBrands={handleBrandChange}
   selectedRating={selectedRating}

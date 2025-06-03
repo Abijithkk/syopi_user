@@ -173,59 +173,93 @@ const discountAmount = toTwoDecimals(originalPrice - discountedPrice);
     setSelectedColorName(colorName || color);
   };
 
-  const addToCart = async () => {
-    if (!selectedColor || !selectedSize) {
-      toast.error("Please select a color and size before adding to cart.");
+const addToCart = async () => {
+  if (!selectedColor || !selectedSize) {
+    toast.error("Please select a color and size before adding to cart.");
+    return;
+  }
+
+  const userId = localStorage.getItem("userId");
+  if (!userId) {
+    toast.error("Please log in to add items to your cart");
+    setTimeout(() => navigate("/signin"), 1500);
+    return;
+  }
+
+  if (isInCart) {
+    navigate("/cart");
+    return;
+  }
+
+  setIsLoading(true);
+
+  try {
+    const response = await addToCartApi(
+      userId,
+      product._id,
+      1,
+      selectedColor,
+      selectedColorName,
+      selectedSize
+    );
+
+    // Check for authentication failure (based on your API response format)
+    if (response?.error === "No token provided" ||
+        response?.error === "Login Required." ||
+        response?.error?.includes("Login Required") ||
+        response?.error?.includes("Unauthorized") ||
+        response?.error?.includes("No token provided") ||
+        response?.status === 401) {
+      
+      toast.error("Please sign in ");
+      
+      // Clear invalid tokens
+      localStorage.removeItem("accessuserToken");
+      localStorage.removeItem("userId");
+      
+      setTimeout(() => navigate("/signin"), 1500);
       return;
     }
 
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
-      toast.error("Please log in to add items to your cart");
-      setTimeout(() => navigate("/login"), 1500);
-      return;
-    }
-
-    if (isInCart) {
-      navigate("/cart");
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      const response = await addToCartApi(
-        userId,
-        product._id,
-        1,
-        selectedColor,
-        selectedColorName,
-        selectedSize
-      );
-
-      if (response.success) {
-        toast.success("Product added to cart successfully!");
-        setIsInCart(true);
+    if (response.success) {
+      toast.success("Product added to cart successfully!");
+      setIsInCart(true);
+    } else {
+      if (response.status === 401) {
+        toast.error("Session expired. Redirecting to login...");
+        localStorage.removeItem("accessuserToken");
+        localStorage.removeItem("userId");
+        setTimeout(() => navigate("/signin"), 1500);
       } else {
-        if (response.status === 401) {
-          toast.error("Session expired. Redirecting to login...");
-          localStorage.removeItem("accessuserToken");
-          localStorage.removeItem("userId");
-          setTimeout(() => navigate("/signin"), 1500);
-        } else {
-          toast.error(response.message || "Failed to add product to cart");
-        }
+        toast.error(response.message || "Failed to add product to cart");
       }
-    } catch (error) {
+    }
+  } catch (error) {
+    // Handle authentication errors in catch block
+    if (error.response?.status === 401 || 
+        error.response?.data?.error === "No token provided" ||
+        error.response?.data?.error === "Login Required." ||
+        error.message?.includes("401") || 
+        error.message?.includes("Unauthorized") ||
+        error.message?.includes("Login Required") ||
+        error.message?.includes("No token provided")) {
+      
+      toast.error("Session expired. Please sign in again.");
+      
+      localStorage.removeItem("accessuserToken");
+      localStorage.removeItem("userId");
+      
+      setTimeout(() => navigate("/signin"), 1500);
+    } else {
       const errorMessage =
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
       toast.error(errorMessage);
-      console.error("Failed to add product to cart:", error);
-    } finally {
-      setIsLoading(false);
     }
-  };
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleBuyNow = async () => {
     if (!selectedColor || !selectedSize) {
@@ -236,7 +270,7 @@ const discountAmount = toTwoDecimals(originalPrice - discountedPrice);
     const userId = localStorage.getItem("userId");
     if (!userId) {
       toast.error("Please log in to proceed with purchase");
-      setTimeout(() => navigate("/login"), 1500);
+      setTimeout(() => navigate("/signin"), 1500);
       return;
     }
 

@@ -5,13 +5,13 @@ import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaChevronDown, FaChevro
 import f1 from '../images/f1.png';
 import f2 from '../images/f2.png';
 import { getCategoriesApi } from '../services/allApi';
+import { Link } from 'react-router-dom';
 
 function Footer() {
   const [categories, setCategories] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Fetch categories when dropdown is opened for the first time
   const fetchCategories = async () => {
     if (categories.length === 0) {
       setLoading(true);
@@ -54,19 +54,14 @@ function Footer() {
             <p className="footer-heading">Company</p>
             <ul>
               <li>About Us</li>
-              <li>euphoria Blog</li>
-              <li>euphoriastan</li>
-              <li>Collaboration</li>
-              <li>Media</li>
+              
             </ul>
           </Col>
           <Col xs={12} sm={6} md={3} className="footer-column">
             <p className="footer-heading">More Info</p>
             <ul>
-              <li>Terms and Conditions</li>
-              <li>Privacy Policy</li>
-              <li>Shipping Policy</li>
-              <li>Sitemap</li>
+              <Link style={{textDecoration:'none',color:'#F6F6F6'}} to={'/returnpolicy'}><li>Return & Refund Policy</li></Link>
+              <Link style={{textDecoration:'none',color:'#F6F6F6'}} to={'/privacypolicy'}><li>Privacy policy</li></Link>
             </ul>
           </Col>
           <Col xs={12} sm={6} md={3} className="footer-column">
@@ -100,13 +95,15 @@ function Footer() {
           <Col xs={12} md={6} className="download-column">
             <p className="download-app">Download The App</p>
             <div className="app-links">
-              <div className="playstore">
-                <img style={{ width: '25px', height: '25px' }} src={f1} alt="" />
-                <div>
-                  <p className="g1">android app on</p>
-                  <p className="g2">Google Play</p>
+             <Link style={{textDecoration:'none'}} to={'https://play.google.com/store/apps/details?id=com.syopi.usernew'}>
+                <div className="playstore">
+                  <img style={{ width: '25px', height: '25px' }} src={f1} alt="" />
+                  <div>
+                    <p className="g1">android app on</p>
+                    <p className="g2">Google Play</p>
+                  </div>
                 </div>
-              </div>
+             </Link>
               <div className="appstore">
                 <img style={{ width: '25px', height: '25px' }} src={f2} alt="" />
                 <div>

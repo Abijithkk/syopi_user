@@ -1,18 +1,59 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ContentLoader from "react-content-loader";
 import { toast } from "react-hot-toast";
 import "./wishlist.css";
 import { getWishlistApi, removefromWishlist } from "../services/allApi";
 import { BASE_URL } from "../services/baseUrl";
+import { Link, useNavigate } from "react-router-dom";
 
 function Wishlist() {
   const [wishlist, setWishlist] = useState([]);
   const [wishlistStatus, setWishlistStatus] = useState({});
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  
+  // Ref to track if auth error toast has been shown
+  const authErrorShownRef = useRef(false);
+  // Ref to track navigation timeout
+  const navigationTimeoutRef = useRef(null);
+
+  const handleAuthError = (message = "Please sign in to view your wishlist") => {
+    // Prevent multiple auth error toasts
+    if (authErrorShownRef.current) return;
+    
+    authErrorShownRef.current = true;
+    toast.error(message);
+    
+    // Clear invalid tokens
+    localStorage.removeItem("accessuserToken");
+    localStorage.removeItem("userId");
+    
+    // Clear any existing navigation timeout
+    if (navigationTimeoutRef.current) {
+      clearTimeout(navigationTimeoutRef.current);
+    }
+    
+    // Navigate to signin after showing toast
+    navigationTimeoutRef.current = setTimeout(() => {
+      navigate("/signin");
+    }, 1000);
+  };
 
   const fetchWishlist = async () => {
     try {
       const response = await getWishlistApi();
+      console.log("wishlist", response);
+
+      if (response?.error === "No token provided" ||
+          response?.error === "Login Required." ||
+          response?.error?.includes("Login Required") ||
+          response?.error?.includes("Unauthorized") ||
+          response?.error?.includes("No token provided") ||
+          response?.status === 401) {
+        
+        handleAuthError();
+        return;
+      }
 
       if (response.success) {
         setWishlist(response.data.wishlist);
@@ -22,10 +63,26 @@ function Wishlist() {
           return acc;
         }, {});
         setWishlistStatus(initialStatus);
+      } else {
+        // Handle other non-success responses
+        toast.error(response.error || "Failed to load wishlist");
       }
     } catch (error) {
       console.error("Error fetching wishlist:", error);
-      toast.error("Failed to load wishlist");
+      
+      // Handle authentication errors in catch block
+      if (error.response?.status === 401 || 
+          error.response?.data?.error === "No token provided" ||
+          error.response?.data?.error === "Login Required." ||
+          error.message?.includes("401") || 
+          error.message?.includes("Unauthorized") ||
+          error.message?.includes("Login Required") ||
+          error.message?.includes("No token provided")) {
+        
+        handleAuthError("Session expired. Please sign in again.");
+      } else {
+        toast.error("Failed to load wishlist");
+      }
     } finally {
       setLoading(false);
     }
@@ -33,10 +90,20 @@ function Wishlist() {
 
   useEffect(() => {
     fetchWishlist();
+    
+    // Cleanup function
+    return () => {
+      if (navigationTimeoutRef.current) {
+        clearTimeout(navigationTimeoutRef.current);
+      }
+    };
   }, []);
 
   const handleRemoveFromWishlist = async (id) => {
     try {
+      // Prevent multiple clicks on the same item
+      if (!wishlistStatus[id]) return;
+      
       setWishlistStatus((prev) => ({
         ...prev,
         [id]: false,
@@ -95,9 +162,11 @@ function Wishlist() {
             You don't have any products in the wishlist yet. You will find a lot
             of interesting products on our Shop page.
           </p>
-          <button className="wishlist-button">
-            <span className="wishlist-button-text">Continue Shopping</span>
-          </button>
+          <Link to={'/'}>
+            <button className="wishlist-button">
+              <span className="wishlist-button-text">Continue Shopping</span>
+            </button>
+          </Link>
         </div>
       ) : (
         <div className="wishlist">
