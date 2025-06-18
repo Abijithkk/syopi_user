@@ -221,25 +221,26 @@ export const getProductApi = async (params = "") => {
 
 export const getProductsWithSort = async (options = {}) => {
   const {
-    page = 1,
-    limit = 12,
     search = null,
     productType = null,
     subcategory = null,
+    category = null,
     minPrice = null,
     maxPrice = null,
     discountMin = null,
     sort = null,
-    sortField = "createdAt", // Default to newest first
+    sortField = "createdAt",
     newArrivals = null,
+    brand = null,        // ADD: Brand parameter
+    minRating = null,    // ADD: Rating parameter
+    page = 1,
+    limit = 12
   } = options;
 
   const params = new URLSearchParams();
-  params.append("page", page);
-  params.append("limit", limit);
-
-  // Add filters
+  
   if (search) params.append("search", search);
+  
   if (productType) {
     if (Array.isArray(productType) && productType.length > 0) {
       params.append("productType", productType.join(","));
@@ -247,13 +248,28 @@ export const getProductsWithSort = async (options = {}) => {
       params.append("productType", productType);
     }
   }
+  
   if (subcategory) params.append("subcategory", subcategory);
+  if (category) params.append("category", category);
   if (minPrice !== null) params.append("minPrice", minPrice);
   if (maxPrice !== null) params.append("maxPrice", maxPrice);
   if (discountMin !== null) params.append("discountMin", discountMin);
   if (newArrivals) params.append("newArrivals", "true");
+  
+  // ADD: Brand filter
+  if (brand) {
+    params.append("brand", brand);
+  }
+  
+  // ADD: Rating filter
+  if (minRating !== null) {
+    params.append("minRating", minRating);
+  }
+  
+  // ADD: Pagination
+  params.append("page", page);
+  params.append("limit", limit);
 
-  // Add sorting
   if (sort) {
     params.append("sort", sort);
     params.append("sortField", sortField);
@@ -261,6 +277,8 @@ export const getProductsWithSort = async (options = {}) => {
 
   return getProductApi(params.toString());
 };
+
+
 
 export const getDeliveryDateApi = async (pincode) => {
   const url = `${BASE_URL}/user/Products/expected_date?pincode=${pincode}`;
@@ -376,11 +394,9 @@ export const removefromWishlist = async (productId) => {
 
 export const getWishlistApi = async () => {
   const url = `${BASE_URL}/user/wishlist/get`;
-
-  // Retrieve accessToken from localStorage
   const accessToken = localStorage.getItem("accessuserToken");
 
-  // Check if the token exists
+  
   if (!accessToken) {
     return { success: false, error: "No token provided" };
   }
@@ -685,6 +701,31 @@ export const buyNowCheckoutApi = async (productData) => {
     };
   }
 };
+
+
+export const addReviewApi = async (reviewData) => {
+  const url = `${BASE_URL}/user/review/add`;
+
+  const accessToken = localStorage.getItem("accessuserToken");
+  if (!accessToken) {
+    return { success: false, error: "No token provided" };
+  }
+
+  try {
+    const response = await commonApi("POST", url, reviewData, {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    });
+
+    return response;
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message || "Error adding review",
+    };
+  }
+};
+
 
 export const addAddressApi = async (addressData) => {
   const url = `${BASE_URL}/user/address/add`;

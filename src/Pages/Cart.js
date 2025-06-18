@@ -3,7 +3,6 @@ import { Container, Row, Col, Card } from "react-bootstrap";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import "./Cart.css";
-// import Recommend from "../components/Recommend";
 import {
   checkoutCreateApi,
   getUserCartApi,
@@ -21,7 +20,7 @@ function Cart() {
   const [loadingItems, setLoadingItems] = useState({});
   const [removeLoading, setRemoveLoading] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
-  const [authHandled, setAuthHandled] = useState(false); // Flag to prevent multiple auth toasts
+  const [authHandled, setAuthHandled] = useState(false);
   const isLoading = loadingItems[cartData._id];
 
   const navigate = useNavigate();
@@ -30,9 +29,8 @@ function Cart() {
     fetchCart();
   }, []);
 
-  // Helper function to handle authentication failures
   const handleAuthFailure = (message = "Session expired. Please sign in again.") => {
-    if (authHandled) return; // Prevent multiple auth handling
+    if (authHandled) return;
     
     setAuthHandled(true);
     console.log("Authentication failure detected");
@@ -78,7 +76,7 @@ const fetchCart = async () => {
   
   if (!userId) {
     console.warn("No userId found in localStorage.");
-    toast.dismiss(); // Clear any existing toasts
+    toast.dismiss(); 
     toast.error("Please sign in.");
     setTimeout(() => {
       navigate("/signin");
@@ -91,7 +89,6 @@ const fetchCart = async () => {
     const response = await getUserCartApi(userId);
     console.log("Cart API response:", response);
 
-    // Check for authentication failure
     if (isAuthError(null, response)) {
       handleAuthFailure();
       return;
@@ -108,11 +105,9 @@ const fetchCart = async () => {
   } catch (error) {
     console.error("Error while fetching cart data:", error);
     
-    // Handle authentication errors in catch block
     if (isAuthError(error, null)) {
       handleAuthFailure();
     } else {
-      // Handle other errors
       toast.dismiss();
       toast.error("Failed to load cart data");
     }
@@ -126,7 +121,7 @@ const fetchCart = async () => {
     const userId = localStorage.getItem("userId");
     if (!userId) return;
 
-    // Set loading state for this item
+    
     setLoadingItems((prev) => ({ ...prev, [itemId]: true }));
 
     // Optimistic update: Update local state immediately before API response
@@ -151,7 +146,6 @@ const fetchCart = async () => {
           ? updatedItems.find((item) => item._id === itemId).productId.price
           : -updatedItems.find((item) => item._id === itemId).productId.price);
 
-      // Recalculate total price (assuming discount doesn't change)
       const newTotalPrice = newSubtotal - prevCartData.discount;
 
       return {
@@ -162,7 +156,7 @@ const fetchCart = async () => {
       };
     });
 
-    // Make API call in background
+   
     const response = await updateCartQuantityApi(
       userId,
       productId,
@@ -170,14 +164,12 @@ const fetchCart = async () => {
       action
     );
 
-    // Remove loading state after API response
+  
     setLoadingItems((prev) => ({ ...prev, [itemId]: false }));
 
     if (response.success) {
-      // Optionally fetch cart data to ensure sync with server
       fetchCart();
     } else {
-      // Revert the optimistic update if the API call fails
       fetchCart();
       console.error(response.error);
       toast.dismiss();
@@ -189,18 +181,16 @@ const fetchCart = async () => {
     const userId = localStorage.getItem("userId");
     if (!userId) return;
 
-    // Set loading state for this item
     setRemoveLoading((prev) => ({ ...prev, [itemId]: true }));
 
     const response = await removeProductFromCartApi(userId, itemId);
 
-    // Remove loading state after API response
     setRemoveLoading((prev) => ({ ...prev, [itemId]: false }));
 
     if (response.success) {
       toast.dismiss();
       toast.success("Item removed from cart");
-      fetchCart(); // Refresh cart after removing item
+      fetchCart(); 
     } else {
       console.error(response.error);
       toast.dismiss();

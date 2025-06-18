@@ -79,7 +79,7 @@ color: #2D2E2E;
   .rating-right-column .rating-line span {
     display: flex;
     align-items: center;
-    margin-right: 10px; /* Add space between number and progress bar */
+    margin-right: 10px; 
   }
   
   .progress-bar-container {
@@ -106,7 +106,129 @@ text-underline-position: from-font;
 text-decoration-skip-ink: none;
 color: #2D2E2E80;
   }
+  /* Additional styles for the review form */
+.rating-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.add-review-btn {
+  background-color: #00a8ff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.add-review-btn:hover {
+  background-color: #00a8ff;
+}
+
+.review-form-container {
+  background-color: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.review-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+}
+
+.interactive-stars {
+  display: flex;
+  gap: 4px;
+}
+
+.interactive-stars .star {
+  transition: color 0.2s ease;
+}
+
+.interactive-stars .star:hover {
+  color: #FFD700 !important;
+}
+
+.review-form textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 14px;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.review-form textarea:focus {
+  outline: none;
+  border-color: #00a8ff;
+  box-shadow: 0 0 0 2px rgba(20, 149, 143, 0.1);
+}
+
+.form-group small {
+  color: #666;
+  font-size: 12px;
+  text-align: right;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.submit-review-btn {
+  background-color: #00a8ff;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.submit-review-btn:hover:not(:disabled) {
+  background-color: #00a8ff;
+}
+
+.submit-review-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .rating-heading {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
   
+  .review-form-container {
+    padding: 16px;
+  }
+}
   @media (max-width: 768px) {
     .rating-body {
       flex-direction: column;

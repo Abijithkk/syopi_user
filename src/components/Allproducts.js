@@ -127,7 +127,6 @@ const fetchProducts = useCallback(
         maxPrice: price[1] < 5000 ? price[1] : (params.get("maxPrice") ? parseInt(params.get("maxPrice")) : null),
         discountMin: selectedDiscount || (params.get("discountMin") ? parseInt(params.get("discountMin")) : null),
         
-        // Fixed brand parameter - prioritize state over URL
         brand: activeBrands ? activeBrands.join(",") : null,
         
         minRating: selectedRating || (params.get("minRating") ? parseFloat(params.get("minRating")) : null),
@@ -209,19 +208,17 @@ useEffect(() => {
 
 const handleBrandChange = (brands) => {
   const brandsArray = Array.isArray(brands) ? brands : [brands];
-  
-  // Update URL
   const params = new URLSearchParams(location.search);
+  
   if (brandsArray.length > 0) {
     params.set("brand", brandsArray.join(","));
   } else {
     params.delete("brand");
   }
-  navigate(`${location.pathname}?${params.toString()}`, { replace: true });
   
-  // Update state
   setSelectedBrands(brandsArray);
   setPage(1);
+  navigate(`${location.pathname}?${params.toString()}`, { replace: true });
   fetchProducts(true);
 };
 

@@ -46,7 +46,6 @@ const FilterPanel = ({
     }
   };
 
-  // Fetch brands from API
   const fetchBrands = async () => {
     try {
       const response = await getBrandApi();
@@ -77,14 +76,12 @@ const FilterPanel = ({
     }
   };
 
-  const handleBrandChange = (brandId) => {
+const handleBrandChange = (brandId) => {
     const updatedBrands = selectedBrands.includes(brandId)
       ? selectedBrands.filter(id => id !== brandId)
       : [...selectedBrands, brandId];
     
-    if (typeof setSelectedBrands === 'function') {
-      setSelectedBrands(updatedBrands);
-    }
+    setSelectedBrands(updatedBrands);
   };
 
   const handleRatingChange = (rating) => {

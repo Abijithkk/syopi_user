@@ -2,7 +2,7 @@ import React from 'react';
 
 const ReturnRefundPolicy = () => {
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4" style={{marginTop:"50px",}}>
       <h1 className="text-3xl font-bold mb-4">Return and Refund Policy</h1>
 
       <p>Thank you for shopping at <strong>SYOPI</strong>.</p>

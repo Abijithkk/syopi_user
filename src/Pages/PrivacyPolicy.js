@@ -2,7 +2,7 @@ import React from 'react';
 
 const PrivacyPolicy = () => {
   return (
-    <div style={{ fontFamily: 'Arial, sans-serif', margin: '20px', lineHeight: '1.6' }}>
+    <div style={{ fontFamily: 'Arial, sans-serif', margin: '20px',  paddingTop:"50px", lineHeight: '1.6' }}>
       <h1>Privacy Policy</h1>
       <p><strong>Last updated: March 30, 2025</strong></p>
 
