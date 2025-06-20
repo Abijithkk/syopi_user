@@ -29,6 +29,7 @@ import Earn from "./Pages/Earn";
 import Notification from "./Pages/Notification";
 import AddressCard from "./components/AddressCard";
 import ManageAddress from "./Pages/ManageAddress";
+import Privacypol from "./Pages/Privacypol";
 function App() {
   return (
     <SearchProvider>
@@ -44,6 +45,8 @@ function App() {
             <Route path="/product/:id" element={<SingleProduct />} />
             <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/category" element={<Category />} />
+                        <Route path="/privacy-policy" element={<Privacypol />} />
+
             <Route path="/cart" element={<Cart />} />
             <Route path="/notifications" element={<Notification />} />
             <Route path="/contact" element={<Contact />} />

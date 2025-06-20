@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.e59aff40.css",
-    "main.js": "/static/js/main.a94d019a.js",
+    "main.js": "/static/js/main.f4d9d2e2.js",
     "static/media/Landing.jpeg": "/static/media/Landing.1e1b3c6ad52ca958aac2.jpeg",
     "static/media/Brand.png": "/static/media/Brand.1a5c74855ceca0c22319.png",
     "static/media/cd.png": "/static/media/cd.2aab3de11e35d64aa734.png",
@@ -17,10 +17,10 @@
     "static/media/apple.png": "/static/media/apple.1511c3d419cb16aec154.png",
     "index.html": "/index.html",
     "main.e59aff40.css.map": "/static/css/main.e59aff40.css.map",
-    "main.a94d019a.js.map": "/static/js/main.a94d019a.js.map"
+    "main.f4d9d2e2.js.map": "/static/js/main.f4d9d2e2.js.map"
   },
   "entrypoints": [
     "static/css/main.e59aff40.css",
-    "static/js/main.a94d019a.js"
+    "static/js/main.f4d9d2e2.js"
   ]
 }
