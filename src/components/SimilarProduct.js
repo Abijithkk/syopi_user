@@ -48,6 +48,7 @@ function SimilarProduct() {
     setLoading(true);
     try {
       const response = await getSimilarProductApi(productId);
+      console.log("Similar Products Response:", response);
 
       if (response.status === 200 && Array.isArray(response.data.products)) {
         setProducts(response.data.products);
@@ -148,6 +149,42 @@ function SimilarProduct() {
     toggleWishlist(productId, productName);
   };
 
+  // Helper function to get price display
+  const getPriceDisplay = (product) => {
+    if (product?.variants?.length > 0) {
+      const variant = product.variants[0];
+      return {
+        offerPrice: variant.offerPrice,
+        wholesalePrice: variant.wholesalePrice
+      };
+    }
+    return {
+      offerPrice: product.defaultPrice,
+      wholesalePrice: null
+    };
+  };
+
+  // Scroll functions for horizontal navigation
+  const scrollLeft = () => {
+    const container = document.querySelector('.similar-card-row');
+    if (container) {
+      container.scrollBy({
+        left: -300,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  const scrollRight = () => {
+    const container = document.querySelector('.similar-card-row');
+    if (container) {
+      container.scrollBy({
+        left: 300,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   return (
     <div className="similar-product">
       <p className="similarproductheading">Similar Products</p>
@@ -159,55 +196,59 @@ function SimilarProduct() {
         </div>
       ) : products.length > 0 ? (
         <div className="similar-card-row">
-          {products.map((product) => (
-            <div
-              className="similar-card"
-              key={product._id}
-              onClick={() => handleNavigate(product._id)}
-            >
-              <div className="similar-card-image-container">
-                <img
-                  src={`${BASE_URL}/uploads/${product.images[0]}`}
-                  alt={product.name}
-                  className="similar-card-image"
-                />
-                <div
-                  className={`wishlist-icon ${
-                    wishlist.has(String(product._id)) ? "active" : ""
-                  }`}
-                  onClick={(e) => handleWishlistClick(e, product._id, product.name)}
-                >
-                  <i
-                    className={
-                      wishlist.has(String(product._id))
-                        ? "fa-solid fa-heart"
-                        : "fa-regular fa-heart"
-                    }
-                  ></i>
+          {products.map((product) => {
+            const { offerPrice, wholesalePrice } = getPriceDisplay(product);
+            
+            return (
+              <div
+                className="similar-card"
+                key={product._id}
+                onClick={() => handleNavigate(product._id)}
+              >
+                <div className="similar-card-image-container">
+                  <img
+                    src={`${BASE_URL}/uploads/${product.images[0]}`}
+                    alt={product.name}
+                    className="similar-card-image"
+                  />
+                  <div
+                    className={`wishlist-icon ${
+                      wishlist.has(String(product._id)) ? "active" : ""
+                    }`}
+                    onClick={(e) => handleWishlistClick(e, product._id, product.name)}
+                  >
+                    <i
+                      className={
+                        wishlist.has(String(product._id))
+                          ? "fa-solid fa-heart"
+                          : "fa-regular fa-heart"
+                      }
+                    ></i>
+                  </div>
+                </div>
+                <p className="similar-card-title">
+                  {product.name.length > 15
+                    ? product.name.slice(0, 15) + "..."
+                    : product.name}
+                </p>
+                <div className="similar-card-price">
+                  <span className="offer-price">₹{offerPrice}</span>
+                  {wholesalePrice && (
+                    <span className="wholesale-price">₹{wholesalePrice}</span>
+                  )}
                 </div>
               </div>
-              <p className="similar-card-title">
-                {product.name.length > 15
-                  ? product.name.slice(0, 15) + "..."
-                  : product.name}
-              </p>
-              <p className="similar-card-title">
-                ₹
-                {product?.variants?.length > 0
-                  ? product.variants[0].offerPrice
-                  : product.defaultPrice}
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="no-products">No similar products found.</div>
       )}
 
-      <button className="product-prev" type="button">
+      <button className="product-prev" type="button" onClick={scrollLeft}>
         &#10094;
       </button>
-      <button className="product-next" type="button">
+      <button className="product-next" type="button" onClick={scrollRight}>
         &#10095;
       </button>
       

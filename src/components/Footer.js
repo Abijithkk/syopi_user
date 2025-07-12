@@ -44,10 +44,9 @@ function Footer() {
             <p className="footer-heading">Need Help</p>
             <ul>
               <li>Contact Us</li>
-              <li>Track Order</li>
-              <li>Returns & Refunds</li>
-              <li>FAQ's</li>
-              <li>Career</li>
+              <Link style={{textDecoration:'none',color:'#F6F6F6'}} to={'/order'}><li>Track Order</li></Link>
+              <Link style={{textDecoration:'none',color:'#F6F6F6'}} to={'/order'}><li>Returns & Refunds</li></Link>
+             
             </ul>
           </Col>
           <Col xs={12} sm={6} md={3} className="footer-column">
@@ -95,7 +94,7 @@ function Footer() {
           <Col xs={12} md={6} className="download-column">
             <p className="download-app">Download The App</p>
             <div className="app-links">
-             <Link style={{textDecoration:'none'}} to={'https://play.google.com/store/apps/details?id=com.syopi.usernew'}>
+             <Link style={{textDecoration:'none'}} to={'https://play.google.com/store/apps/details?id=com.syopi.usernew&pcampaignid=web_share'}>
                 <div className="playstore">
                   <img style={{ width: '25px', height: '25px' }} src={f1} alt="" />
                   <div>
@@ -104,6 +103,7 @@ function Footer() {
                   </div>
                 </div>
              </Link>
+              <Link style={{textDecoration:'none'}} to={'http://apps.apple.com/in/app/syopi/id6747420245'}>
               <div className="appstore">
                 <img style={{ width: '25px', height: '25px' }} src={f2} alt="" />
                 <div>
@@ -111,6 +111,7 @@ function Footer() {
                   <p className="a2">App Store</p>
                 </div>
               </div>
+              </Link>
             </div>
           </Col>
         </Row>

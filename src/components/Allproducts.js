@@ -164,9 +164,12 @@ const fetchProducts = useCallback(
 
 
       const response = await getProductsWithSort(apiOptions);
+console.log(response);
 
       if (response.success) {
         const newProducts = response.data.products;
+        console.log(newProducts);
+        
         setTotalProducts(response.data.total || 0);
         console.log("URL brand param:", urlBrandParam);
         console.log("Selected brands in state:", selectedBrands);
@@ -523,7 +526,7 @@ const toggleWishlist = async (e, productId, productName = "Product") => {
                   ₹{product.variants[0].offerPrice}
                 </span>
                 <span className="price-original">
-                  ₹{product.variants[0].price}
+                  ₹{product.variants[0].wholesalePrice}
                 </span>
               </>
             ) : product.variants && product.variants[0]?.price ? (

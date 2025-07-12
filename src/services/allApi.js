@@ -278,7 +278,26 @@ export const getProductsWithSort = async (options = {}) => {
   return getProductApi(params.toString());
 };
 
+// api/sliderApi.js
+export const getSliders = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/user/slider/get`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
+    if (!response.ok) {
+      throw new Error('Failed to fetch sliders');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching sliders:', error);
+    throw error;
+  }
+};
 
 export const getDeliveryDateApi = async (pincode) => {
   const url = `${BASE_URL}/user/Products/expected_date?pincode=${pincode}`;

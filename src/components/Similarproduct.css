@@ -90,6 +90,11 @@
     
     
 }
+.wholesale-price {
+  font-size: 14px;
+  color: #999;
+  text-decoration: line-through;
+}
 
 .similar-card-description {
     font-family: 'Inter', sans-serif;

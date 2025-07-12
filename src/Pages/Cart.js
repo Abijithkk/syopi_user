@@ -338,9 +338,6 @@ const fetchCart = async () => {
                             </div>
                           </div>
 
-                          <p className="cart-delivery text-sm text-gray-500 mt-2">
-                            Delivery: Free Delivery
-                          </p>
 
                           {/* Remove Button with improved loading state */}
                           <button

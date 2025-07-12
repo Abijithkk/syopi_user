@@ -18,6 +18,7 @@ function FeaturedProduct({ products = [] }) {
   const [error, setError] = useState(null);
   const { ref, inView } = useInView({ threshold: 0.2 });
   const navigate = useNavigate();
+console.log("products",products);
 
   useEffect(() => {
     const fetchWishlist = async () => {

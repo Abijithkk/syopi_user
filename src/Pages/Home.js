@@ -72,7 +72,7 @@ function Home() {
             <Premium sliders={homeData.ProductSliders} />
             <Delight brands={homeData.brands} />
             <Trending products={homeData.affordableProducts} />
-            <Brandoffer sliders={homeData.BrandSliders} />
+            {/* <Brandoffer sliders={homeData.BrandSliders} /> */}
             <Brand brands={homeData.brands} />
             <Toppicks products={homeData.topPicksBestPrice} />
             <Lowest products={homeData.lowToHighProducts} />

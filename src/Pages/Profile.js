@@ -143,6 +143,11 @@ const handleLogout = async () => {
       text: "Orders",
       path: "/order",
     },
+      {
+      icon: <Users className="menu-icon" size={22} />,
+      text: "Sign in",
+      path: "/signin",
+    },
     {
       icon: <Bell className="menu-icon" size={22} />,
       text: "Notifications",

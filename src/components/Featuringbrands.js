@@ -12,6 +12,7 @@ function Featuringbrands({ brands }) {
   const [wishlist, setWishlist] = useState(new Set());
   const [loadingWishlist, setLoadingWishlist] = useState({});
   const navigate = useNavigate(); 
+console.log(brands);
 
   // Initialize products state when brands prop changes
   useEffect(() => {
@@ -169,6 +170,22 @@ const toggleWishlist = async (id, event) => {
     navigate(`/product/${productId}`);
   };
 
+  // Helper function to get pricing from variants
+  const getPricing = (product) => {
+    if (product.variants && product.variants.length > 0) {
+      const firstVariant = product.variants[0];
+      return {
+        offerPrice: firstVariant.offerPrice,
+        wholesalePrice: firstVariant.wholesalePrice
+      };
+    }
+    // Fallback to product level pricing if no variants
+    return {
+      offerPrice: product.defaultOfferPrice || product.defaultPrice,
+      wholesalePrice: product.defaultPrice
+    };
+  };
+
   const headingVariants = {
     hidden: { opacity: 0, y: -50 },
     visible: {
@@ -217,76 +234,80 @@ const toggleWishlist = async (id, event) => {
       </motion.p>
 
       <div className="feature-brand-card-row" ref={cardsRef}>
-        {products.map((product, index) => (
-          <motion.div
-            className="feature-brand-card"
-            key={product.id}
-            custom={index}
-            initial="hidden"
-            animate={cardsInView ? "visible" : "hidden"}
-            variants={cardVariants}
-            onClick={() => handleProductClick(product._id)} 
-            style={{ cursor: 'pointer' }} 
-          >
-            <div className="feature-card-brand-image-container">
-              <img
-                src={`${BASE_URL}/uploads/${encodeURIComponent(
-                  product.images[0]
-                )}`}
-                alt={product.title}
-                className="feature-brand-card-image"
-              />
-              <div
-                className={`brand-wishlist-icon ${
-                  wishlist.has(String(product._id)) ? "active" : ""
-                } ${loadingWishlist[product._id] ? "loading" : ""}`}
-                onClick={(event) => toggleWishlist(product._id, event)} 
-                style={{ 
-                  cursor: loadingWishlist[product._id] ? 'not-allowed' : 'pointer',
-                  opacity: loadingWishlist[product._id] ? 0.6 : 1
-                }}
-              >
-                {loadingWishlist[product._id] ? (
-                  <i className="fa-solid fa-spinner fa-spin"></i>
-                ) : (
-                  <i
-                    className={
-                      wishlist.has(String(product._id))
-                        ? "fa-solid fa-heart"
-                        : "fa-regular fa-heart"
-                    }
-                  ></i>
-                )}
+        {products.map((product, index) => {
+          const pricing = getPricing(product);
+          
+          return (
+            <motion.div
+              className="feature-brand-card"
+              key={product.id}
+              custom={index}
+              initial="hidden"
+              animate={cardsInView ? "visible" : "hidden"}
+              variants={cardVariants}
+              onClick={() => handleProductClick(product._id)} 
+              style={{ cursor: 'pointer' }} 
+            >
+              <div className="feature-card-brand-image-container">
+                <img
+                  src={`${BASE_URL}/uploads/${encodeURIComponent(
+                    product.images[0]
+                  )}`}
+                  alt={product.title}
+                  className="feature-brand-card-image"
+                />
+                <div
+                  className={`brand-wishlist-icon ${
+                    wishlist.has(String(product._id)) ? "active" : ""
+                  } ${loadingWishlist[product._id] ? "loading" : ""}`}
+                  onClick={(event) => toggleWishlist(product._id, event)} 
+                  style={{ 
+                    cursor: loadingWishlist[product._id] ? 'not-allowed' : 'pointer',
+                    opacity: loadingWishlist[product._id] ? 0.6 : 1
+                  }}
+                >
+                  {loadingWishlist[product._id] ? (
+                    <i className="fa-solid fa-spinner fa-spin"></i>
+                  ) : (
+                    <i
+                      className={
+                        wishlist.has(String(product._id))
+                          ? "fa-solid fa-heart"
+                          : "fa-regular fa-heart"
+                      }
+                    ></i>
+                  )}
+                </div>
               </div>
-            </div>
-            <p className="feature-brand-card-title">
-              {truncateText(product.name)}
-            </p>
-            <p className="feature-brand-card-description">
-              {product.defaultOfferPrice ? (
-                <span className="price-container">
-                  <span className="original-price">
-                    {new Intl.NumberFormat("en-IN", {
-                      style: "currency",
-                      currency: "INR",
-                    }).format(product.defaultPrice)}
+              <p className="feature-brand-card-title">
+                {truncateText(product.name)}
+              </p>
+              <p className="feature-brand-card-description">
+                {pricing.wholesalePrice && pricing.wholesalePrice !== pricing.offerPrice ? (
+                  <span className="price-container">
+                    <span className="original-price">
+                      {new Intl.NumberFormat("en-IN", {
+                        style: "currency",
+                        currency: "INR",
+                      }).format(pricing.wholesalePrice)}
+                    </span>
+                    <span className="offer-price">
+                      {new Intl.NumberFormat("en-IN", {
+                        style: "currency",
+                        currency: "INR",
+                      }).format(pricing.offerPrice)}
+                    </span>
                   </span>
-                  <span className="offer-price">
-                    {new Intl.NumberFormat("en-IN", {
-                      style: "currency",
-                      currency: "INR",
-                    }).format(product.defaultOfferPrice)}
-                  </span>
-                </span>
-              ) : (
-                new Intl.NumberFormat("en-IN", {
-                  style: "currency",
-                  currency: "INR",
-                }).format(product.defaultPrice)
-              )}
-            </p>
-          </motion.div>
-        ))}
+                ) : (
+                  new Intl.NumberFormat("en-IN", {
+                    style: "currency",
+                    currency: "INR",
+                  }).format(pricing.offerPrice)
+                )}
+              </p>
+            </motion.div>
+          );
+        })}
       </div>
 
       <button

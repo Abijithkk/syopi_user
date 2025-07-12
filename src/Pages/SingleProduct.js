@@ -26,6 +26,8 @@ function SingleProduct() {
   const [selectedSize, setSelectedSize] = useState(null);
   const [product, setProduct] = useState(null);
   const [reviews, setReviews] = useState(null);
+  const [brandName, setBrandName] = useState(null);
+
 
   const [mainImage, setMainImage] = useState("");
   const [currentImages, setCurrentImages] = useState([]);
@@ -44,8 +46,11 @@ function SingleProduct() {
     const fetchProductAndCartData = async () => {
       try {
         const response = await getProductByIdApi(id);
+        console.log(response);
+        
         if (response.data) {
           setProduct(response.data.product);
+          setBrandName(response.data.brandName);
           setReviews(response.data.reviews);
           if (
             response.data.product.variants &&
@@ -152,10 +157,10 @@ function SingleProduct() {
 
 const toTwoDecimals = (num) => Math.round(num * 100) / 100;
 
-const originalPrice = toTwoDecimals(selectedVariant?.price || 0);
-const discountedPrice = toTwoDecimals(selectedVariant?.offerPrice || originalPrice);
-const discountAmount = toTwoDecimals(originalPrice - discountedPrice);
-
+// const discountedPrice = toTwoDecimals(selectedVariant?.offerPrice || originalPrice);
+// const discountAmount = toTwoDecimals(originalPrice - discountedPrice);
+const currentPrice = selectedVariant?.offerPrice || 0;
+const originalPrice = selectedVariant?.wholesalePrice || 0;
 
   useEffect(() => {
     if (!sizesForSelectedColor.some((s) => s.size === selectedSize)) {
@@ -283,13 +288,13 @@ const addToCart = async () => {
         color: selectedColor,
         size: selectedSize,
         colorName: selectedColorName,
-        price: discountedPrice,
+        price: currentPrice,
       };
 
       const response = await buyNowCheckoutApi(buyNowData);
 
       if (response.success) {
-        toast.success(`Proceeding to checkout - ₹${discountedPrice} for ${product.name}`, {
+        toast.success(`Proceeding to checkout - ₹${currentPrice} for ${product.name}`, {
           duration: 2000,
           icon: '🛒',
         });
@@ -508,13 +513,16 @@ const addToCart = async () => {
                 {product.totalStock > 0 ? "In stock" : "Out of stock"}
               </span>
             </div>
-            <div className="price-section">
-              <p className="discounted-price">₹{discountedPrice}</p>
-              <p className="original-price">
-                MRP <span className="strike">₹{originalPrice}</span>
-              </p>
-              <p className="discount-amount">(₹{discountAmount} OFF)</p>
-            </div>
+          <div className="price-section">
+  <p className="discounted-price">₹{currentPrice}</p>
+  {originalPrice > currentPrice && (
+    <>
+      <p className="original-price">
+        MRP <span className="strike">₹{originalPrice}</span>
+      </p>
+    </>
+  )}
+</div>
             <div className="points-section">
               <p className="points-line">
                 You can get 40 Syopi Points on this purchase.
@@ -624,6 +632,11 @@ const addToCart = async () => {
             <div className="product-details">
               <h2 className="details-heading">Product Details</h2>
               <ul className="details-list">
+              
+      <li>
+        <span className="feature-label">Brand:</span> {brandName}
+      </li>
+    
                 {product.features && (
                   <>
                     <li>

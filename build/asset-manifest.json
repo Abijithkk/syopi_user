@@ -1,11 +1,9 @@
 {
   "files": {
-    "main.css": "/static/css/main.e59aff40.css",
-    "main.js": "/static/js/main.f4d9d2e2.js",
+    "main.css": "/static/css/main.81d47c4b.css",
+    "main.js": "/static/js/main.95bd08c5.js",
     "static/media/Landing.jpeg": "/static/media/Landing.1e1b3c6ad52ca958aac2.jpeg",
-    "static/media/Brand.png": "/static/media/Brand.1a5c74855ceca0c22319.png",
     "static/media/cd.png": "/static/media/cd.2aab3de11e35d64aa734.png",
-    "static/media/Streetwear.png": "/static/media/Streetwear.88f9080376988100b344.png",
     "static/media/refer3.png": "/static/media/refer3.7f02c7b1077aa142abd6.png",
     "static/media/refer1.png": "/static/media/refer1.efe13bc65dbc0fc0b3ad.png",
     "static/media/Headerlogo.png": "/static/media/Headerlogo.432c21107a2b264acafd.png",
@@ -16,11 +14,11 @@
     "static/media/f2.png": "/static/media/f2.2be29c88bfd54927d5e2.png",
     "static/media/apple.png": "/static/media/apple.1511c3d419cb16aec154.png",
     "index.html": "/index.html",
-    "main.e59aff40.css.map": "/static/css/main.e59aff40.css.map",
-    "main.f4d9d2e2.js.map": "/static/js/main.f4d9d2e2.js.map"
+    "main.81d47c4b.css.map": "/static/css/main.81d47c4b.css.map",
+    "main.95bd08c5.js.map": "/static/js/main.95bd08c5.js.map"
   },
   "entrypoints": [
-    "static/css/main.e59aff40.css",
-    "static/js/main.f4d9d2e2.js"
+    "static/css/main.81d47c4b.css",
+    "static/js/main.95bd08c5.js"
   ]
 }
