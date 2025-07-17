@@ -21,6 +21,8 @@ const PrivacyPolicy = () => {
         <li>Promotion Interaction: Coupons used, discounts availed, and promotional notifications clicked.</li>
         <li>Communication Data: Chat logs or messages with customer support.</li>
       </ul>
+  <h3>Use of Location for Shipping</h3>
+      <p>We use the shipping address you manually provide to deliver your orders. <strong>We do not collect or use your device's real-time or GPS location.</strong> This address information is used solely for order fulfillment and delivery purposes.</p>
 
       <h2>Use of Your Personal Data</h2>
       <ul>

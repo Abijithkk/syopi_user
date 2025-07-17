@@ -3,9 +3,8 @@ import React from 'react'
 function Privacypol() {
   return (
     <div>
-          <div style={{ padding: '80px 20px', lineHeight: '1.8', color: '#333' }}>
+      <div style={{ padding: '80px 20px', lineHeight: '1.8', color: '#333' }}>
         <h1 style={{ textAlign: 'center', marginBottom: '30px' }}>PRIVACY POLICY</h1>
-
 
         <p>
           THIS PRIVACY POLICY IS AN ELECTRONIC RECORD IN THE FORM OF AN ELECTRONIC CONTRACT FORMED UNDER THE INFORMATION TECHNOLOGY ACT, 2000 AND THE RULES MADE THEREUNDER AND THE AMENDED PROVISIONS PERTAINING TO ELECTRONIC DOCUMENTS / RECORDS IN VARIOUS STATUTES AS AMENDED BY THE INFORMATION TECHNOLOGY ACT, 2000. THIS PRIVACY POLICY DOES NOT REQUIRE ANY PHYSICAL, ELECTRONIC OR DIGITAL SIGNATURE.
@@ -75,7 +74,12 @@ function Privacypol() {
           <li>Withdraw marketing consent at any time</li>
         </ul>
 
-        <h3>8. Contact Us</h3>
+        <h3>8. Use of Address for Shipping (Not Real-Time Location)</h3>
+        <p>
+          For shipping and delivery purposes, we collect the address details you manually provide at the time of checkout or registration. <strong>We do not access, collect, or track your device’s real-time or GPS-based location</strong>. The address is solely used to ensure accurate and timely delivery of your orders.
+        </p>
+
+        <h3>9. Contact Us</h3>
         <p>If you have any questions or concerns:</p>
         <p><strong>Email:</strong> syopi5051@gmail.com</p>
       </div>
