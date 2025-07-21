@@ -3,7 +3,7 @@ import signimg from "../images/Landing.jpeg";
 import "./signup.css";
 import { userRegisterpApi, verifyotpApi } from "../services/allApi";
 import { toast, ToastContainer } from "react-toastify";
-
+import { useNavigate } from "react-router-dom";
 function Signup() {
   const [isSignedUp, setIsSignedUp] = useState(false);
   const [code, setCode] = useState(Array(6).fill(""));
@@ -11,24 +11,25 @@ function Signup() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [referredBy, setReferredBy] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  // const [password, setPassword] = useState("");
+  // const [confirmPassword, setConfirmPassword] = useState("");
+  // const [showPassword, setShowPassword] = useState(false);
   const [verificationError, setVerificationError] = useState("");
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
+  // const togglePasswordVisibility = () => {
+  //   setShowPassword(!showPassword);
+  // };
   const validateInputs = () => {
     let tempErrors = {};
     if (!name.trim()) tempErrors.name = "Name is required";
     if (!email.trim()) tempErrors.email = "Email is required";
     if (!phone.trim()) tempErrors.phone = "Phone number is required";
-    if (!password.trim()) tempErrors.password = "Password is required";
-    if (!confirmPassword.trim())
-      tempErrors.confirmPassword = "Please confirm your password";
+    // if (!password.trim()) tempErrors.password = "Password is required";
+    // if (!confirmPassword.trim())
+    //   tempErrors.confirmPassword = "Please confirm your password";
 
     if (phone && (phone.length !== 10 || !/^\d+$/.test(phone))) {
       tempErrors.phone = "Enter a valid 10-digit phone number";
@@ -38,9 +39,9 @@ function Signup() {
       tempErrors.email = "Enter a valid email address";
     }
 
-    if (password && confirmPassword && password !== confirmPassword) {
-      tempErrors.confirmPassword = "Passwords do not match";
-    }
+    // if (password && confirmPassword && password !== confirmPassword) {
+    //   tempErrors.confirmPassword = "Passwords do not match";
+    // }
 
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
@@ -52,8 +53,8 @@ function Signup() {
     if (field === "email") setEmail(value);
     if (field === "phone") setPhone(value);
     if (field === "referredBy") setReferredBy(value);
-    if (field === "password") setPassword(value);
-    if (field === "confirmPassword") setConfirmPassword(value);
+    // if (field === "password") setPassword(value);
+    // if (field === "confirmPassword") setConfirmPassword(value);
   };
 
   const handleCodeChange = (e, index) => {
@@ -128,7 +129,7 @@ function Signup() {
       name,
       email,
       phone,
-      password,
+      // password,
       referredBy: referredBy || undefined,
     };
 
@@ -136,6 +137,14 @@ function Signup() {
       const response = await userRegisterpApi(userData);
       if (response.success) {
         toast.success("Registration successful!");
+        const { user } = response.data;
+        localStorage.setItem("userId", user?.userId || user?._id || user?.id);
+        localStorage.setItem("accessuserToken", response.data.accessToken);
+        localStorage.setItem("username", user?.name || user?.username);
+        localStorage.setItem("email", user?.email);
+        localStorage.setItem("role", user?.role || "user");
+        navigate("/signin");  
+
         setIsSignedUp(true);
       } else {
         toast.error(
@@ -206,7 +215,7 @@ function Signup() {
                 onChange={(e) => handleChange("referredBy", e.target.value)}
               />
 
-              <label>Enter Password</label>
+              {/* <label>Enter Password</label>
               <input
                 type="password"
                 placeholder="Enter your password"
@@ -238,7 +247,7 @@ function Signup() {
               </div>
               {errors.confirmPassword && (
                 <span className="error-text">{errors.confirmPassword}</span>
-              )}
+              )} */}
 
 <button type="submit" className="signin-btn mt-3" disabled={loading}>
   {loading ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : "Sign Up"}

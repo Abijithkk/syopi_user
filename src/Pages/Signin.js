@@ -3,16 +3,21 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
 import signimg from "../images/Landing.jpeg";
 import "./signin.css";
-import { userLoginApi, googleLoginApi, appleLoginApi } from "../services/allApi";
+import { userLoginApi, googleLoginApi, appleLoginApi, userLoginVerifyApi, resendLoginOtpApi } from "../services/allApi";
 import { BASE_URL } from "../services/baseUrl";
 
 function Signin() {
-  const [emailOrPhone, setEmailOrPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
+  const [showOtpField, setShowOtpField] = useState(false);
+  const [sessionId, setSessionId] = useState("");
   const [loading, setLoading] = useState(false);
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [appleLoading, setAppleLoading] = useState(false);
+  const [resendDisabled, setResendDisabled] = useState(false);
+  const [countdown, setCountdown] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -43,7 +48,6 @@ function Signin() {
             localStorage.setItem("userId", data.user.userId || data.user._id || data.user.id);
             localStorage.setItem("accessuserToken", data.token || data.accessToken);
             localStorage.setItem("username", data.user.name || data.user.username);
-            localStorage.setItem("email", data.user.email);
             localStorage.setItem("role", data.user.role || "user");
             
             toast.success("Google sign-in successful!");
@@ -84,7 +88,6 @@ function Signin() {
             localStorage.setItem("userId", data.user.userId || data.user._id || data.user.id);
             localStorage.setItem("accessuserToken", data.token || data.accessToken);
             localStorage.setItem("username", data.user.name || data.user.username);
-            localStorage.setItem("email", data.user.email);
             localStorage.setItem("role", data.user.role || "user");
             
             toast.success("Apple sign-in successful!");
@@ -110,41 +113,39 @@ function Signin() {
     handleOAuthCallback();
   }, [location, navigate]);
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
+  // Countdown timer for resend OTP
+  useEffect(() => {
+    let timer;
+    if (countdown > 0) {
+      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+    } else if (resendDisabled) {
+      setResendDisabled(false);
+    }
+    return () => clearTimeout(timer);
+  }, [countdown, resendDisabled]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
   
-    if (!emailOrPhone || !password) {
-      toast.error("Please enter email/phone and password");
+    if (!phone) {
+      toast.error("Please enter Phone number");
       return;
     }
     
     setLoading(true);
-    const loadingToast = toast.loading("Signing you in...");
+    const loadingToast = toast.loading("Sending OTP to your phone...");
 
     try {
-      const response = await userLoginApi({ emailOrPhone, password });
-      
+      const response = await userLoginApi({ phone });
       
       if (response.success && response.status === 200) {
-        const { user } = response.data;
-        
-        localStorage.setItem("userId", user?.userId || user?._id || user?.id);
-        localStorage.setItem("accessuserToken", response.data.accessToken);
-        localStorage.setItem("username", user?.name || user?.username);
-        localStorage.setItem("email", user?.email);
-        localStorage.setItem("role", user?.role || "user");
-        
-        toast.success("Login successful!");
-        
-        setTimeout(() => {
-          navigate("/");
-        }, 1000);
+        setSessionId(response.data.sessionId);
+        setShowOtpField(true);
+        setResendDisabled(true);
+        setCountdown(30); // 30 seconds countdown
+        toast.success("OTP sent successfully!");
       } else {
-        const errorMessage = response.data?.error?.message || response.data?.message || "Login failed!";
+        const errorMessage = response.data?.error?.message || response.data?.message || "Failed to send OTP!";
         toast.error(errorMessage);
       }
     } catch (error) {
@@ -155,7 +156,80 @@ function Signin() {
       setLoading(false);
     }
   };
-  
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    
+    if (!otp) {
+      toast.error("Please enter OTP");
+      return;
+    }
+    
+    setOtpLoading(true);
+    const loadingToast = toast.loading("Verifying OTP...");
+
+    try {
+      const response = await userLoginVerifyApi({
+        phone,
+        otp,
+        sessionId: sessionId || "TEST_SESSION" 
+      });
+      console.log("login response",response);
+      
+      if (response.success && response.status === 200) {
+        const { user } = response.data;
+        localStorage.setItem("userId", user?.userId || user?._id || user?.id);
+        localStorage.setItem("accessuserToken", response.data.accessToken);
+        localStorage.setItem("username", user?.name || user?.username);
+        localStorage.setItem("role", user?.role || "user");
+        
+        toast.success("Login successful!");
+        
+        setTimeout(() => {
+          navigate("/");
+        }, 1000);
+      } else {
+        const errorMessage = response.data?.error?.message || response.data?.message || "OTP verification failed!";
+        toast.error(errorMessage);
+      }
+    } catch (error) {
+      console.error("OTP Verification Error:", error);
+      toast.error(error.response?.data?.message || "Something went wrong. Please try again.");
+    } finally {
+      toast.dismiss(loadingToast);
+      setOtpLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (!phone) {
+      toast.error("Phone number is required");
+      return;
+    }
+    
+    setResendLoading(true);
+    setResendDisabled(true);
+    setCountdown(30); // Reset countdown
+    
+    try {
+      const response = await resendLoginOtpApi({ phone });
+      
+      if (response.success && response.status === 200) {
+        toast.success("New OTP sent successfully!");
+      } else {
+        const errorMessage = response.data?.error?.message || response.data?.message || "Failed to resend OTP!";
+        toast.error(errorMessage);
+        setResendDisabled(false);
+      }
+    } catch (error) {
+      console.error("Resend OTP Error:", error);
+      toast.error(error.response?.data?.message || "Something went wrong. Please try again.");
+      setResendDisabled(false);
+    } finally {
+      setResendLoading(false);
+    }
+  };
+
   const handleGoogleSignIn = () => {
     setGoogleLoading(true);
     window.location.href = googleLoginApi();
@@ -163,8 +237,6 @@ function Signin() {
 
   const handleAppleSignIn = () => {
     setAppleLoading(true);
-    
-   
     window.location.href = appleLoginApi();
   };
 
@@ -174,66 +246,86 @@ function Signin() {
         <h1>Welcome Back 👋</h1>
         <p>Get ready to dress your little ones in fashion-forward outfits.</p>
 
-        <form className="signin-form" onSubmit={handleLogin}>
-          <label>Email or Phone Number</label>
+        <form className="signin-form" onSubmit={showOtpField ? handleVerifyOtp : handleLogin}>
+          <label>Phone Number</label>
           <input
             type="text"
-            placeholder="Enter your Email or Phone number"
-            value={emailOrPhone}
-            onChange={(e) => setEmailOrPhone(e.target.value)}
+            placeholder="Enter your Phone number"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            disabled={showOtpField}
           />
 
-          <label>Password</label>
-          <div className="password-container">
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Enter your Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <span className="toggle-password right-icon" onClick={togglePasswordVisibility}>
-              {showPassword ? "👁️" : "👁️‍🗨️"}
-            </span>
-          </div>
+          {showOtpField && (
+            <>
+              <label>OTP</label>
+              <input
+                type="text"
+                placeholder="Enter OTP"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+              />
+              <div className="resend-otp">
+                <button
+                  type="button"
+                  onClick={handleResendOtp}
+                  disabled={resendDisabled || resendLoading}
+                >
+                  {resendLoading ? (
+                    <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                  ) : (
+                    "Resend OTP"
+                  )}
+                </button>
+                {resendDisabled && (
+                  <span className="countdown">in {countdown}s</span>
+                )}
+              </div>
+            </>
+          )}
 
-          <div className="signin-links">
-            <a href="/forget">Forgot Password?</a>
-          </div>
-
-          <button type="submit" className="signin-btn" disabled={loading}>
-            {loading ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : "Sign In"}
+          <button type="submit" className="signin-btn" disabled={loading || otpLoading}>
+            {loading || otpLoading ? (
+              <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            ) : showOtpField ? (
+              "Verify OTP"
+            ) : (
+              "Sign In"
+            )}
           </button>
         </form>
 
-        <div className="signin-alternatives">
-          <button className="or">Or</button>
-          <button 
-            className="social-btn google"
-            onClick={handleGoogleSignIn}
-            disabled={googleLoading}
-          >
-            <span className="icon google-icon"></span>
-            <span className="textt">
-              {googleLoading ? 
-                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : 
-                "Sign in with Google"
-              }
-            </span>
-          </button>
-          <button 
-            className="social-btn apple"
-            onClick={handleAppleSignIn}
-            disabled={appleLoading}
-          >
-            <span className="icon apple-icon"></span>
-            <span className="textt">
-              {appleLoading ? 
-                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : 
-                "Sign in with Apple"
-              }
-            </span>
-          </button>
-        </div>
+        {!showOtpField && (
+          <div className="signin-alternatives">
+            <button className="or">Or</button>
+            <button 
+              className="social-btn google"
+              onClick={handleGoogleSignIn}
+              disabled={googleLoading}
+            >
+              <span className="icon google-icon"></span>
+              <span className="textt">
+                {googleLoading ? 
+                  <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : 
+                  "Sign in with Google"
+                }
+              </span>
+            </button>
+            <button 
+              className="social-btn apple"
+              onClick={handleAppleSignIn}
+              disabled={appleLoading}
+            >
+              <span className="icon apple-icon"></span>
+              <span className="textt">
+                {appleLoading ? 
+                  <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : 
+                  "Sign in with Apple"
+                }
+              </span>
+            </button>
+          </div>
+        )}
 
         <p className="signup-text">
           Don&apos;t have an account? <a href="/signup">Sign up</a>

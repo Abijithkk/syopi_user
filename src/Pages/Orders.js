@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "./Order.css";
 import { Card, Col, Container, Row, Spinner, Alert, Modal, Form, Button } from "react-bootstrap";
 import {
@@ -36,9 +36,11 @@ function Orders() {
     try {
       setLoading(true);
       const response = await getUserOrdersApi();
+      console.log("Fetched orders:", response);
+      
 
       if (response.success && response.data.success) {
-        setOrders(response.data.vendorOrders);
+        setOrders(response.data.orders);
       } else {
         setError("Failed to fetch orders. Please try again later.");
       }
@@ -131,7 +133,7 @@ function Orders() {
   }, []);
 
   return (
-    <div>
+   <div>
       <p className="order-title">My Orders</p>
 
       {loading ? (
@@ -145,7 +147,7 @@ function Orders() {
       ) : orders.length === 0 ? (
         <Alert variant="info">You don't have any orders yet.</Alert>
       ) : (
-        orders.map((order, index) => (
+        orders.map((order) => (
           <Container
             fluid
             className="order-container my-5 order-row"
@@ -158,7 +160,7 @@ function Orders() {
                 <div className="order-info">
                   Order{" "}
                   <span className="ms-2" style={{ color: "#49A1F7" }}>
-                    #{order.orderId?._id || "N/A"}
+                    #{order._id || "N/A"}
                   </span>
                 </div>
                 <p className="order-date">
@@ -170,91 +172,101 @@ function Orders() {
               </Col>
             </Row>
 
-            <Row className="no-gutters align-items-start">
-              {/* Product Card */}
-              <Col xs={12} md={6} className="order-left-column mb-4 mb-md-0">
-                <Card className="order-item mb-4">
-                  <Row className="align-items-center">
-                    {/* Image Section */}
-                    <Col
-                      xs={12}
-                      sm={4}
-                      className="d-flex justify-content-center align-items-center"
-                    >
-                      <img
-                        src={`${BASE_URL}/uploads/${
-                          order.productId?.images?.[0] || "N/A"
-                        }`}
-                        alt={order.productId?.name || "Product"}
-                        className="order-image img-fluid"
-                      />
+            {order.products.map((product, index) => (
+              <Row className="no-gutters align-items-start" key={index}>
+                {/* Product Card */}
+                <Col xs={12} md={6} className="order-left-column mb-4 mb-md-0">
+                  <Card className="order-item mb-4">
+                    <Row className="align-items-center">
+                      {/* Image Section */}
+                      <Col
+                        xs={12}
+                        sm={4}
+                        className="d-flex justify-content-center align-items-center"
+                      >
+                        <img
+                          src={`${BASE_URL}/uploads/${
+                            product.productId?.images?.[0] || "default-product.jpg"
+                          }`}
+                          alt={product.productId?.name || "Product"}
+                          className="order-image img-fluid"
+                        />
+                      </Col>
+
+                      {/* Details Section */}
+                      <Col xs={12} sm={8} className="d-flex flex-column">
+                        <Card.Body className="p-0 d-flex flex-column justify-content-between h-100">
+                          {/* Title */}
+                          <Card.Title className="order-titles mb-2">
+                            {product.productId?.name || "Product Name"}
+                          </Card.Title>
+
+                          {/* Color and Size */}
+                          <div className="d-flex align-items-center gap-1 mb-1">
+                            <p className="color-size m-0">
+                              Color: {product.color || "N/A"}
+                            </p>
+                            <p className="color-size m-0 ms-2">
+                              Size: {product.size || "N/A"}
+                            </p>
+                          </div>
+
+                          {/* Quantity and Price */}
+                          <div className="d-flex align-items-center gap-3 mb-1">
+                            <p className="quantity m-0">
+                              Qty: {product.quantity || 0}
+                            </p>
+                            <p className="price m-0 ms-5">
+                              RS.{" "}
+                              <span style={{ color: "#1DA69E" }}>
+                                {product.price || 0}
+                              </span>
+                            </p>
+                          </div>
+                        </Card.Body>
+                      </Col>
+                    </Row>
+                  </Card>
+                </Col>
+
+                {/* Only show status and delivery date for the first product */}
+                {index === 0 && (
+                  <>
+                    {/* Order Status */}
+                    <Col xs={12} md={3} className="text-center mb-4 mb-md-0 mt-5">
+                      <div className="order-status">
+                        <p className="order-status1">Order Status</p>
+                        <p className="order-status2">
+                          {order.status || "Processing"}
+                        </p>
+                      </div>
                     </Col>
 
-                    {/* Details Section */}
-                    <Col xs={12} sm={8} className="d-flex flex-column">
-                      <Card.Body className="p-0 d-flex flex-column justify-content-between h-100">
-                        {/* Title */}
-                        <Card.Title className="order-titles mb-2">
-                          {order.productId?.name || "Product Name"}
-                        </Card.Title>
-
-                        {/* Color and Size */}
-                        <div className="d-flex align-items-center gap-1 mb-1">
-                          <p className="color-size m-0">
-                            Color: {order.colorName || "N/A"}
-                          </p>
-                          <p className="color-size m-0 ms-2">
-                            Size: {order.size || "N/A"}
-                          </p>
-                        </div>
-
-                        {/* Quantity and Price */}
-                        <div className="d-flex align-items-center gap-3 mb-1">
-                          <p className="quantity m-0">
-                            Qty: {order.quantity || 0}
-                          </p>
-                          <p className="price m-0 ms-5">
-                            RS.{" "}
-                            <span style={{ color: "#1DA69E" }}>
-                              {order.price || 0}
-                            </span>
-                          </p>
-                        </div>
-                      </Card.Body>
+                    {/* Delivery Expected By */}
+                    <Col xs={12} md={3} className="text-center mt-5">
+                      <div className="delivery-date">
+                        <p className="delivery-expect1">Delivery Expected By</p>
+                        <p className="delivery-expect2">
+                          {order.deliveryDetails?.deliveryDate
+                            ? formatDate(order.deliveryDetails.deliveryDate)
+                            : "Processing"}
+                        </p>
+                      </div>
                     </Col>
-                  </Row>
-                </Card>
-              </Col>
-
-              {/* Order Status */}
-              <Col xs={12} md={3} className="text-center mb-4 mb-md-0 mt-5">
-                <div className="order-status">
-                  <p className="order-status1">Order Status</p>
-                  <p className="order-status2">
-                    {order.status || "Processing"}
-                  </p>
-                </div>
-              </Col>
-
-              {/* Delivery Expected By */}
-              <Col xs={12} md={3} className="text-center mt-5">
-                <div className="delivery-date">
-                  <p className="delivery-expect1">Delivery Expected By</p>
-                  <p className="delivery-expect2">
-                    {order.deliveryDetails?.deliveryDate
-                      ? formatDate(order.deliveryDetails.deliveryDate)
-                      : "Processing"}
-                  </p>
-                </div>
-              </Col>
-            </Row>
+                  </>
+                )}
+              </Row>
+            ))}
 
             <Row className="cancel-order-row">
               <Col>
                 {order.status === "Confirmed" && (
                   <div
                     className="cancel-order-text"
-                    onClick={() => openCancelModal(order._id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openCancelModal(order._id);
+                    }}
                     style={{ cursor: "pointer" }}
                   >
                     Cancel Order
@@ -264,8 +276,10 @@ function Orders() {
                   order.returnStatus === "Not_requested" && (
                     <div
                       className="cancel-order-text"
-                      
-                      onClick={() => openReturnModal(order._id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openReturnModal(order._id);
+                      }}
                       style={{ cursor: "pointer" }}
                     >
                       Request Return
@@ -279,7 +293,7 @@ function Orders() {
                 <p className="order-price">
                   RS.{" "}
                   <span style={{ color: "#1DA69E" }}>
-                    {order.itemTotal || order.price * order.quantity}
+                    {order.finalPayableAmount || order.totalPrice}
                   </span>
                 </p>
               </Col>
@@ -287,6 +301,7 @@ function Orders() {
           </Container>
         ))
       )}
+
 
       {/* Cancel Order Modal */}
       <Modal 

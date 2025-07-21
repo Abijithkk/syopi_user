@@ -73,13 +73,7 @@ function Privacypol() {
           <li>Request data deletion</li>
           <li>Withdraw marketing consent at any time</li>
         </ul>
-
-        <h3>8. Use of Address for Shipping (Not Real-Time Location)</h3>
-        <p>
-          For shipping and delivery purposes, we collect the address details you manually provide at the time of checkout or registration. <strong>We do not access, collect, or track your device’s real-time or GPS-based location</strong>. The address is solely used to ensure accurate and timely delivery of your orders.
-        </p>
-
-        <h3>9. Contact Us</h3>
+        <h3>8. Contact Us</h3>
         <p>If you have any questions or concerns:</p>
         <p><strong>Email:</strong> syopi5051@gmail.com</p>
       </div>
