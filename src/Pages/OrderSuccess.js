@@ -1,11 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Container } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 
 function OrderSuccess() {
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimated, setIsAnimated] = useState(false);
   const successRef = useRef(null);
   const particlesRef = useRef(null);
+  const navigate = useNavigate();
   
   useEffect(() => {
     // Trigger main visibility
@@ -28,6 +30,9 @@ function OrderSuccess() {
       clearTimeout(animationTimer);
     };
   }, []);
+  const handlenavigate =()=>{
+    navigate('/')
+  }
   
   // Function to create particle elements
   const createParticles = () => {
@@ -97,7 +102,7 @@ function OrderSuccess() {
                 <div className="success-separator-line"></div>
               </div>
               
-              <div className={`success-action ${isAnimated ? 'is-animated' : ''}`}>
+              <div onClick={handlenavigate} className={`success-action ${isAnimated ? 'is-animated' : ''}`}>
                 <button className="success-button">
                   <span className="success-button-text">Continue Shopping</span>
                   <span className="success-button-icon">
@@ -108,17 +113,7 @@ function OrderSuccess() {
                   </span>
                 </button>
               </div>
-            </div>
-            
-            <div className={`success-footer ${isAnimated ? 'is-animated' : ''}`}>
-              <div className="success-footer-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                  <polyline points="22,6 12,13 2,6"></polyline>
-                </svg>
-              </div>
-              <p className="success-footer-text">Check your email for order confirmation</p>
-            </div>
+            </div>          
           </div>
         </div>
       </Container>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Card, Badge, Button, Spinner } from "react-bootstrap";
+import { Container, Row, Col, Card, Badge, Button, Spinner, ListGroup } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import { getSingleOrderApi } from "../services/allApi";
 import "./singleorder.css";
@@ -10,7 +10,7 @@ function SingleOrder() {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate=useNavigate();
+  const navigate = useNavigate();
 
   const fetchOrder = async () => {
     try {
@@ -49,29 +49,35 @@ function SingleOrder() {
 
   // Helper function to get status badge color
   const getStatusBadgeColor = (status) => {
-    switch (status) {
-      case "Delivered":
-        return "success";
-      case "Cancelled":
-        return "danger";
-      case "Processing":
-        return "primary";
-      case "Shipped":
-        return "info";
-      default:
-        return "secondary";
-    }
+  switch (status) {
+    case "Delivered":
+      return "success";
+    case "Cancelled":
+    case "Returned":
+      return "danger";
+    case "Processing":
+      return "primary";
+    case "Shipping":
+    case "In-Transit":
+      return "info";
+    case "Pending":
+      return "warning";
+    case "Confirmed":
+      return "secondary";
+    default:
+      return "secondary";
+  }
+
+
   };
 
-  // Helper function to find variant image based on order color
-  const getVariantImage = () => {
-    if (!order?.productId?.variants || !order?.color) return null;
-    
-    const variant = order.productId.variants.find(v => v.color === order.color);
-    if (variant && variant.images && variant.images.length > 0) {
-      return variant.images[0];
+  // Helper function to get product image
+  const getProductImage = (product) => {
+    // If product has direct images array
+    if (product?.productId?.images?.length > 0) {
+      return product.productId.images[0];
     }
-    return order.productId.images?.[0] || null;
+    return null;
   };
 
   if (loading) {
@@ -94,19 +100,17 @@ function SingleOrder() {
     );
   }
 
-  // Get variant image
-  const productImage = getVariantImage();
-  const imageUrl = productImage ? `${BASE_URL}/uploads/${productImage}` : null;
-const productNavigate=(id)=>{
-    navigate(`/product/${id}`)
-}
+  const productNavigate = (id) => {
+    navigate(`/product/${id}`);
+  };
+
   return (
     <Container className="order-main-container">
       <Card className="order-card">
         <Card.Header className="order-card-header">
           <div className="order-header-content">
             <div className="order-id">
-              Order #: <span className="order-id-value">{order?.orderId}</span>
+              Order #: <span className="order-id-value">{order?._id}</span>
             </div>
             <div className="order-status">
               Status: <Badge bg={getStatusBadgeColor(order?.status)}>{order?.status}</Badge>
@@ -115,88 +119,102 @@ const productNavigate=(id)=>{
         </Card.Header>
         
         <Card.Body>
-          <Row className="order-content-row">
-            <Col lg={4} md={5} className="order-product-col">
-              <div className="order-product-image-container" onClick={()=> productNavigate(order.productId?._id)}>
-                {imageUrl ? (
-                  <img 
-                    src={imageUrl} 
-                    alt={order?.productId?.name} 
-                    className="order-product-image" 
-                  />
-                ) : (
-                  <div 
-                    className="order-product-color" 
-                    style={{ backgroundColor: order?.color || "#dd151b" }}
-                  ></div>
-                )}
-                <div className="order-product-badge">
-                  <Badge bg="light" text="dark" className="order-color-badge">
-                    {order?.colorName || "Crimson Red"}
-                  </Badge>
-                </div>
+          <h5 className="mb-4">Order Summary</h5>
+          
+          <Row className="mb-4">
+            <Col md={6}>
+              <div className="order-summary-item">
+                <span className="order-summary-label">Order Date:</span>
+                <span className="order-summary-value">{formatDate(order?.createdAt)}</span>
+              </div>
+              <div className="order-summary-item">
+                <span className="order-summary-label">Payment Method:</span>
+                <span className="order-summary-value">{order?.paymentMethod || "Cash on Delivery"}</span>
               </div>
             </Col>
-            
-            <Col lg={8} md={7}>
-              <div className="order-product-details">
-                <h5 className="order-product-title">{order?.productId?.name || "Symbol Regular Fit Full Sleeve Shirt For Mens"}</h5>
-                
-                <div className="order-product-meta">
-                  <Row>
-                    <Col sm={4} xs={6} className="order-meta-item">
-                      <div className="order-meta-label">Product Type</div>
-                      <div className="order-meta-value">{order?.productId?.productType || "Dress"}</div>
-                    </Col>
-                    <Col sm={4} xs={6} className="order-meta-item">
-                      <div className="order-meta-label">Size</div>
-                      <div className="order-meta-value">{order?.size || "S"}</div>
-                    </Col>
-                    <Col sm={4} xs={6} className="order-meta-item">
-                      <div className="order-meta-label">Quantity</div>
-                      <div className="order-meta-value">{order?.quantity || 1}</div>
-                    </Col>
-                    <Col sm={4} xs={6} className="order-meta-item">
-                      <div className="order-meta-label">Price</div>
-                      <div className="order-meta-value">₹{order?.price || 0}</div>
-                    </Col>
-                    <Col sm={4} xs={6} className="order-meta-item">
-                      <div className="order-meta-label">Discount</div>
-                      <div className="order-meta-value">₹{order?.discountedPrice || 0}</div>
-                    </Col>
-                    <Col sm={4} xs={6} className="order-meta-item">
-                      <div className="order-meta-label">Total</div>
-                      <div className="order-meta-value order-meta-value-bold">₹{order?.itemTotal || 0}</div>
-                    </Col>
-                  </Row>
-                </div>
+            <Col md={6}>
+              <div className="order-summary-item">
+                <span className="order-summary-label">Total Items:</span>
+                <span className="order-summary-value">{order?.products?.length || 0}</span>
+              </div>
+              <div className="order-summary-item">
+                <span className="order-summary-label">Total Amount:</span>
+                <span className="order-summary-value">₹{order?.finalPayableAmount || 0}</span>
               </div>
             </Col>
           </Row>
 
+          <h5 className="mb-3">Products</h5>
+          
+          <ListGroup className="mb-4">
+            {order?.products?.map((product, index) => {
+              const productImage = getProductImage(product);
+              const imageUrl = productImage ? `${BASE_URL}/uploads/${productImage}` : null;
+              
+              return (
+                <ListGroup.Item key={index} className="product-item">
+                  <Row className="align-items-center">
+                    <Col xs={3} md={2}>
+                      <div 
+                        className="order-product-image-container" 
+                        onClick={() => productNavigate(product.productId?._id)}
+                      >
+                        {imageUrl ? (
+                          <img 
+                            src={imageUrl} 
+                            alt={product?.productId?.name} 
+                            className="order-product-image" 
+                          />
+                        ) : (
+                          <div 
+                            className="order-product-color" 
+                            style={{ backgroundColor: product?.color || "#dd151b" }}
+                          ></div>
+                        )}
+                      </div>
+                    </Col>
+                    <Col xs={9} md={6}>
+                      <h6 className="product-title">{product?.productId?.name}</h6>
+                      <div className="product-details">
+                        <span className="detail-item">Color: <Badge bg="light" text="dark">{product?.color}</Badge></span>
+                        <span className="detail-item">Size: {product?.size}</span>
+                        <span className="detail-item">Qty: {product?.quantity}</span>
+                      </div>
+                    </Col>
+                    <Col xs={12} md={4} className="text-md-end mt-2 mt-md-0">
+                      <div className="product-price">
+                        <span className="final-price">₹{(product?.price * product?.quantity).toFixed(2)}</span>
+                      </div>
+                    </Col>
+                  </Row>
+                </ListGroup.Item>
+              );
+            })}
+          </ListGroup>
+
           <div className="order-section-divider"></div>
 
           <Row className="order-info-row">
-            <Col lg={4} md={6} className="order-address-col">
+            <Col lg={6} className="order-address-col">
               <h6 className="order-section-title">Shipping Address</h6>
               <Card className="order-address-card">
                 <Card.Body>
-                  {order?.addressId ? (
+                  {order?.shippingAddress ? (
                     <div className="order-address-content">
-                      <div className="order-address-name">{order.addressId.name}</div>
+                      <div className="order-address-name">{order.shippingAddress.name}</div>
                       <div className="order-address-line">
-                        {order.addressId.address}
-                        {order.addressId.landmark && `, Near ${order.addressId.landmark}`}
+                        {order.shippingAddress.address}
+                        {order.shippingAddress.landmark && `, Near ${order.shippingAddress.landmark}`}
                       </div>
                       <div className="order-address-line">
-                        {order.addressId.city}, {order.addressId.state} - {order.addressId.pincode}
+                        {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}
                       </div>
                       <div className="order-address-contact">
-                        <i className="bi bi-telephone"></i> {order.addressId.number}
-                        {order.addressId.alternatenumber && `, ${order.addressId.alternatenumber}`}
+                        <i className="bi bi-telephone"></i> {order.shippingAddress.number}
+                        {order.shippingAddress.alternatenumber && `, ${order.shippingAddress.alternatenumber}`}
                       </div>
                       <Badge bg="light" text="dark" className="order-address-type">
-                        {order.addressId.addressType}
+                        {order.shippingAddress.addressType}
                       </Badge>
                     </div>
                   ) : (
@@ -206,7 +224,7 @@ const productNavigate=(id)=>{
               </Card>
             </Col>
             
-            <Col lg={4} md={6} className="order-timeline-col">
+            <Col lg={6} className="order-timeline-col">
               <h6 className="order-section-title">Order Timeline</h6>
               <div className="order-timeline">
                 <div className="order-timeline-item">
@@ -262,53 +280,41 @@ const productNavigate=(id)=>{
                   </div>
                 )}
               </div>
-            </Col>
-            
-            <Col lg={4} md={12} className="order-delivery-col">
-              <h6 className="order-section-title">Delivery Details</h6>
-              <Card className="order-delivery-card">
-                <Card.Body>
-                  <div className="order-delivery-item">
-                    <i className="bi bi-calendar-check order-delivery-icon"></i>
-                    <div className="order-delivery-content">
-                      <div className="order-delivery-label">Expected Delivery</div>
-                      <div className="order-delivery-value">{order?.deliveryDetails?.deliveryDate || "N/A"}</div>
-                    </div>
-                  </div>
-                  
-                  <div className="order-delivery-item">
-                    <i className="bi bi-truck order-delivery-icon"></i>
-                    <div className="order-delivery-content">
-                      <div className="order-delivery-label">Delivery Method</div>
-                      <div className="order-delivery-value">{order?.paymentMode || "Standard Shipping"}</div>
-                    </div>
-                  </div>
-                  
-                  <div className="order-delivery-item">
-                    <i className="bi bi-info-circle order-delivery-icon"></i>
-                    <div className="order-delivery-content">
-                      <div className="order-delivery-label">Delivery Message</div>
-                      <div className="order-delivery-value">{order?.deliveryDetails?.deliveryMessage || "N/A"}</div>
-                    </div>
-                  </div>
-                  
-                  {order?.status !== "Cancelled" && order?.status !== "Delivered" && (
-                    <div className="order-delivery-status">
-                      <Badge bg="info" className="order-delivery-badge">
-                        {order?.deliveryDetails?.deliveryMessage || "Delivery in progress"}
-                      </Badge>
-                    </div>
-                  )}
-                </Card.Body>
-              </Card>
               
-              {order?.status === "Delivered" && !order?.returnExpired && (
-                <div className="order-action-container">
-                  <Button variant="outline-primary" className="order-return-button">
-                    Request Return
-                  </Button>
-                </div>
-              )}
+              <div className="mt-4">
+                <h6 className="order-section-title">Payment Summary</h6>
+                <Card className="order-delivery-card">
+                  <Card.Body>
+                    <div className="order-delivery-item">
+                      <div className="order-delivery-content">
+                        <div className="order-delivery-label">Subtotal</div>
+                        <div className="order-delivery-value">₹{order?.totalPrice?.toFixed(2) || 0}</div>
+                      </div>
+                    </div>
+                    
+                    <div className="order-delivery-item">
+                      <div className="order-delivery-content">
+                        <div className="order-delivery-label">Discount</div>
+                        <div className="order-delivery-value">-₹{order?.discountedAmount?.toFixed(2) || 0}</div>
+                      </div>
+                    </div>
+                    
+                    <div className="order-delivery-item">
+                      <div className="order-delivery-content">
+                        <div className="order-delivery-label">Delivery Charge</div>
+                        <div className="order-delivery-value">₹{order?.deliveryCharge?.toFixed(2) || 0}</div>
+                      </div>
+                    </div>
+                    
+                    <div className="order-delivery-item">
+                      <div className="order-delivery-content">
+                        <div className="order-delivery-label">Total Amount</div>
+                        <div className="order-delivery-value fw-bold">₹{order?.finalPayableAmount?.toFixed(2) || 0}</div>
+                      </div>
+                    </div>
+                  </Card.Body>
+                </Card>
+              </div>
             </Col>
           </Row>
         </Card.Body>

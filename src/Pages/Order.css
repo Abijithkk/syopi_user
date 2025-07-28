@@ -1,5 +1,5 @@
 .order-title {
-  margin: 40px;
+  margin: 60px 40px;
   font-family: Poppins;
   font-size: 32px;
   font-weight: 600;
@@ -14,7 +14,7 @@
   border: 1px solid #2d2e2e33;
   padding: 30px;
   margin: 0 40px; /* Adds equal spacing without exceeding */
-  max-width: calc(100% - 80px); /* Prevent overflow */
+  max-width: calc(100% - 80px); 
 }
 
 .order-container {
