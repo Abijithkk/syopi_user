@@ -15,8 +15,8 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { BASE_URL } from "../services/baseUrl";
 import { Skeleton } from "@mui/material";
-import {  ToastContainer } from "react-toastify";
-import { toast } from 'react-hot-toast';
+import { ToastContainer } from "react-toastify";
+import { toast } from "react-hot-toast";
 
 function SingleProduct() {
   const [zoomBackgroundPosition, setZoomBackgroundPosition] = useState({});
@@ -27,8 +27,6 @@ function SingleProduct() {
   const [product, setProduct] = useState(null);
   const [reviews, setReviews] = useState(null);
   const [brandName, setBrandName] = useState(null);
-
-
   const [mainImage, setMainImage] = useState("");
   const [currentImages, setCurrentImages] = useState([]);
   const [isInCart, setIsInCart] = useState(false);
@@ -41,16 +39,16 @@ function SingleProduct() {
   // const [address, setAddress] = useState([]);
   const [pincode, setPincode] = useState("");
   const [deliveryInfo, setDeliveryInfo] = useState(null);
-  
+
   useEffect(() => {
     const fetchProductAndCartData = async () => {
       try {
         const response = await getProductByIdApi(id);
         console.log(response);
-        
+
         if (response.data) {
           setProduct(response.data.product);
-          setBrandName(response.data.brandName);
+          setBrandName(response.data.brandName || response.data.product.brand);
           setReviews(response.data.reviews);
           if (
             response.data.product.variants &&
@@ -60,7 +58,6 @@ function SingleProduct() {
             setSelectedColor(firstVariant.color);
             setSelectedColorName(firstVariant.colorName || "");
 
-            
             const variantImages = firstVariant.images || [];
             const productImages = response.data.product.images || [];
             const imagesToUse =
@@ -68,17 +65,14 @@ function SingleProduct() {
             setCurrentImages(imagesToUse);
             setMainImage(imagesToUse[0] || "");
 
-           
             if (firstVariant.sizes && firstVariant.sizes.length > 0) {
               setSelectedSize(firstVariant.sizes[0].size);
             }
           } else {
-           
             setCurrentImages(response.data.product.images || []);
             setMainImage(response.data.product.images?.[0] || "");
           }
 
-          
           await checkIfInCart(response.data.product._id);
         }
       } catch (error) {
@@ -90,7 +84,6 @@ function SingleProduct() {
     fetchProductAndCartData();
   }, [id]);
 
- 
   const checkIfInCart = async (productId) => {
     const userId = localStorage.getItem("userId");
     if (!userId) return;
@@ -155,12 +148,12 @@ function SingleProduct() {
     [selectedVariant]
   );
 
-const toTwoDecimals = (num) => Math.round(num * 100) / 100;
+  const toTwoDecimals = (num) => Math.round(num * 100) / 100;
 
-// const discountedPrice = toTwoDecimals(selectedVariant?.offerPrice || originalPrice);
-// const discountAmount = toTwoDecimals(originalPrice - discountedPrice);
-const currentPrice = selectedVariant?.offerPrice || 0;
-const originalPrice = selectedVariant?.wholesalePrice || 0;
+  // const discountedPrice = toTwoDecimals(selectedVariant?.offerPrice || originalPrice);
+  // const discountAmount = toTwoDecimals(originalPrice - discountedPrice);
+  const currentPrice = selectedVariant?.offerPrice || 0;
+  const originalPrice = selectedVariant?.wholesalePrice || 0;
 
   useEffect(() => {
     if (!sizesForSelectedColor.some((s) => s.size === selectedSize)) {
@@ -178,93 +171,95 @@ const originalPrice = selectedVariant?.wholesalePrice || 0;
     setSelectedColorName(colorName || color);
   };
 
-const addToCart = async () => {
-  if (!selectedColor || !selectedSize) {
-    toast.error("Please select a color and size before adding to cart.");
-    return;
-  }
+  const addToCart = async () => {
+    if (!selectedColor || !selectedSize) {
+      toast.error("Please select a color and size before adding to cart.");
+      return;
+    }
 
-  const userId = localStorage.getItem("userId");
-  if (!userId) {
-    toast.error("Please log in to add items to your cart");
-    setTimeout(() => navigate("/signin"), 1500);
-    return;
-  }
-
-  if (isInCart) {
-    navigate("/cart");
-    return;
-  }
-
-  setIsLoading(true);
-
-  try {
-    const response = await addToCartApi(
-      userId,
-      product._id,
-      1,
-      selectedColor,
-      selectedColorName,
-      selectedSize
-    );
-
-    // Check for authentication failure (based on your API response format)
-    if (response?.error === "No token provided" ||
-        response?.error === "Login Required." ||
-        response?.error?.includes("Login Required") ||
-        response?.error?.includes("Unauthorized") ||
-        response?.error?.includes("No token provided") ||
-        response?.status === 401) {
-      
-      toast.error("Please sign in ");
-      
-      // Clear invalid tokens
-      localStorage.removeItem("accessuserToken");
-      localStorage.removeItem("userId");
-      
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      toast.error("Please log in to add items to your cart");
       setTimeout(() => navigate("/signin"), 1500);
       return;
     }
 
-    if (response.success) {
-      toast.success("Product added to cart successfully!");
-      setIsInCart(true);
-    } else {
-      if (response.status === 401) {
-        toast.error("Session expired. Redirecting to login...");
+    if (isInCart) {
+      navigate("/cart");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await addToCartApi(
+        userId,
+        product._id,
+        1,
+        selectedColor,
+        selectedColorName,
+        selectedSize
+      );
+
+      // Check for authentication failure (based on your API response format)
+      if (
+        response?.error === "No token provided" ||
+        response?.error === "Login Required." ||
+        response?.error?.includes("Login Required") ||
+        response?.error?.includes("Unauthorized") ||
+        response?.error?.includes("No token provided") ||
+        response?.status === 401
+      ) {
+        toast.error("Please sign in ");
+
+        // Clear invalid tokens
         localStorage.removeItem("accessuserToken");
         localStorage.removeItem("userId");
+
         setTimeout(() => navigate("/signin"), 1500);
-      } else {
-        toast.error(response.message || "Failed to add product to cart");
+        return;
       }
-    }
-  } catch (error) {
-    // Handle authentication errors in catch block
-    if (error.response?.status === 401 || 
+
+      if (response.success) {
+        toast.success("Product added to cart successfully!");
+        setIsInCart(true);
+      } else {
+        if (response.status === 401) {
+          toast.error("Session expired. Redirecting to login...");
+          localStorage.removeItem("accessuserToken");
+          localStorage.removeItem("userId");
+          setTimeout(() => navigate("/signin"), 1500);
+        } else {
+          toast.error(response.message || "Failed to add product to cart");
+        }
+      }
+    } catch (error) {
+      // Handle authentication errors in catch block
+      if (
+        error.response?.status === 401 ||
         error.response?.data?.error === "No token provided" ||
         error.response?.data?.error === "Login Required." ||
-        error.message?.includes("401") || 
+        error.message?.includes("401") ||
         error.message?.includes("Unauthorized") ||
         error.message?.includes("Login Required") ||
-        error.message?.includes("No token provided")) {
-      
-      toast.error("Session expired. Please sign in again.");
-      
-      localStorage.removeItem("accessuserToken");
-      localStorage.removeItem("userId");
-      
-      setTimeout(() => navigate("/signin"), 1500);
-    } else {
-      const errorMessage =
-        error.response?.data?.message ||
-        "Something went wrong. Please try again.";
-      toast.error(errorMessage);
+        error.message?.includes("No token provided")
+      ) {
+        toast.error("Session expired. Please sign in again.");
+
+        localStorage.removeItem("accessuserToken");
+        localStorage.removeItem("userId");
+
+        setTimeout(() => navigate("/signin"), 1500);
+      } else {
+        const errorMessage =
+          error.response?.data?.message ||
+          "Something went wrong. Please try again.";
+        toast.error(errorMessage);
+      }
+    } finally {
+      setIsLoading(false);
     }
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   const handleBuyNow = async () => {
     if (!selectedColor || !selectedSize) {
@@ -294,14 +289,19 @@ const addToCart = async () => {
       const response = await buyNowCheckoutApi(buyNowData);
 
       if (response.success) {
-        toast.success(`Proceeding to checkout - ₹${currentPrice} for ${product.name}`, {
-          duration: 2000,
-          icon: '🛒',
-        });
-        
+        toast.success(
+          `Proceeding to checkout - ₹${currentPrice} for ${product.name}`,
+          {
+            duration: 2000,
+            icon: "🛒",
+          }
+        );
+
         // Navigate to address page after short delay
         setTimeout(() => {
-          navigate(`/address/${response.data.checkoutId || '683ad85b48e6caddbea652f9'}`);
+          navigate(
+            `/address/${response.data.checkoutId || "683ad85b48e6caddbea652f9"}`
+          );
         }, 1000);
       } else {
         if (response.status === 401) {
@@ -379,7 +379,7 @@ const addToCart = async () => {
   const handleMouseLeave = () => {
     setIsZoomVisible(false);
   };
-  
+
   const handlePincodeChange = (e) => {
     // Allow only numbers and limit to 6 digits
     const value = e.target.value.replace(/\D/g, "").slice(0, 6);
@@ -414,7 +414,7 @@ const addToCart = async () => {
       setLoading(false);
     }
   };
-  
+
   if (!product) {
     return (
       <div>
@@ -458,7 +458,6 @@ const addToCart = async () => {
   return (
     <div className="single-product">
       <div className="singleproduct">
-       
         <div className="product-container">
           {/* Left Column */}
           <div className="left-col">
@@ -513,16 +512,16 @@ const addToCart = async () => {
                 {product.totalStock > 0 ? "In stock" : "Out of stock"}
               </span>
             </div>
-          <div className="price-section">
-  <p className="discounted-price">₹{currentPrice}</p>
-  {originalPrice > currentPrice && (
-    <>
-      <p className="original-price">
-        MRP <span className="strike">₹{originalPrice}</span>
-      </p>
-    </>
-  )}
-</div>
+            <div className="price-section">
+              <p className="discounted-price">₹{currentPrice}</p>
+              {originalPrice > currentPrice && (
+                <>
+                  <p className="original-price">
+                    MRP <span className="strike">₹{originalPrice}</span>
+                  </p>
+                </>
+              )}
+            </div>
             <div className="points-section">
               <p className="points-line">
                 You can get 40 Syopi Points on this purchase.
@@ -615,7 +614,7 @@ const addToCart = async () => {
                 </div>
               </div>
 
-              <div 
+              <div
                 className="action-card buy-now"
                 onClick={handleBuyNow}
                 disabled={isBuyNowLoading || !selectedColor || !selectedSize}
@@ -628,15 +627,14 @@ const addToCart = async () => {
                 </div>
               </div>
             </div>
-        
+
             <div className="product-details">
               <h2 className="details-heading">Product Details</h2>
               <ul className="details-list">
-              
-      <li>
-        <span className="feature-label">Brand:</span> {brandName}
-      </li>
-    
+                <li>
+                  <span className="feature-label">Brand:</span> {brandName}
+                </li>
+
                 {product.features && (
                   <>
                     <li>
@@ -676,27 +674,30 @@ const addToCart = async () => {
               </ul>
             </div>
 
-            <div style={{
-  display: "flex",
-  alignItems: "center",
-  gap: "8px",
-  fontFamily: "'Poppins', sans-serif",
-  fontSize: "14px",
-  fontWeight: 500,
-  color: product?.CODAvailable ? "#28a745" : "#dc3545", // green or red
-  backgroundColor: product?.CODAvailable ? "#e6f4ea" : "#fcebea",
-  padding: "8px 12px",
-  borderRadius: "8px",
-  width: "fit-content"
-}}>
-  <span style={{ fontSize: "16px" }}>
-    {product?.CODAvailable ? "✅" : "❌"}
-  </span>
-  <span>
-    {product?.CODAvailable ? "Cash on Delivery Available" : "Cash on Delivery Not Available"}
-  </span>
-</div>
-
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                fontFamily: "'Poppins', sans-serif",
+                fontSize: "14px",
+                fontWeight: 500,
+                color: product?.CODAvailable ? "#28a745" : "#dc3545", // green or red
+                backgroundColor: product?.CODAvailable ? "#e6f4ea" : "#fcebea",
+                padding: "8px 12px",
+                borderRadius: "8px",
+                width: "fit-content",
+              }}
+            >
+              <span style={{ fontSize: "16px" }}>
+                {product?.CODAvailable ? "✅" : "❌"}
+              </span>
+              <span>
+                {product?.CODAvailable
+                  ? "Cash on Delivery Available"
+                  : "Cash on Delivery Not Available"}
+              </span>
+            </div>
 
             <div className="delivery-checker">
               <h2 className="details-heading">Check Delivery</h2>

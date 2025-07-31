@@ -11,6 +11,7 @@ color: #2D2E2E;
 .cod-container {
     padding-left: 25px;
     padding-right: 25px;
+    margin-top: 5%;
   }
   .cod-left-column .cod-item {
     display: flex;

@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from "react";
-import { Container, Row, Col, Card, Form } from "react-bootstrap";
+import { Container, Row, Col, Card } from "react-bootstrap";
 import "./cod.css";
 import { getCheckoutByIdApi, placeOrderApi } from "../services/allApi";
 import ErrorBoundary from "../components/ErrorBoundary";
@@ -39,16 +39,12 @@ const CheckoutSummary = memo(({ checkoutData }) => (
 ));
 
 function Cod() {
-  const [selectedPaymentMode, setSelectedPaymentMode] = useState("");
   const { id } = useParams();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [state, setState] = useState({
-    showAddressCard: false,
-    addresses: [],
     loading: true,
     error: null,
-    selectedAddress: null,
     checkoutData: null,
     checkoutId: null,
   });
@@ -73,12 +69,8 @@ function Cod() {
             ...prev,
             checkoutData: response.data,
             checkoutId: response.data._id,
-            selectedAddress: response.data.addressId, 
             loading: false,
           }));
-          
-          // For debugging
-        
         } else {
           throw new Error(response.error || "Failed to fetch checkout details");
         }
@@ -96,33 +88,7 @@ function Cod() {
     fetchCheckoutData();
   }, [id]);
 
-  const handlePaymentModeChange = (mode) => {
-    setSelectedPaymentMode(mode);
-  };
-
   const handlePlaceOrder = async () => {
-    // Enhanced validation
-    if (!selectedPaymentMode) {
-      toast.error("Please select a payment method");
-      return;
-    }
-
-    // Map payment mode to proper format
-    let paymentMethod;
-    switch(selectedPaymentMode) {
-      case "cod":
-        paymentMethod = "Cash on Delivery";
-        break;
-      case "upi":
-        paymentMethod = "UPI";
-        break;
-      case "card":
-        paymentMethod = "Card";
-        break;
-      default:
-        paymentMethod = selectedPaymentMode;
-    }
-
     // Check if we have the required data
     if (!state.checkoutData) {
       toast.error("Checkout data is missing. Please refresh the page.");
@@ -148,15 +114,13 @@ function Cod() {
         checkoutId: state.checkoutId,
         addressId: addressId,
         deliveryCharge: state.checkoutData.deliveryCharge || 0,
-        paymentMethod: paymentMethod
+        paymentMethod: "Cash on Delivery"
       };
 
-      
       const response = await placeOrderApi(orderData);
 
       if (response.success) {
         toast.success("Order placed successfully!");
-        // Navigate to order success page or order details page
         navigate("/order-success", { 
           state: { 
             orderId: response.order?._id,
@@ -192,7 +156,7 @@ function Cod() {
   return (
     <ErrorBoundary>
       <div>
-        <Container fluid className="cod-container my-5">
+        <Container fluid className="cod-container ">
           <Row className="no-gutters">
             {/* Left Column */}
             <Col xs={12} md={7} className="cod-left-column mb-4 mb-md-0">
@@ -201,24 +165,18 @@ function Cod() {
                   <Row className="align-items-center mb-3">
                     <Col>
                       <Card.Title className="cod-title">
-                        Choose Payment Mode
+                        Cash on Delivery
                       </Card.Title>
                     </Col>
                   </Row>
                   <Card.Text>
-                    {/* Payment Option: Cash on Delivery */}
-                    <Row
-                      className="align-items-center mb-3"
-                      style={{ display: "flex" }}
-                    >
+                    <Row className="align-items-center mb-3" style={{ display: "flex" }}>
                       <Col xs={1} className="text-center">
                         <i className="fa-solid fa-money-check"></i>
                       </Col>
                       <Col xs={9}>
-                        <p className="cod-text">Cash on Delivery</p>
-                        <div className="text-muted cod-text">
-                          Estimated Arrival: 7 July 2024
-                        </div>
+                        <p className="cod-text">Pay when you receive your order</p>
+                       
                       </Col>
                       <Col xs={2} className="text-end">
                         <div className="custom-radio-container">
@@ -227,109 +185,13 @@ function Cod() {
                             name="payment-mode"
                             id="cod"
                             className="custom-radio"
-                            onChange={() => handlePaymentModeChange("cod")}
-                            checked={selectedPaymentMode === "cod"}
+                            checked
+                            readOnly
                           />
                           <label htmlFor="cod"></label>
                         </div>
                       </Col>
                     </Row>
-
-                    {/* Payment Option: UPI */}
-                    <Row className="align-items-center mb-3">
-                      <Col xs={1} className="text-center">
-                        <i className="fa-solid fa-money-check"></i>
-                      </Col>
-                      <Col xs={9}>
-                        <p className="cod-text">UPI</p>
-                        <div className="text-muted cod-text">
-                          Estimated Arrival: 7 July 2024
-                        </div>
-                      </Col>
-                      <Col xs={2} className="text-end">
-                        <div className="custom-radio-container">
-                          <input
-                            type="radio"
-                            name="payment-mode"
-                            id="upi"
-                            className="custom-radio"
-                            onChange={() => handlePaymentModeChange("upi")}
-                            checked={selectedPaymentMode === "upi"}
-                          />
-                          <label htmlFor="upi"></label>
-                        </div>
-                      </Col>
-                    </Row>
-                    {selectedPaymentMode === "upi" && (
-                      <Form.Group className="mb-3">
-                        <Form.Control
-                          type="text"
-                          placeholder="Enter UPI ID"
-                          className="payment-form"
-                        />
-                        <button className="upi-continue-button mt-2">
-                          Continue
-                        </button>
-                      </Form.Group>
-                    )}
-
-                    {/* Payment Option: Card */}
-                    <Row className="align-items-center mb-3">
-                      <Col xs={1} className="text-center">
-                        <i className="fa-solid fa-money-check"></i>
-                      </Col>
-                      <Col xs={9}>
-                        <p className="cod-text">Card</p>
-                        <div className="text-muted cod-text">
-                          Estimated Arrival: 7 July 2024
-                        </div>
-                      </Col>
-                      <Col xs={2} className="text-end">
-                        <div className="custom-radio-container">
-                          <input
-                            type="radio"
-                            name="payment-mode"
-                            id="card"
-                            className="custom-radio"
-                            onChange={() => handlePaymentModeChange("card")}
-                            checked={selectedPaymentMode === "card"}
-                          />
-                          <label htmlFor="card"></label>
-                        </div>
-                      </Col>
-                    </Row>
-                    {selectedPaymentMode === "card" && (
-                      <Form>
-                        <Form.Group className="mb-3">
-                          <Form.Control
-                            type="text"
-                            className="payment-form"
-                            placeholder="Card Number"
-                          />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                          <Row>
-                            <Col>
-                              <Form.Control
-                                className="payment-form"
-                                type="text"
-                                placeholder="MM/YY"
-                              />
-                            </Col>
-                            <Col>
-                              <Form.Control
-                                className="payment-form"
-                                type="text"
-                                placeholder="CVV"
-                              />
-                            </Col>
-                          </Row>
-                        </Form.Group>
-                        <button className="upi-continue-button">
-                          Continue
-                        </button>
-                      </Form>
-                    )}
                   </Card.Text>
                 </Card.Body>
               </Card>
@@ -364,7 +226,7 @@ function Cod() {
 
                   <button
                     className="w-100 mb-2 checkout-button"
-                    disabled={!selectedPaymentMode || isSubmitting}
+                    disabled={isSubmitting}
                     onClick={handlePlaceOrder}
                   >
                     {isSubmitting ? "Processing..." : "Place Order"}
