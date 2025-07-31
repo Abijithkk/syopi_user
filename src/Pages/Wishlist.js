@@ -42,7 +42,6 @@ function Wishlist() {
   const fetchWishlist = async () => {
     try {
       const response = await getWishlistApi();
-      console.log("wishlist", response);
 
       if (response?.error === "No token provided" ||
           response?.error === "Login Required." ||

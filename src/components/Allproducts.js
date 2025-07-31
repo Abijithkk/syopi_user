@@ -164,17 +164,12 @@ const fetchProducts = useCallback(
 
 
       const response = await getProductsWithSort(apiOptions);
-console.log(response);
 
       if (response.success) {
         const newProducts = response.data.products;
-        console.log(newProducts);
         
         setTotalProducts(response.data.total || 0);
-        console.log("URL brand param:", urlBrandParam);
-        console.log("Selected brands in state:", selectedBrands);
-        console.log("Active brands being sent to API:", activeBrands);
-        console.log("Final API options being sent:", apiOptions);
+       
         setHasMore(newProducts.length >= productsPerPage);
         setProducts(prevProducts =>
           resetProducts ? newProducts : [...prevProducts, ...newProducts]

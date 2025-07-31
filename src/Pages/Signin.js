@@ -174,7 +174,6 @@ function Signin() {
         otp,
         sessionId: sessionId || "TEST_SESSION" 
       });
-      console.log("login response",response);
       
       if (response.success && response.status === 200) {
         const { user } = response.data;

@@ -48,7 +48,6 @@ function SimilarProduct() {
     setLoading(true);
     try {
       const response = await getSimilarProductApi(productId);
-      console.log("Similar Products Response:", response);
 
       if (response.status === 200 && Array.isArray(response.data.products)) {
         setProducts(response.data.products);

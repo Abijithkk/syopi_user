@@ -33,7 +33,6 @@ function Cart() {
     if (authHandled) return;
     
     setAuthHandled(true);
-    console.log("Authentication failure detected");
     
     // Dismiss any existing toasts before showing new one
     toast.dismiss();
@@ -69,10 +68,8 @@ function Cart() {
   };
 
 const fetchCart = async () => {
-  console.log("Fetching cart data...");
   
   const userId = localStorage.getItem("userId");
-  console.log("Retrieved userId from localStorage:", userId);
   
   if (!userId) {
     console.warn("No userId found in localStorage.");
@@ -87,7 +84,6 @@ const fetchCart = async () => {
 
   try {
     const response = await getUserCartApi(userId);
-    console.log("Cart API response:", response);
 
     if (isAuthError(null, response)) {
       handleAuthFailure();
@@ -95,7 +91,6 @@ const fetchCart = async () => {
     }
 
     if (response.success) {
-      console.log("Cart data fetched successfully.");
       setCartData(response.data);
     } else {
       console.error("Cart fetch failed:", response.error);
@@ -113,7 +108,6 @@ const fetchCart = async () => {
     }
   } finally {
     setLoading(false);
-    console.log("Loading state set to false.");
   }
 };
 

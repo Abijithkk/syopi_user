@@ -109,7 +109,6 @@ const handleSubmitReview = async (e) => {
     };
     
     const response = await addReviewApi(reviewData);
-    console.log('API Response:', response);
     
     // Handle successful response
     if (response && response.success) {

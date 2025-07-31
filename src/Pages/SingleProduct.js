@@ -44,7 +44,6 @@ function SingleProduct() {
     const fetchProductAndCartData = async () => {
       try {
         const response = await getProductByIdApi(id);
-        console.log(response);
 
         if (response.data) {
           setProduct(response.data.product);

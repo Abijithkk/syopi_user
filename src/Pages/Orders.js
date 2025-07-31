@@ -36,7 +36,6 @@ function Orders() {
     try {
       setLoading(true);
       const response = await getUserOrdersApi();
-      console.log("Fetched orders:", response);
       
 
       if (response.success && response.data.success) {

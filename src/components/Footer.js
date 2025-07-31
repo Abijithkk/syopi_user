@@ -118,9 +118,9 @@ function Footer() {
               >
                 <FaFacebook className="social-icons" />
               </a>
-              <div className="icon-boxs">
+              {/* <div className="icon-boxs">
                 <FaTwitter className="social-icons" />
-              </div>
+              </div> */}
               <a
                 href="https://www.instagram.com/_syopi_____?igsh=anJrZ3BwNmNlejVj&utm_source=qr"
                 target="_blank"
@@ -129,9 +129,9 @@ function Footer() {
               >
                 <FaInstagram className="social-icons" />
               </a>
-              <div className="icon-boxs">
+              {/* <div className="icon-boxs">
                 <FaLinkedin className="social-icons" />
-              </div>
+              </div> */}
             </div>
           </Col>
           <Col xs={12} md={6} className="download-column">

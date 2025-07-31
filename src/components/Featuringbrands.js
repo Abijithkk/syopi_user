@@ -12,7 +12,6 @@ function Featuringbrands({ brands }) {
   const [wishlist, setWishlist] = useState(new Set());
   const [loadingWishlist, setLoadingWishlist] = useState({});
   const navigate = useNavigate(); 
-console.log(brands);
 
   // Initialize products state when brands prop changes
   useEffect(() => {

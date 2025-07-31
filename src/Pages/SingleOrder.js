@@ -16,7 +16,6 @@ function SingleOrder() {
     try {
       setLoading(true);
       const response = await getSingleOrderApi(id);
-      console.log("Order Response:", response);
       if (response.data && response.data.success) {
         setOrder(response.data.order);
       } else {
