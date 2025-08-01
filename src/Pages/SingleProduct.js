@@ -44,6 +44,7 @@ function SingleProduct() {
     const fetchProductAndCartData = async () => {
       try {
         const response = await getProductByIdApi(id);
+        console.log(response)
 
         if (response.data) {
           setProduct(response.data.product);
@@ -626,7 +627,17 @@ function SingleProduct() {
                 </div>
               </div>
             </div>
-
+{/* Replace the current description section with this code */}
+<div className="product-description-section">
+  <h2 className="description-heading">Description</h2>
+  <div className="description-content">
+    {product.description.split('\n').map((paragraph, index) => (
+      <p key={index} className="description-paragraph">
+        {paragraph}
+      </p>
+    ))}
+  </div>
+</div>
             <div className="product-details">
               <h2 className="details-heading">Product Details</h2>
               <ul className="details-list">

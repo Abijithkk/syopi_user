@@ -33,6 +33,8 @@ const Profile = () => {
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("accessuserToken"));
+
 
   const handleNavigation = (path, index) => {
     setActiveItem(index);
@@ -132,81 +134,82 @@ const handleLogout = async () => {
     }
   };
 
-  const menuItems = [
-    {
-      icon: <UserCircle className="menu-icon" size={22} />,
-      text: "Account Settings",
-      path: "/addressdetails",
-    },
-    {
-      icon: <ShoppingBag className="menu-icon" size={22} />,
-      text: "Orders",
-      path: "/order",
-    },
-      {
-      icon: <Users className="menu-icon" size={22} />,
-      text: "Sign in",
-      path: "/signin",
-    },
-    {
-      icon: <Bell className="menu-icon" size={22} />,
-      text: "Notifications",
-      path: "/notifications",
-    },
-    {
-      icon: <Users className="menu-icon" size={22} />,
-      text: "Refer & Earn",
-      path: "/refer",
-    },
-    {
-      icon: <MessageSquare className="menu-icon" size={22} />,
-      text: "Message Center",
-      path: "/subscribe",
-    },
-    {
-      icon: <IndianRupee className="menu-icon" size={22} />,
-      text: "Earn with SYOPI",
-      path: "/earn",
-    },
-    {
-      icon: <HelpCircle className="menu-icon" size={22} />,
-      text: "Feedback & Information",
-      path: "/feedback",
-    },
-    {
-      icon: <MoreHorizontal className="menu-icon" size={22} />,
-      text: "More",
-      path: "/more",
-    },
-  ];
+const menuItems = [
+  isLoggedIn && {
+    icon: <UserCircle className="menu-icon" size={22} />,
+    text: "Account Settings",
+    path: "/addressdetails",
+  },
+  isLoggedIn && {
+    icon: <ShoppingBag className="menu-icon" size={22} />,
+    text: "Orders",
+    path: "/order",
+  },
+  !isLoggedIn && {
+    icon: <Users className="menu-icon" size={22} />,
+    text: "Sign in",
+    path: "/signin",
+  },
+  isLoggedIn && {
+    icon: <Bell className="menu-icon" size={22} />,
+    text: "Notifications",
+    path: "/notifications",
+  },
+  {
+    icon: <Users className="menu-icon" size={22} />,
+    text: "Refer & Earn",
+    path: "/refer",
+  },
+  {
+    icon: <MessageSquare className="menu-icon" size={22} />,
+    text: "Message Center",
+    path: "/subscribe",
+  },
+  {
+    icon: <IndianRupee className="menu-icon" size={22} />,
+    text: "Earn with SYOPI",
+    path: "/earn",
+  },
+  {
+    icon: <HelpCircle className="menu-icon" size={22} />,
+    text: "Feedback & Information",
+    path: "/feedback",
+  },
+  {
+    icon: <MoreHorizontal className="menu-icon" size={22} />,
+    text: "More",
+    path: "/more",
+  },
+].filter(Boolean); 
 
-  const moreMenuItems = [
-    {
-      icon: <Heart className="menu-icon" size={22} />,
-      text: "Wishlist",
-      path: "/wishlist",
-    },
-    {
-      icon: <Shield className="menu-icon" size={22} />,
-      text: "Privacy Policy",
-      path: "/privacypolicy",
-    },
-    {
-      icon: <RotateCcw className="menu-icon" size={22} />,
-      text: "Return and Refund Policy",
-      path: "/returnpolicy",
-    },
-    {
-      icon: <MapPin className="menu-icon" size={22} />,
-      text: "Manage Address",
-      path: "/manage-address",
-    },
-    {
-      icon: <Trash2 className="menu-icon" size={22} />,
-      text: "Delete Account",
-      path: "/delete-account",
-    },
-  ];
+
+ const moreMenuItems = [
+  isLoggedIn && {
+    icon: <Heart className="menu-icon" size={22} />,
+    text: "Wishlist",
+    path: "/wishlist",
+  },
+  {
+    icon: <Shield className="menu-icon" size={22} />,
+    text: "Privacy Policy",
+    path: "/privacypolicy",
+  },
+  {
+    icon: <RotateCcw className="menu-icon" size={22} />,
+    text: "Return and Refund Policy",
+    path: "/returnpolicy",
+  },
+  isLoggedIn && {
+    icon: <MapPin className="menu-icon" size={22} />,
+    text: "Manage Address",
+    path: "/manage-address",
+  },
+  isLoggedIn && {
+    icon: <Trash2 className="menu-icon" size={22} />,
+    text: "Delete Account",
+    path: "/delete-account",
+  },
+].filter(Boolean);
 
   if (showMoreSection) {
     return (
@@ -393,15 +396,17 @@ const handleLogout = async () => {
         ))}
       </div>
 
-      <div className="logout-container">
-        <button
-         onClick={handleLogout}
-          className="logout-button"
-        >
-          <LogOut size={20} className="logout-icon" />
-          <span>Logout</span>
-        </button>
-      </div>
+     {isLoggedIn && (
+  <div className="logout-container">
+    <button
+      onClick={handleLogout}
+      className="logout-button"
+    >
+      <LogOut size={20} className="logout-icon" />
+      <span>Logout</span>
+    </button>
+  </div>
+)}
 
       {showFeedbackPortal && (
         <div className="feedback-portal-overlay">

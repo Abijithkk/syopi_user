@@ -129,7 +129,35 @@
   flex-direction: column;
   gap: 15px;
 }
+/* Description Section Styles */
+.product-description-section {
+  margin: 25px 0;
+  padding: 20px 0;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+}
 
+.description-heading {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.description-content {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #555;
+}
+
+.description-paragraph {
+  margin-bottom: 12px;
+  text-align: justify;
+}
+
+.description-paragraph:last-child {
+  margin-bottom: 0;
+}
 .product-title {
   font-family: "Inter", sans-serif;
   font-size: 32px;

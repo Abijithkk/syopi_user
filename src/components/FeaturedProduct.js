@@ -18,6 +18,7 @@ function FeaturedProduct({ products = [] }) {
   const [error, setError] = useState(null);
   const { ref, inView } = useInView({ threshold: 0.2 });
   const navigate = useNavigate();
+  console.log(products);
 
   useEffect(() => {
     const fetchWishlist = async () => {
@@ -43,122 +44,124 @@ function FeaturedProduct({ products = [] }) {
     fetchWishlist();
   }, []);
 
-const toggleWishlist = async (id, productName = "Product") => {
-  const token = localStorage.getItem("accessuserToken");
-  
-  // Check if token exists locally
-  if (!token) {
-    toast.error("Please sign in to add items to wishlist", {
-      duration: 3000,
-      position: "top-center",
-    });
-    navigate("/signin");
-    return;
-  }
+  const toggleWishlist = async (id, productName = "Product") => {
+    const token = localStorage.getItem("accessuserToken");
 
-  const isCurrentlyWishlisted = wishlist.has(String(id));
-  const loadingToastId = toast.loading(
-    isCurrentlyWishlisted ? "Removing from wishlist..." : "Adding to wishlist...",
-    {
-      position: "top-center",
-    }
-  );
-
-  try {
-    let response;
-    
-    if (isCurrentlyWishlisted) {
-      response = await removefromWishlist(id);
-    } else {
-      response = await addWishlistApi(id);
-    }
-
-    // Check if response indicates authentication failure
-    if (response?.message === "Login Required." || response?.status === 401) {
-      toast.error("Session expired. Please sign in .", {
-        id: loadingToastId,
+    // Check if token exists locally
+    if (!token) {
+      toast.error("Please sign in to add items to wishlist", {
         duration: 3000,
         position: "top-center",
       });
-      
-      // Clear invalid token
-      localStorage.removeItem("accessuserToken");
-      
-      // Navigate to signin after a brief delay to show the toast
-      setTimeout(() => {
-        navigate("/signin");
-      }, 1000);
+      navigate("/signin");
       return;
     }
 
-    // Check for other API failures
-    if (!response.success) {
-      console.error("Failed to toggle wishlist:", response.error);
-      toast.error("Failed to update wishlist. Please try again.", {
-        id: loadingToastId,
-        duration: 3000,
+    const isCurrentlyWishlisted = wishlist.has(String(id));
+    const loadingToastId = toast.loading(
+      isCurrentlyWishlisted
+        ? "Removing from wishlist..."
+        : "Adding to wishlist...",
+      {
         position: "top-center",
-      });
-      return;
-    }
-
-    // Update wishlist state on success
-    setWishlist((prevWishlist) => {
-      const updatedWishlist = new Set(prevWishlist);
-      if (updatedWishlist.has(String(id))) {
-        updatedWishlist.delete(String(id));
-      } else {
-        updatedWishlist.add(String(id));
       }
-      return updatedWishlist;
-    });
+    );
 
-    // Show success toast
-    if (isCurrentlyWishlisted) {
-      toast.success(`${productName} removed from wishlist`, {
-        id: loadingToastId,
-        duration: 2000,
-        position: "top-center",
-        icon: "💔",
+    try {
+      let response;
+
+      if (isCurrentlyWishlisted) {
+        response = await removefromWishlist(id);
+      } else {
+        response = await addWishlistApi(id);
+      }
+
+      // Check if response indicates authentication failure
+      if (response?.message === "Login Required." || response?.status === 401) {
+        toast.error("Session expired. Please sign in .", {
+          id: loadingToastId,
+          duration: 3000,
+          position: "top-center",
+        });
+
+        // Clear invalid token
+        localStorage.removeItem("accessuserToken");
+
+        // Navigate to signin after a brief delay to show the toast
+        setTimeout(() => {
+          navigate("/signin");
+        }, 1000);
+        return;
+      }
+
+      // Check for other API failures
+      if (!response.success) {
+        console.error("Failed to toggle wishlist:", response.error);
+        toast.error("Failed to update wishlist. Please try again.", {
+          id: loadingToastId,
+          duration: 3000,
+          position: "top-center",
+        });
+        return;
+      }
+
+      // Update wishlist state on success
+      setWishlist((prevWishlist) => {
+        const updatedWishlist = new Set(prevWishlist);
+        if (updatedWishlist.has(String(id))) {
+          updatedWishlist.delete(String(id));
+        } else {
+          updatedWishlist.add(String(id));
+        }
+        return updatedWishlist;
       });
-    } else {
-      toast.success(`${productName} added to wishlist`, {
-        id: loadingToastId,
-        duration: 2000,
-        position: "top-center",
-        icon: "❤️",
-      });
+
+      // Show success toast
+      if (isCurrentlyWishlisted) {
+        toast.success(`${productName} removed from wishlist`, {
+          id: loadingToastId,
+          duration: 2000,
+          position: "top-center",
+          icon: "💔",
+        });
+      } else {
+        toast.success(`${productName} added to wishlist`, {
+          id: loadingToastId,
+          duration: 2000,
+          position: "top-center",
+          icon: "❤️",
+        });
+      }
+    } catch (error) {
+      console.error("Failed to toggle wishlist:", error);
+
+      // Handle network/authentication errors specifically
+      if (error.response?.status === 401 || error.message?.includes("401")) {
+        toast.error("Session expired. Please sign in again.", {
+          id: loadingToastId,
+          duration: 3000,
+          position: "top-center",
+        });
+
+        // Clear invalid token
+        localStorage.removeItem("accessuserToken");
+
+        // Navigate to signin after showing toast
+        setTimeout(() => {
+          navigate("/signin");
+        }, 1000);
+      } else {
+        // Handle other errors
+        toast.error("Something went wrong. Please try again.", {
+          id: loadingToastId,
+          duration: 3000,
+          position: "top-center",
+        });
+      }
+
+      setError("Failed to update wishlist");
     }
-  } catch (error) {
-    console.error("Failed to toggle wishlist:", error);
-    
-    // Handle network/authentication errors specifically
-    if (error.response?.status === 401 || error.message?.includes("401")) {
-      toast.error("Session expired. Please sign in again.", {
-        id: loadingToastId,
-        duration: 3000,
-        position: "top-center",
-      });
-      
-      // Clear invalid token
-      localStorage.removeItem("accessuserToken");
-      
-      // Navigate to signin after showing toast
-      setTimeout(() => {
-        navigate("/signin");
-      }, 1000);
-    } else {
-      // Handle other errors
-      toast.error("Something went wrong. Please try again.", {
-        id: loadingToastId,
-        duration: 3000,
-        position: "top-center",
-      });
-    }
-    
-    setError("Failed to update wishlist");
-  }
-};
+  };
 
   const handleNavigate = useCallback(
     (id) => {
@@ -221,10 +224,7 @@ const toggleWishlist = async (id, productName = "Product") => {
       {error && (
         <div className="error-message">
           <p>{error}</p>
-          <button 
-            onClick={() => setError(null)} 
-            className="retry-button"
-          >
+          <button onClick={() => setError(null)} className="retry-button">
             Dismiss
           </button>
         </div>
@@ -243,6 +243,8 @@ const toggleWishlist = async (id, productName = "Product") => {
       ) : (
         <div className="feature-card-row">
           {products.map((product) => (
+            // Inside your FeaturedProduct component, replace the feature-card content with:
+            // Inside your FeaturedProduct component, update the feature-card content:
             <motion.div
               className="feature-card"
               key={product._id}
@@ -251,12 +253,14 @@ const toggleWishlist = async (id, productName = "Product") => {
             >
               <div className="feature-card-image-container">
                 <img
-                  src={`${BASE_URL}/uploads/${product.images?.[0] || 'placeholder.jpg'}`}
-                  alt={product.title || product.name || 'Product'}
+                  src={`${BASE_URL}/uploads/${
+                    product.images?.[0] || "placeholder.jpg"
+                  }`}
+                  alt={product.title || product.name || "Product"}
                   className="feature-card-image"
                   loading="lazy"
                   onError={(e) => {
-                    e.target.src = '/placeholder-image.jpg';
+                    e.target.src = "/placeholder-image.jpg";
                   }}
                 />
                 <motion.div
@@ -281,10 +285,38 @@ const toggleWishlist = async (id, productName = "Product") => {
                   ></i>
                 </motion.div>
               </div>
-              <p className="feature-card-title">
-              {truncateText(product.name)}
-              </p>
-              
+              <p className="feature-card-title">{truncateText(product.name)}</p>
+              <p className="feature-card-description">{product.description}</p>
+              <div className="price-container">
+                {product.variants?.[0]?.offerPrice ? (
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <span className="current-price">
+                      ₹{product.variants[0].offerPrice}
+                    </span>
+                    {product.variants[0].wholesalePrice && (
+                      <span className="wholesale-price">
+                        ₹{product.variants[0].wholesalePrice}
+                      </span>
+                    )}
+                  </div>
+                ) : product.variants?.[0]?.wholesalePrice ? (
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <span className="current-price">
+                      ₹{product.variants[0].price}
+                    </span>
+                    <span className="wholesale-price">
+                      ₹{product.variants[0].wholesalePrice}
+                    </span>
+                  </div>
+                ) : (
+                  <span className="current-price">
+                    ₹
+                    {product.variants?.[0]?.price ||
+                      product.defaultPrice ||
+                      "N/A"}
+                  </span>
+                )}
+              </div>
             </motion.div>
           ))}
         </div>

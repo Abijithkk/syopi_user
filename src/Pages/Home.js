@@ -39,6 +39,8 @@ function Home() {
     try {
       setLoading(true);
       const response = await getUserHomePageApi();
+      console.log(response);
+      
       
       if (response.status === 200 && response.success) {
         setHomeData(response.data);

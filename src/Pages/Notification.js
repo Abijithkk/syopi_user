@@ -126,7 +126,7 @@ function Notification() {
   }
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-5">
       <style jsx>{`
         .notification-header {
           background: linear-gradient(135deg, #29b6ff 0%, #00a8ff 100%)
