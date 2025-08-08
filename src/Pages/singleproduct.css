@@ -169,6 +169,18 @@
   color: #2d2e2e;
 }
 
+
+.product-title2 {
+  font-family: "Inter", sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 0px;
+  text-align: left;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+  color: #2d2e2e;
+}
+
 .product-description {
   font-family: "Inter", sans-serif;
   font-size: 16px;
@@ -703,6 +715,10 @@
     line-height: 1.2;
   }
 
+   .product-title2 {
+    font-size: 18px; /* Reduce title size */
+    line-height: 1.2;
+  }
   .product-description {
     font-size: 14px;
   }
@@ -862,9 +878,9 @@
   .description-skeleton {
     width: 100%;
   }
-  .action-card{
+  /* .action-card{
     display: none;
-  }
+  } */
 
   .price-skeleton,
   .discount-skeleton,

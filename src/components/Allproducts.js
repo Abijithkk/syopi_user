@@ -164,6 +164,8 @@ const fetchProducts = useCallback(
 
 
       const response = await getProductsWithSort(apiOptions);
+      console.log(response);
+      
 
       if (response.success) {
         const newProducts = response.data.products;
@@ -472,12 +474,7 @@ const toggleWishlist = async (e, productId, productName = "Product") => {
             product.variants[0]?.offerPrice &&
             product.variants[0]?.price && (
               <div className="discount-tag">
-                {Math.round(
-                  ((product.variants[0].price -
-                    product.variants[0].offerPrice) /
-                    product.variants[0].price) *
-                    100
-                )}
+                {product.discountPercentage}
                 % OFF
               </div>
             )}

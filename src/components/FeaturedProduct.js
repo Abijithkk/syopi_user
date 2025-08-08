@@ -17,8 +17,11 @@ function FeaturedProduct({ products = [] }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { ref, inView } = useInView({ threshold: 0.2 });
+  console.log("products",products);
+  
+
   const navigate = useNavigate();
-  console.log(products);
+  console.log("products",products);
 
   useEffect(() => {
     const fetchWishlist = async () => {
@@ -243,8 +246,6 @@ function FeaturedProduct({ products = [] }) {
       ) : (
         <div className="feature-card-row">
           {products.map((product) => (
-            // Inside your FeaturedProduct component, replace the feature-card content with:
-            // Inside your FeaturedProduct component, update the feature-card content:
             <motion.div
               className="feature-card"
               key={product._id}
@@ -285,38 +286,48 @@ function FeaturedProduct({ products = [] }) {
                   ></i>
                 </motion.div>
               </div>
-              <p className="feature-card-title">{truncateText(product.name)}</p>
-              <p className="feature-card-description">{product.description}</p>
-              <div className="price-container">
-                {product.variants?.[0]?.offerPrice ? (
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <span className="current-price">
-                      ₹{product.variants[0].offerPrice}
-                    </span>
-                    {product.variants[0].wholesalePrice && (
-                      <span className="wholesale-price">
-                        ₹{product.variants[0].wholesalePrice}
-                      </span>
-                    )}
-                  </div>
-                ) : product.variants?.[0]?.wholesalePrice ? (
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <span className="current-price">
-                      ₹{product.variants[0].price}
-                    </span>
-                    <span className="wholesale-price">
-                      ₹{product.variants[0].wholesalePrice}
-                    </span>
-                  </div>
-                ) : (
-                  <span className="current-price">
-                    ₹
-                    {product.variants?.[0]?.price ||
-                      product.defaultPrice ||
-                      "N/A"}
-                  </span>
-                )}
-              </div>
+              <p className="feature-card-title">{(product.brandName || product.brand)}</p>
+              <p className="feature-card-description">{truncateText(product.name)}</p>
+              <div className="price-container2">
+        {product.variants?.[0]?.offerPrice ? (
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span className="current-price">
+              ₹{product.variants[0].offerPrice}
+            </span>
+            <span className="wholesale-price">
+              ₹{product.variants[0].wholesalePrice}
+            </span>
+            {product.variants[0].wholesalePrice && (
+              <span className="discount-badge">
+                {(product.discountPercentage)}
+                % OFF
+              </span>
+            )}
+          </div>
+        ) : product.variants?.[0]?.wholesalePrice ? (
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span className="current-price">
+              ₹{product.variants[0].price}
+            </span>
+            <span className="wholesale-price">
+              ₹{product.variants[0].wholesalePrice}
+            </span>
+            {product.variants[0].wholesalePrice && (
+              <span className="discount-badge">
+                 {(product.discountPercentage)}
+                % OFF
+              </span>
+            )}
+          </div>
+        ) : (
+          <span className="current-price">
+            ₹
+            {product.variants?.[0]?.price ||
+              product.defaultPrice ||
+              "N/A"}
+          </span>
+        )}
+      </div>
             </motion.div>
           ))}
         </div>

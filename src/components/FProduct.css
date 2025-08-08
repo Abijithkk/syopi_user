@@ -13,7 +13,6 @@
   text-underline-position: from-font;
   text-decoration-skip-ink: none;
   color: #2D2E2E;
-  /* Final fallback color */
   margin-bottom: 20px;
   background: linear-gradient(90deg, #2D2E2E, #2D2E2E, #2D2E2E);
   background-repeat: no-repeat;
@@ -23,12 +22,12 @@
   background-clip: none;
   -webkit-text-fill-color: transparent;
 }
-/* Update or add these styles */
-.price-container {
+.price-container2 {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items:start ;
   margin-top: 8px;
+  margin-left: 10px;
 }
 
 .current-price {
@@ -58,7 +57,7 @@
   font-size: 14px;
   font-weight: 400;
   line-height: 1.4;
-  text-align: center;
+  text-align: left;
   color: #666;
   margin-top: 8px;
   display: -webkit-box;
@@ -68,7 +67,6 @@
   text-overflow: ellipsis;
 }
 
-/* Feature Card Skeleton Loader */
 .skeleton-loader {
   height: 220px;
   border-radius: 10px;
@@ -77,7 +75,6 @@
   animation: shimmer 1.5s infinite linear;
 }
 
-/* Shimmer effect */
 @keyframes shimmer {
   0% {
     background-position: -400% 0;
@@ -138,27 +135,18 @@
   display: none;
 }
 
-/* Add styles for previous and next buttons */
 .product-prev,
 .product-next {
   position: absolute;
   top: 50%;
-  /* Center vertically */
   transform: translateY(-50%);
-  /* Adjust to exact vertical center */
   background: none;
   border: none;
-  /* Remove border */
   font-size: 20px;
-  /* Adjust size */
   cursor: pointer;
-  /* Pointer cursor */
   z-index: 1000;
-  /* Ensure it stays above other elements */
   width: auto;
-  /* Width of the button */
   height: 40px;
-  /* Height of the button */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -177,33 +165,25 @@
 
 }
 
-/* Position the previous button to the left of the row */
 .-productprev {
   left: 0px;
-  /* Adjust the space from the left edge */
 }
 
-/* Position the next button to the right of the row */
 .product-next {
   border-radius: 3px 0 0 3px;
 
   right: 0px;
-  /* Adjust the space from the right edge */
 }
 
-/* Ensure .feature-card-row has relative positioning for absolute placement of buttons */
 .fproduct {
   position: relative;
-  /* Required for the absolute buttons */
 }
 
-/* Responsive alignment */
 @media (max-width: 768px) {
 
   .prev,
   .next {
     width: 30px;
-    /* Adjust size for smaller screens */
     height: 30px;
     font-size: 16px;
   }
@@ -220,7 +200,6 @@
 
 .feature-card {
   position: relative;
-  /* Ensure position is defined for pseudo-elements */
 }
 
 .feature-card:hover {
@@ -280,6 +259,7 @@
   color: #333333;
   margin-top: 15px;
   margin-bottom: 10px;
+  margin-left: 10px;
 }
 
 .feature-card-title {
@@ -315,7 +295,7 @@
   font-size: 18px;
   font-weight: 400;
   line-height: 28px;
-  text-align: center;
+  text-align: start;
   color: #2D2E2E;
   margin-top: 10px;
   margin-bottom: 4px; 
@@ -326,7 +306,7 @@
   font-size: 16px; 
   font-weight: 400;
   line-height: 22px; 
-  text-align: center;
+  text-align: start;
   color: #2D2E2E;
   margin-top: 0; 
 }
@@ -376,9 +356,7 @@
 }
 
 
-/* Responsive Breakpoints */
 
-/* For larger screens (desktops) */
 @media (min-width: 1024px) {
   .feature-card {
     flex: 0 0 calc(25% - 16px);
@@ -411,6 +389,11 @@
     padding-left: 30px;
     padding-right: 30px;
   }
+  .discount-badge {padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 8px;
+  margin-left: 8px;
+}
 
   .fproductheading {
     font-size: 24px;
