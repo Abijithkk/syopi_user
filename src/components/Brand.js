@@ -22,7 +22,6 @@ function Brand() {
     fetchBrandSliders();
   }, []);
 
-  // Auto-rotate sliders every 5 seconds
   useEffect(() => {
     if (brandSliders.length > 1) {
       const interval = setInterval(() => {
@@ -45,27 +44,20 @@ function Brand() {
   if (!currentSlider) {
     return (
       <div className="brand-container">
-        <div className="brand-content">
-          <div className="brand-loading">Loading...</div>
-        </div>
+        <div className="brand-loading">Loading...</div>
       </div>
     );
   }
 
   return (
     <div className="brand-container" onClick={handleClick}>
-      <div className="brand-content">
-        <div className="brand-image">
-          <img 
-            src={`${BASE_IMG_URL}/uploads/${currentSlider.image}`} 
-            alt={currentSlider.title}
-          />
-        </div>
-        <div className="brand-text">
-          <p className="subheading">{currentSlider.title}</p>
-          <p className="brand-name">PREMIUM BRAND</p>
-          <p className="offer">Exclusive Collection</p>
-        </div>
+      <div className="image-wrapper">
+        <img 
+          src={`${BASE_IMG_URL}/uploads/${currentSlider.image}`} 
+          alt={currentSlider.title}
+          className="brand-image"
+          loading="lazy"
+        />
       </div>
     </div>
   );

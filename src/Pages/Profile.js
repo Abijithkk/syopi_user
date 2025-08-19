@@ -19,6 +19,7 @@ import {
   Trash2,
   ChevronLeft,
   AlertTriangle,
+  User,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "./profile.css"
@@ -144,6 +145,11 @@ const menuItems = [
     icon: <ShoppingBag className="menu-icon" size={22} />,
     text: "Orders",
     path: "/order",
+  },
+    isLoggedIn && {
+    icon: <User className="menu-icon" size={22} />,
+    text: "Become a Seller",
+    path: "/become-seller",
   },
   !isLoggedIn && {
     icon: <Users className="menu-icon" size={22} />,

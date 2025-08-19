@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import './Rating.css';
 import { addReviewApi } from '../services/allApi';
@@ -9,6 +9,12 @@ function Rating({ reviews }) {
   const [newRating, setNewRating] = useState(0);
   const [reviewMessage, setReviewMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    const token = localStorage.getItem("accessuserToken");
+    setIsLoggedIn(!!userId && !!token);
+  }, []);
 const { id } = useParams();
   const defaultRatings = {
     averageRating: 0,
@@ -205,12 +211,13 @@ const handleSubmitReview = async (e) => {
     <div className="rating-container">
       <div className="rating-heading">
         <div className="heading-text">Rating</div>
-        <button 
+       {isLoggedIn &&  <button 
           className="add-review-btn"
           onClick={() => setShowReviewForm(!showReviewForm)}
         >
           {showReviewForm ? 'Cancel' : 'Add Review'}
         </button>
+}
       </div>
 
       {showReviewForm && (

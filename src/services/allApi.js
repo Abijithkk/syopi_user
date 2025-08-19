@@ -213,6 +213,31 @@ export const getUserHomePageApi = async () => {
   }
 };
 
+
+export const getRefferOfferContentApi = async (refferId) => {
+  const url = `${BASE_URL}/user/home/info/${refferId}`;
+
+  const accessToken = localStorage.getItem("accessuserToken");
+
+  if (!accessToken) {
+    return { success: false, error: "No token provided" };
+  }
+
+  try {
+    const response = await commonApi("GET", url, null, {
+      Authorization: `Bearer ${accessToken}`,
+    });
+
+    return response;
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message || "Error fetching reffer offer content",
+    };
+  }
+};
+
+
 export const getProductApi = async (params = "") => {
   const url = `${BASE_URL}/user/Products/view${params ? `?${params}` : ""}`;
 
@@ -238,11 +263,14 @@ export const getProductsWithSort = async (options = {}) => {
     minPrice = null,
     maxPrice = null,
     discountMin = null,
+    topPicksId = null,
+    topSaleSectionId = null,
     sort = null,
     sortField = "createdAt",
     newArrivals = null,
-    brand = null,        // ADD: Brand parameter
-    minRating = null,    // ADD: Rating parameter
+    productSliderId = null,
+    brand = null,        
+    minRating = null,    
     page = 1,
     limit = 12
   } = options;
@@ -258,7 +286,16 @@ export const getProductsWithSort = async (options = {}) => {
       params.append("productType", productType);
     }
   }
-  
+   if (productSliderId) {
+    params.append("productSliderId", productSliderId);
+  }
+  if (topPicksId) {
+    params.append("topPicksId", topPicksId);
+  }
+  if (topSaleSectionId) {
+    params.append("topSaleSectionId", topSaleSectionId);
+  }
+
   if (subcategory) params.append("subcategory", subcategory);
   if (category) params.append("category", category);
   if (minPrice !== null) params.append("minPrice", minPrice);
@@ -952,5 +989,32 @@ export const cancelOrderApi = async (orderId, cancelData) => {
     return response;
   } catch (error) {
     return { success: false, error: error.message || "Error canceling order" };
+  }
+};
+
+
+
+
+
+export const becomeSellerApi = async (sellerData) => {
+  const url = `${BASE_URL}/user/profile/register`;
+
+  const accessToken = localStorage.getItem("accessuserToken");
+  if (!accessToken) {
+    return { success: false, error: "No token provided" };
+  }
+
+  try {
+    const response = await commonApi("POST", url, sellerData, {
+      Authorization: `Bearer ${accessToken}`,
+     "Content-Type": "multipart/form-data",
+    });
+
+    return response;
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message || "Error submitting seller application",
+    };
   }
 };

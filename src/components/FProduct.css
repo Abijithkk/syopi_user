@@ -385,6 +385,9 @@
   .product-next{
     display: none;
   }
+  .feature-card-image{
+    object-fit: fill;
+  }
   .fproduct {
     padding-left: 30px;
     padding-right: 30px;

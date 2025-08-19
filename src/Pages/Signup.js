@@ -143,7 +143,6 @@ function Signup() {
         localStorage.setItem("username", user?.name || user?.username);
         localStorage.setItem("email", user?.email);
         localStorage.setItem("role", user?.role || "user");
-        navigate("/signin");  
 
         setIsSignedUp(true);
       } else {

@@ -110,6 +110,9 @@
     .top-sales-card {
         flex: 0 0 calc(33.33% - 16px);
     }
+    .Top-sales-card-image{
+        object-fit: fill; 
+    }
 }
 
 @media (max-width: 480px) {

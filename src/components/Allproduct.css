@@ -163,7 +163,7 @@
   position: absolute;
   top: 1rem;
   left: 1rem;
-  background-color: var(--secondary-color);
+  background-color: #00a8ff;
   color: white;
   padding: 0.35rem 0.75rem;
   border-radius: 999px;
@@ -218,7 +218,6 @@
 }
 
 .product-meta {
-  display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 0.25rem;
@@ -235,7 +234,7 @@
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   color: var(--text-secondary);
   font-weight: 600;
 }
@@ -244,9 +243,9 @@
   color: #eab308;
 }
 
-.product-price {
+.product-prices {
   margin-top: auto;
-  padding-top: 0.75rem;
+  padding-top: 0rem;
   display: flex;
   align-items: center;
   gap: 0.75rem;

@@ -6,6 +6,7 @@
     text-align: left;
     color: #2D2E2E;
     margin-bottom: 20px;
+    display: none;
 }
 
 .Toppicks {
@@ -78,6 +79,9 @@
     .Toppicks-card {
         flex: 0 0 calc(33.33% - 16px);
     }
+    .Toppicks-card-image{
+        object-fit: fill;
+    }
 }
 
 @media (max-width: 480px) {
@@ -95,7 +99,7 @@
 .Toppicks-card-image {
     width: 100%;
     height: 100%;
-    object-fit: cover; 
+    object-fit: contain; 
     border-radius: 10px;
 }
 
@@ -117,6 +121,7 @@
     font-weight: 400;
     color: #000000;
     margin: 0;
+    display: none;
 }
 
 .Toppickssubheading {
@@ -125,6 +130,7 @@
     font-weight: 500;
     color: #000000;
     margin: 0;
+    display: none;
 }
 
 @media (max-width: 1024px) {

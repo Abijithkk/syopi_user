@@ -61,17 +61,14 @@ function Topsales({products}) {
   };
 
   // Handle top sales card click
-  const handleTopSalesClick = (product) => {
+  const handleTopSalesClick = (topSaleSectionId) => {
     const params = new URLSearchParams(location.search);
     const currentSearch = params.get("search");
     
     // Build URL with category and subcategory filters
-    let url = `/allproducts?category=${product.category}`;
+    let url = `/allproducts?topSaleSectionId=${topSaleSectionId}`;
     
-    // Add subcategory if available
-    if (product.subcategory) {
-      url += `&subcategory=${product.subcategory}`;
-    }
+   
     
     // Preserve current search query if exists
     if (currentSearch) {
@@ -126,7 +123,7 @@ function Topsales({products}) {
             key={product._id} 
             variants={cardVariants} 
             layout
-            onClick={() => handleTopSalesClick(product)}
+            onClick={() => handleTopSalesClick(product._id)}
             style={{ cursor: 'pointer' }}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}

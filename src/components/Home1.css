@@ -8,7 +8,7 @@
 .carousel img {
   width: 60%;
   max-height: 70vh; 
-  object-fit: cover;
+  object-fit: fill;
   border-radius: 12px;
   
 }
@@ -114,6 +114,9 @@
 @media (max-width: 768px) {
   .carousel img {
 height: 200px;
+  }
+  .carousel img{
+    object-fit: fill;
   }
   .home-carousel-container {
     padding: 0 30px;

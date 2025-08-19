@@ -1,12 +1,12 @@
 .streetwear {
     position: relative;
-    margin: 40px auto;
+    margin: 40px 30px;
     border-radius: 15px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    min-height: 90vh;
+    min-height: 65vh;
     text-align: center;
     padding: 2rem;
     box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
@@ -42,6 +42,7 @@
     max-width: 1200px;
     width: 90%;
     padding: 2rem;
+    display: none;
 }
 
 .street-heading {
@@ -73,14 +74,14 @@
 /* Responsive adjustments */
 @media (max-width: 1024px) {
     .streetwear {
-        min-height: 85vh;
+        min-height: 70vh;
         margin: 30px 20px;
     }
 }
 
 @media (max-width: 768px) {
     .streetwear {
-        min-height: 80vh;
+        min-height: 50vh;
         padding: 1.5rem;
         margin: 20px 15px;
     }
@@ -100,11 +101,13 @@
 
 @media (max-width: 480px) {
     .streetwear {
-        min-height: 75vh;
+        min-height: 20vh;
         margin: 15px 10px;
         padding: 1rem;
     }
-    
+    .street-background-image{
+        object-fit: fill;
+    }
     .street-heading {
         letter-spacing: 0.03em;
     }
@@ -112,7 +115,7 @@
 
 @media (max-width: 360px) {
     .streetwear {
-        min-height: 70vh;
+        min-height: 20vh;
         margin: 10px 5px;
         padding: 0.8rem;
     }

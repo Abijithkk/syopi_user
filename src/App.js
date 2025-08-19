@@ -27,9 +27,11 @@ import SingleOrder from "./Pages/SingleOrder";
 import Profile from "./Pages/Profile";
 import Earn from "./Pages/Earn";
 import Notification from "./Pages/Notification";
-import AddressCard from "./components/AddressCard";
+// import AddressCard from "./components/AddressCard";
 import ManageAddress from "./Pages/ManageAddress";
 import Privacypol from "./Pages/Privacypol";
+import RefferContent from "./components/RefferContent";
+import BecomeSeller from "./Pages/BecomeSeller";
 function App() {
   return (
     <SearchProvider>
@@ -43,9 +45,11 @@ function App() {
             />
             <Route path="/" element={<Home />} />
             <Route path="/product/:id" element={<SingleProduct />} />
+            <Route path="/referral/:id" element={<RefferContent />} />
+
             <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/category" element={<Category />} />
-                        <Route path="/privacy-policy" element={<Privacypol />} />
+            <Route path="/privacy-policy" element={<Privacypol />} />
 
             <Route path="/cart" element={<Cart />} />
             <Route path="/notifications" element={<Notification />} />
@@ -67,9 +71,7 @@ function App() {
             <Route path="/allproducts" element={<Allproducts />} />
             <Route path="/earn" element={<Earn />} />
             <Route path="/manage-address" element={<ManageAddress />} />
-
-
-
+            <Route path="/become-seller" element={<BecomeSeller />} />
           </Route>
         </Routes>
       </div>
@@ -78,3 +80,5 @@ function App() {
 }
 
 export default App;
+
+

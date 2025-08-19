@@ -39,6 +39,14 @@ function SingleProduct() {
   // const [address, setAddress] = useState([]);
   const [pincode, setPincode] = useState("");
   const [deliveryInfo, setDeliveryInfo] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [discount, setDiscount] = useState(null);
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    const token = localStorage.getItem("accessuserToken");
+    setIsLoggedIn(!!userId && !!token);
+  }, []);
 
   useEffect(() => {
     const fetchProductAndCartData = async () => {
@@ -48,6 +56,8 @@ function SingleProduct() {
 
         if (response.data) {
           setProduct(response.data.product);
+          setDiscount(response.data.discountPercentage);
+
           setBrandName(response.data.brandName || response.data.product.brand);
           setReviews(response.data.reviews);
           if (
@@ -152,7 +162,12 @@ function SingleProduct() {
 
   // const discountedPrice = toTwoDecimals(selectedVariant?.offerPrice || originalPrice);
   // const discountAmount = toTwoDecimals(originalPrice - discountedPrice);
-  const currentPrice = selectedVariant?.offerPrice || 0;
+
+  const currentPrice =
+    product?.offers?.length > 0
+      ? selectedVariant?.offerPrice
+      : selectedVariant?.price || product?.defaultPrice || "N/A";
+
   const originalPrice = selectedVariant?.wholesalePrice || 0;
 
   useEffect(() => {
@@ -363,7 +378,6 @@ function SingleProduct() {
       .replace(/\)/g, "%29");
     const imageUrl = `${BASE_URL}/uploads/${safeImageURL}`;
 
-
     const rect = e.target.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
@@ -493,36 +507,52 @@ function SingleProduct() {
             <div className="rating-section">
               <span className="rating-number">{rating}</span>
               <div className="stars">
-                {[...Array(5)].map((_, i) => (
-                  <i
-                    key={i}
-                    className={`fa-star ${
-                      i < Math.round(rating) ? "fas" : "far"
-                    }`}
-                  ></i>
-                ))}
+                <i
+                  className={`fa-star ${
+                    Math.round(rating) >= 1 ? "fas" : "far"
+                  }`}
+                ></i>
               </div>
 
-              <span className="total-ratings">{totalRatings} ratings</span>
               <span
                 className={`stock-status ${
-                  product.totalStock > 0 ? "in-stock" : "out-of-stock"
+                  selectedSize
+                    ? sizesForSelectedColor.find((s) => s.size === selectedSize)
+                        ?.stock > 5
+                      ? "in-stock"
+                      : sizesForSelectedColor.find(
+                          (s) => s.size === selectedSize
+                        )?.stock > 0
+                      ? "limited-stock"
+                      : "out-of-stock"
+                    : "select-size"
                 }`}
               >
-                {product.totalStock > 0 ? "In stock" : "Out of stock"}
+                {selectedSize
+                  ? sizesForSelectedColor.find((s) => s.size === selectedSize)
+                      ?.stock > 5
+                    ? "In stock"
+                    : sizesForSelectedColor.find((s) => s.size === selectedSize)
+                        ?.stock > 0
+                    ? "Limited stock"
+                    : "Out of stock"
+                  : "Select size"}
               </span>
             </div>
             <div className="price-section">
               <p className="discounted-price">₹{currentPrice}</p>
-              {originalPrice > currentPrice && (
-                <>
-                  <p className="original-price">
-                    MRP <span className="strike">₹{originalPrice}</span>
-                  </p>
-                </>
-              )}
+
+              <>
+                <p className="original-price">
+                  MRP <span className="strike">₹{originalPrice}</span>
+                </p>
+                <p>{discount}% OFF</p>
+              </>
             </div>
-            <div className="points-section">
+            {/* <div>
+              
+            </div> */}
+            {/* <div className="points-section">
               <p className="points-line">
                 You can get 40 Syopi Points on this purchase.
               </p>
@@ -530,7 +560,7 @@ function SingleProduct() {
                 Use it to save on your next order.{" "}
                 <span className="how-link">How?</span>
               </p>
-            </div>
+            </div> */}
 
             {/* Color Section */}
             <div className="color-section">
@@ -580,13 +610,13 @@ function SingleProduct() {
                   </div>
                 ))}
               </div>
-              {selectedSize && selectedVariant && (
+              {/* {selectedSize && selectedVariant && (
                 <p className="stock-info">
                   {selectedVariant.sizes.find((s) => s.size === selectedSize)
                     ?.stock || 0}{" "}
                   items available
                 </p>
-              )}
+              )} */}
             </div>
 
             {/* Action Cards Section */}
@@ -628,29 +658,19 @@ function SingleProduct() {
               </div>
             </div>
             {/* Replace the current description section with this code */}
-            <div className="product-description-section">
-              <h2 className="description-heading">Description</h2>
-              <div className="description-content">
-                {product.description.split("\n").map((paragraph, index) => (
-                  <p key={index} className="description-paragraph">
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
-            </div>
+
             <div className="product-details">
               <h2 className="details-heading">Product Details</h2>
               <ul className="details-list">
-                {/* <li>
-                  <span className="feature-label">Brand:</span> {brandName}
-                </li> */}
-
                 {product.features && (
                   <>
-                    <li>
-                      <span className="feature-label">Net Weight:</span>{" "}
-                      {product.features.netWeight || "N/A"}
-                    </li>
+                    {product.features.netWeight &&
+                      product.features.netWeight !== "N/A" && (
+                        <li>
+                          <span className="feature-label">Net Weight:</span>{" "}
+                          {product.features.netWeight}
+                        </li>
+                      )}
                     {product.features.material && (
                       <li>
                         <span className="feature-label">Material:</span>{" "}
@@ -663,25 +683,47 @@ function SingleProduct() {
                         {product.features.soleMaterial}
                       </li>
                     )}
-                    <li>
-                      <span className="feature-label">Fit:</span>{" "}
-                      {product.features.fit || "N/A"}
-                    </li>
-                    <li>
-                      <span className="feature-label">Occasion:</span>{" "}
-                      {product.features.occasion || "N/A"}
-                    </li>
-                    <li>
-                      <span className="feature-label">Sleeves Type:</span>{" "}
-                      {product.features.sleevesType || "N/A"}
-                    </li>
-                    <li>
-                      <span className="feature-label">Length:</span>{" "}
-                      {product.features.length || "N/A"}
-                    </li>
+                    {product.features.fit && product.features.fit !== "N/A" && (
+                      <li>
+                        <span className="feature-label">Fit:</span>{" "}
+                        {product.features.fit}
+                      </li>
+                    )}
+                    {product.features.occasion &&
+                      product.features.occasion !== "N/A" && (
+                        <li>
+                          <span className="feature-label">Occasion:</span>{" "}
+                          {product.features.occasion}
+                        </li>
+                      )}
+                    {product.features.sleevesType &&
+                      product.features.sleevesType !== "N/A" && (
+                        <li>
+                          <span className="feature-label">Sleeves Type:</span>{" "}
+                          {product.features.sleevesType}
+                        </li>
+                      )}
+                    {product.features.length &&
+                      product.features.length !== "N/A" && (
+                        <li>
+                          <span className="feature-label">Length:</span>{" "}
+                          {product.features.length}
+                        </li>
+                      )}
                   </>
                 )}
               </ul>
+            </div>
+
+            <div className="product-description-section">
+              <h2 className="description-heading">About Product</h2>
+              <div className="description-content">
+                {product.description.split("\n").map((paragraph, index) => (
+                  <p key={index} className="description-paragraph">
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
             </div>
 
             <div
@@ -773,6 +815,7 @@ function SingleProduct() {
 
             <Rating reviews={reviews} />
             <Review reviews={reviews} />
+
             <div
               className="zoomed-image-container"
               style={{ display: isZoomVisible ? "block" : "none" }}

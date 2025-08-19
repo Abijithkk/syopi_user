@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './Home1.css';
 import { BASE_URL } from '../services/baseUrl';
 
-// Simple and performant Skeleton Loader Component
+
 const CarouselSkeleton = () => {
   return (
     <div className="home-carousel-container">
@@ -29,55 +29,82 @@ const CarouselSkeleton = () => {
 
 function Home1({ productSlider, isLoading = false }) {
   const navigate = useNavigate();
-  
-  const handleSliderClick = (productId) => {
-    if (productId) {
-      navigate(`/product/${productId}`);
+  const [activeIndex, setActiveIndex] = React.useState(0);
+  const carouselRef = React.useRef(null);
+  const intervalRef = React.useRef(null);
+
+  const handleSliderClick = (productSliderId) => {
+    if (productSliderId) {
+      navigate(`/allproducts?productSliderId=${productSliderId}`);
     }
   };
 
-  // Show skeleton loader when loading or no data
+  React.useEffect(() => {
+    const startCarousel = () => {
+      intervalRef.current = setInterval(() => {
+        setActiveIndex(prev => (prev + 1) % productSlider.length);
+      }, 3000);
+    };
+
+    if (productSlider && productSlider.length > 0) {
+      startCarousel();
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [productSlider]);
+
   if (isLoading || !productSlider || productSlider.length === 0) {
     return <CarouselSkeleton />;
   }
-  
+
   return (
     <div className="home-carousel-container">
-      <div id="homeCarousel" className="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="2000">
-        <div className="carousel-indicators">
-          {productSlider.map((_, index) => (
-            <button
-              key={index}
-              type="button"
-              data-bs-target="#homeCarousel"
-              data-bs-slide-to={index}
-              className={index === 0 ? 'active' : ''}
-              aria-current={index === 0 ? 'true' : undefined}
-              aria-label={`Slide ${index + 1}`}
-            ></button>
-          ))}
-        </div>
-        
+      <div className="carousel" ref={carouselRef}>
         <div className="carousel-inner">
           {productSlider.map((item, index) => (
-            <div key={item._id} className={`carousel-item ${index === 0 ? 'active' : ''}`}>
+            <div
+              key={item._id}
+              className={`carousel-item ${index === activeIndex ? 'active' : ''}`}
+              onClick={() => handleSliderClick(item._id)} // Changed to use item._id (carousel ID)
+            >
               <img
                 src={`${BASE_URL}/uploads/${item.image}`}
                 className="d-block w-100"
                 alt={item.title}
-                onClick={() => handleSliderClick(item.productId)}
                 style={{ cursor: 'pointer' }}
               />
             </div>
           ))}
         </div>
         
-        <button className="prev" type="button" data-bs-target="#homeCarousel" data-bs-slide="prev">
+        <button
+          className="prev"
+          onClick={() => setActiveIndex(prev => (prev - 1 + productSlider.length) % productSlider.length)}
+        >
           &#10094;
         </button>
-        <button className="next" type="button" data-bs-target="#homeCarousel" data-bs-slide="next">
+        <button
+          className="next"
+          onClick={() => setActiveIndex(prev => (prev + 1) % productSlider.length)}
+        >
           &#10095;
         </button>
+        
+        <div className="carousel-indicators">
+          {productSlider.map((_, index) => (
+            <button
+              key={index}
+              type="button"
+              className={index === activeIndex ? 'active' : ''}
+              onClick={() => setActiveIndex(index)}
+              aria-label={`Slide ${index + 1}`}
+            ></button>
+          ))}
+        </div>
       </div>
     </div>
   );

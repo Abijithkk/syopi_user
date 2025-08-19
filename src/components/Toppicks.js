@@ -6,6 +6,8 @@ import { BASE_URL } from "../services/baseUrl";
 function Toppicks({ products }) {
   const navigate = useNavigate();
   const location = useLocation();
+  console.log("toppicks", products);
+  
 
   const navigateWithKey = (url) => {
     const separator = url.includes('?') ? '&' : '?';
@@ -13,15 +15,12 @@ function Toppicks({ products }) {
     navigate(uniqueUrl);
   };
 
-  const handleProductClick = (product) => {
+  const handleProductClick = (topPicksId) => (e) => {
+    e.preventDefault();
     const params = new URLSearchParams(location.search);
     const currentSearch = params.get("search");
     
-    let url = `/allproducts?category=${product.category}`;
-    
-    if (product.subcategory) {
-      url += `&subcategory=${product.subcategory}`;
-    }
+    let url = `/allproducts?topPicksId=${topPicksId}`;
     
     if (currentSearch) {
       url += `&search=${currentSearch}`;
@@ -38,7 +37,7 @@ function Toppicks({ products }) {
           <div 
             className="Toppicks-card" 
             key={product._id || product.id}
-            onClick={() => handleProductClick(product)}
+            onClick={handleProductClick(product._id)} 
             style={{ cursor: 'pointer' }}
           >
             <div className="Toppicks-card-image-container">

@@ -3,7 +3,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import ContentLoader from "react-content-loader";
 import toast from "react-hot-toast";
 import "./Similarproduct.css";
-import { addWishlistApi, getSimilarProductApi, getWishlistApi, removefromWishlist } from "../services/allApi";
+import {
+  addWishlistApi,
+  getSimilarProductApi,
+  getWishlistApi,
+  removefromWishlist,
+} from "../services/allApi";
 import { BASE_URL } from "../services/baseUrl";
 
 function SimilarProduct() {
@@ -25,7 +30,7 @@ function SimilarProduct() {
       try {
         setLoading(true);
         const response = await getWishlistApi();
-        
+
         if (response?.data?.wishlist) {
           setWishlist(
             new Set(
@@ -40,7 +45,7 @@ function SimilarProduct() {
         setLoading(false);
       }
     };
-    
+
     fetchWishlist();
   }, []);
 
@@ -59,10 +64,13 @@ function SimilarProduct() {
     }
     setLoading(false);
   };
-
+  const truncateText = (text, maxLength = 25) => {
+    if (text.length <= maxLength) return text;
+    return text.slice(0, maxLength) + "...";
+  };
   const toggleWishlist = async (id, productName = "Product") => {
     const token = localStorage.getItem("accessuserToken");
-    
+
     if (!token) {
       toast.error("Please sign in to add items to wishlist", {
         duration: 3000,
@@ -71,24 +79,26 @@ function SimilarProduct() {
       navigate("/signin");
       return;
     }
-    
+
     const isCurrentlyWishlisted = wishlist.has(String(id));
     const loadingToastId = toast.loading(
-      isCurrentlyWishlisted ? "Removing from wishlist..." : "Adding to wishlist...",
+      isCurrentlyWishlisted
+        ? "Removing from wishlist..."
+        : "Adding to wishlist...",
       {
         position: "top-center",
       }
     );
-    
+
     try {
       let response;
-      
+
       if (isCurrentlyWishlisted) {
         response = await removefromWishlist(id);
       } else {
         response = await addWishlistApi(id);
       }
-      
+
       if (!response.success) {
         console.error("Failed to toggle wishlist:", response.error);
         toast.error("Failed to update wishlist. Please try again.", {
@@ -98,7 +108,7 @@ function SimilarProduct() {
         });
         return;
       }
-      
+
       setWishlist((prevWishlist) => {
         const updatedWishlist = new Set(prevWishlist);
         if (updatedWishlist.has(String(id))) {
@@ -108,7 +118,7 @@ function SimilarProduct() {
         }
         return updatedWishlist;
       });
-      
+
       if (isCurrentlyWishlisted) {
         toast.success(`${productName} removed from wishlist`, {
           id: loadingToastId,
@@ -144,42 +154,41 @@ function SimilarProduct() {
   );
 
   const handleWishlistClick = (e, productId, productName) => {
-    e.stopPropagation(); // Prevent navigation when clicking wishlist icon
+    e.stopPropagation();
     toggleWishlist(productId, productName);
   };
 
-  // Helper function to get price display
   const getPriceDisplay = (product) => {
     if (product?.variants?.length > 0) {
       const variant = product.variants[0];
       return {
         offerPrice: variant.offerPrice,
-        wholesalePrice: variant.wholesalePrice
+        wholesalePrice: variant.wholesalePrice,
       };
     }
     return {
       offerPrice: product.defaultPrice,
-      wholesalePrice: null
+      wholesalePrice: null,
     };
   };
 
   // Scroll functions for horizontal navigation
   const scrollLeft = () => {
-    const container = document.querySelector('.similar-card-row');
+    const container = document.querySelector(".similar-card-row");
     if (container) {
       container.scrollBy({
         left: -300,
-        behavior: 'smooth'
+        behavior: "smooth",
       });
     }
   };
 
   const scrollRight = () => {
-    const container = document.querySelector('.similar-card-row');
+    const container = document.querySelector(".similar-card-row");
     if (container) {
       container.scrollBy({
         left: 300,
-        behavior: 'smooth'
+        behavior: "smooth",
       });
     }
   };
@@ -196,8 +205,7 @@ function SimilarProduct() {
       ) : products.length > 0 ? (
         <div className="similar-card-row">
           {products.map((product) => {
-            const { offerPrice, wholesalePrice } = getPriceDisplay(product);
-            
+
             return (
               <div
                 className="similar-card"
@@ -214,7 +222,9 @@ function SimilarProduct() {
                     className={`wishlist-icon ${
                       wishlist.has(String(product._id)) ? "active" : ""
                     }`}
-                    onClick={(e) => handleWishlistClick(e, product._id, product.name)}
+                    onClick={(e) =>
+                      handleWishlistClick(e, product._id, product.name)
+                    }
                   >
                     <i
                       className={
@@ -225,16 +235,41 @@ function SimilarProduct() {
                     ></i>
                   </div>
                 </div>
-                <p className="similar-card-title">
-                  {product.name.length > 15
-                    ? product.name.slice(0, 15) + "..."
-                    : product.name}
+                <p className="feature-card-title">
+                  {product.brandName || product.brand}
                 </p>
-                <div className="similar-card-price">
-                  <span className="offer-price">₹{offerPrice}</span>
-                  {wholesalePrice && (
-                    <span className="wholesale-price">₹{wholesalePrice}</span>
-                  )}
+                <p className="feature-card-description">
+                  {truncateText(product.name)}
+                </p>
+                <div className="price-container2">
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                    }}
+                  >
+                    {/* Current price - show offerPrice if offers exist, otherwise regular price */}
+                    <span className="current-price">
+                      ₹
+                      {product.offers?.length > 0
+                        ? product.variants?.[0]?.offerPrice
+                        : product.variants?.[0]?.price ||
+                          product.defaultPrice ||
+                          "N/A"}
+                    </span>
+
+                    {/* Always show wholesale price if it exists */}
+                    {product.variants?.[0]?.wholesalePrice && (
+                      <span className="wholesale-price">
+                        ₹{product.variants[0].wholesalePrice}
+                      </span>
+                    )}
+
+                    <span className="discount-badge">
+                      {product.discountPercentage}% OFF
+                    </span>
+                  </div>
                 </div>
               </div>
             );
@@ -250,7 +285,7 @@ function SimilarProduct() {
       <button className="product-next" type="button" onClick={scrollRight}>
         &#10095;
       </button>
-      
+
       {error && <div className="error-message">{error}</div>}
     </div>
   );

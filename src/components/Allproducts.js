@@ -1,10 +1,16 @@
-import React, { useState, useEffect, useCallback, useContext, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useContext,
+  useRef,
+} from "react";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   addWishlistApi,
-  getProductsWithSort, 
+  getProductsWithSort,
   getWishlistApi,
   removefromWishlist,
 } from "../services/allApi";
@@ -34,11 +40,11 @@ function Allproducts() {
   const [selectedProductType, setSelectedProductType] = useState([]);
   const [sortOption, setSortOption] = useState("popularity");
   const [isFilterOpen, setIsFilterOpen] = useState(() => {
-  if (typeof window !== 'undefined') {
-    return window.innerWidth >= 768; 
-  }
-  return true; 
-});
+    if (typeof window !== "undefined") {
+      return window.innerWidth >= 768;
+    }
+    return true;
+  });
   const [selectedSubcategory, setSelectedSubcategory] = useState(
     subcategoryFromUrl || null
   );
@@ -50,218 +56,266 @@ function Allproducts() {
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [selectedRating, setSelectedRating] = useState(null);
 
-const parseUrlFilters = useCallback(() => {
-  const params = new URLSearchParams(location.search);
-  
-  const minPrice = params.get("minPrice");
-  const maxPrice = params.get("maxPrice");
-  if (minPrice || maxPrice) {
-    setPrice([
-      minPrice ? parseInt(minPrice) : 0,
-      maxPrice ? parseInt(maxPrice) : 5000
-    ]);
-  }
-  
-  const brandParam = params.get("brand");
-  if (brandParam) {
-    const brandsArray = brandParam.includes(",") ? 
-      brandParam.split(",").map(brand => brand.trim()) : 
-      [brandParam.trim()];
-    setSelectedBrands(brandsArray);
-  } else {
-    setSelectedBrands([]);
-  }
-  
-  const productType = params.get("productType");
-  if (productType) {
-    setSelectedProductType([productType]);
-  }
-  
-  const discountMin = params.get("discountMin");
-  if (discountMin) {
-    setSelectedDiscount(parseInt(discountMin));
-  }
-  
-  const newArrivals = params.get("newArrivals");
-  if (newArrivals === "true") {
-   
-    
-  }
-  
-  const minRating = params.get("minRating");
-  if (minRating) {
-    setSelectedRating(parseFloat(minRating));
-  }
-  
-  const size = params.get("size");
-  if (size) {
-   
-  }
-}, [location.search]);
+  const parseUrlFilters = useCallback(() => {
+    const params = new URLSearchParams(location.search);
 
-const fetchProducts = useCallback(
-  async (resetProducts = false) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const params = new URLSearchParams(location.search);
-      
-      let brandFromUrl = null;
-     const urlBrandParam = params.get("brand");
-      const urlBrands = urlBrandParam ? 
-        urlBrandParam.split(",").map(brand => brand.trim()) : 
-        null;
-
-      const activeBrands = selectedBrands.length > 0 ? selectedBrands : urlBrands;
-
-      const apiOptions = {
-        page: resetProducts ? 1 : page,
-        limit: productsPerPage,
-        search: searchQuery || params.get("search") || null,
-        productType: selectedProductType.length > 0 ? selectedProductType : 
-                    (params.get("productType") ? [params.get("productType")] : null),
-        subcategory: selectedSubcategory || params.get("subcategory") || null,
-        category: params.get("category") || null,
-        minPrice: price[0] > 0 ? price[0] : (params.get("minPrice") ? parseInt(params.get("minPrice")) : null),
-        maxPrice: price[1] < 5000 ? price[1] : (params.get("maxPrice") ? parseInt(params.get("maxPrice")) : null),
-        discountMin: selectedDiscount || (params.get("discountMin") ? parseInt(params.get("discountMin")) : null),
-        
-        brand: activeBrands ? activeBrands.join(",") : null,
-        
-        minRating: selectedRating || (params.get("minRating") ? parseFloat(params.get("minRating")) : null),
-        newArrivals: params.get("newArrivals") === "true" || null,
-      };
-
-      Object.keys(apiOptions).forEach(key => {
-        if (apiOptions[key] === null || 
-            apiOptions[key] === undefined || 
-            (Array.isArray(apiOptions[key]) && apiOptions[key].length === 0)) {
-          delete apiOptions[key];
-        }
-      });
-
-      
-      switch (sortOption) {
-        case "priceAsc":
-          apiOptions.sort = "asc";
-          apiOptions.sortField = "price";
-          break;
-        case "priceDesc":
-          apiOptions.sort = "desc";
-          apiOptions.sortField = "price";
-          break;
-        case "newest":
-          apiOptions.sort = "desc";
-          apiOptions.sortField = "createdAt";
-          break;
-        case "popularity":
-        default:
-          apiOptions.sort = "desc";
-          apiOptions.sortField = "popularity";
-          break;
-      }
-
-
-      const response = await getProductsWithSort(apiOptions);
-      console.log(response);
-      
-
-      if (response.success) {
-        const newProducts = response.data.products;
-        
-        setTotalProducts(response.data.total || 0);
-       
-        setHasMore(newProducts.length >= productsPerPage);
-        setProducts(prevProducts =>
-          resetProducts ? newProducts : [...prevProducts, ...newProducts]
-        );
-
-        if (resetProducts) {
-          setPage(1);
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        }
-      } else {
-        if (resetProducts) setProducts([]);
-        setHasMore(false);
-        setError(response.message || "Failed to load products");
-      }
-    } catch (err) {
-      setError("Failed to load products. Please try again.");
-      console.error("Error fetching products:", err);
-    } finally {
-      setLoading(false);
+    const minPrice = params.get("minPrice");
+    const maxPrice = params.get("maxPrice");
+    if (minPrice || maxPrice) {
+      setPrice([
+        minPrice ? parseInt(minPrice) : 0,
+        maxPrice ? parseInt(maxPrice) : 5000,
+      ]);
     }
-  },
-  [page, searchQuery, selectedProductType, price, selectedDiscount, sortOption, selectedSubcategory, selectedBrands, selectedRating, location.search]
-);
-useEffect(() => {
-  const params = new URLSearchParams(location.search);
-  const brandParam = params.get("brand");
-  
-  if (brandParam) {
-    const brandsArray = brandParam.split(",").map(brand => brand.trim());
+
+    const brandParam = params.get("brand");
+    if (brandParam) {
+      const brandsArray = brandParam.includes(",")
+        ? brandParam.split(",").map((brand) => brand.trim())
+        : [brandParam.trim()];
+      setSelectedBrands(brandsArray);
+      const productSliderId = params.get("productSliderId");
+      if (productSliderId) {
+        // You might want to store this in state or use it directly in your API call
+      }
+      const topPicksId = params.get("topPicksId");
+      if (topPicksId) {
+        // You might want to store this in state if needed
+      }
+      const topSaleSectionId = params.get("topSaleSectionId");
+      if (topSaleSectionId) {
+        // You might want to store this in state if needed
+      }
+    } else {
+      setSelectedBrands([]);
+    }
+
+    const productType = params.get("productType");
+    if (productType) {
+      setSelectedProductType([productType]);
+    }
+
+    const discountMin = params.get("discountMin");
+    if (discountMin) {
+      setSelectedDiscount(parseInt(discountMin));
+    }
+
+    const newArrivals = params.get("newArrivals");
+    if (newArrivals === "true") {
+    }
+
+    const minRating = params.get("minRating");
+    if (minRating) {
+      setSelectedRating(parseFloat(minRating));
+    }
+
+    const size = params.get("size");
+    if (size) {
+    }
+  }, [location.search]);
+
+  const fetchProducts = useCallback(
+    async (resetProducts = false) => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const params = new URLSearchParams(location.search);
+
+        let brandFromUrl = null;
+        const urlBrandParam = params.get("brand");
+        const urlBrands = urlBrandParam
+          ? urlBrandParam.split(",").map((brand) => brand.trim())
+          : null;
+
+        const activeBrands =
+          selectedBrands.length > 0 ? selectedBrands : urlBrands;
+
+        const apiOptions = {
+          page: resetProducts ? 1 : page,
+          limit: productsPerPage,
+          search: searchQuery || params.get("search") || null,
+          productType:
+            selectedProductType.length > 0
+              ? selectedProductType
+              : params.get("productType")
+              ? [params.get("productType")]
+              : null,
+          subcategory: selectedSubcategory || params.get("subcategory") || null,
+          category: params.get("category") || null,
+          minPrice:
+            price[0] > 0
+              ? price[0]
+              : params.get("minPrice")
+              ? parseInt(params.get("minPrice"))
+              : null,
+          maxPrice:
+            price[1] < 5000
+              ? price[1]
+              : params.get("maxPrice")
+              ? parseInt(params.get("maxPrice"))
+              : null,
+          discountMin:
+            selectedDiscount ||
+            (params.get("discountMin")
+              ? parseInt(params.get("discountMin"))
+              : null),
+
+          brand: activeBrands ? activeBrands.join(",") : null,
+          productSliderId: params.get("productSliderId") || null,
+          topPicksId: params.get("topPicksId") || null,
+          topSaleSectionId: params.get("topSaleSectionId") || null,
+
+          minRating:
+            selectedRating ||
+            (params.get("minRating")
+              ? parseFloat(params.get("minRating"))
+              : null),
+          newArrivals: params.get("newArrivals") === "true" || null,
+        };
+
+        Object.keys(apiOptions).forEach((key) => {
+          if (
+            apiOptions[key] === null ||
+            apiOptions[key] === undefined ||
+            (Array.isArray(apiOptions[key]) && apiOptions[key].length === 0)
+          ) {
+            delete apiOptions[key];
+          }
+        });
+
+        switch (sortOption) {
+          case "priceAsc":
+            apiOptions.sort = "asc";
+            apiOptions.sortField = "price";
+            break;
+          case "priceDesc":
+            apiOptions.sort = "desc";
+            apiOptions.sortField = "price";
+            break;
+          case "newest":
+            apiOptions.sort = "desc";
+            apiOptions.sortField = "createdAt";
+            break;
+          case "popularity":
+          default:
+            apiOptions.sort = "desc";
+            apiOptions.sortField = "popularity";
+            break;
+        }
+
+        const response = await getProductsWithSort(apiOptions);
+        console.log(response);
+
+        if (response.success) {
+          const newProducts = response.data.products;
+
+          setTotalProducts(response.data.total || 0);
+
+          setHasMore(newProducts.length >= productsPerPage);
+          setProducts((prevProducts) =>
+            resetProducts ? newProducts : [...prevProducts, ...newProducts]
+          );
+
+          if (resetProducts) {
+            setPage(1);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }
+        } else {
+          if (resetProducts) setProducts([]);
+          setHasMore(false);
+          setError(response.message || "Failed to load products");
+        }
+      } catch (err) {
+        setError("Failed to load products. Please try again.");
+        console.error("Error fetching products:", err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [
+      page,
+      searchQuery,
+      selectedProductType,
+      price,
+      selectedDiscount,
+      sortOption,
+      selectedSubcategory,
+      selectedBrands,
+      selectedRating,
+      location.search,
+    ]
+  );
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const brandParam = params.get("brand");
+
+    if (brandParam) {
+      const brandsArray = brandParam.split(",").map((brand) => brand.trim());
+      setSelectedBrands(brandsArray);
+    }
+  }, [location.search]);
+
+  const handleBrandChange = (brands) => {
+    const brandsArray = Array.isArray(brands) ? brands : [brands];
+    const params = new URLSearchParams(location.search);
+
+    if (brandsArray.length > 0) {
+      params.set("brand", brandsArray.join(","));
+    } else {
+      params.delete("brand");
+    }
+
     setSelectedBrands(brandsArray);
-  }
-}, [location.search]);
+    setPage(1);
+    navigate(`${location.pathname}?${params.toString()}`, { replace: true });
+    fetchProducts(true);
+  };
 
+  const fetchProductsRef = useRef();
+  fetchProductsRef.current = fetchProducts;
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const urlBrands = params.get("brand");
+    setSelectedBrands(urlBrands ? urlBrands.split(",") : []);
+    fetchProducts(true);
+  }, [location.search]);
 
-const handleBrandChange = (brands) => {
-  const brandsArray = Array.isArray(brands) ? brands : [brands];
-  const params = new URLSearchParams(location.search);
-  
-  if (brandsArray.length > 0) {
-    params.set("brand", brandsArray.join(","));
-  } else {
-    params.delete("brand");
-  }
-  
-  setSelectedBrands(brandsArray);
-  setPage(1);
-  navigate(`${location.pathname}?${params.toString()}`, { replace: true });
-  fetchProducts(true);
-};
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
 
+    const hasTimestamp = params.has("_k");
+    if (hasTimestamp) {
+      params.delete("_k");
+      const cleanUrl = `${location.pathname}${
+        params.toString() ? "?" + params.toString() : ""
+      }`;
+      navigate(cleanUrl, { replace: true });
+      return;
+    }
 
-const fetchProductsRef = useRef();
-fetchProductsRef.current = fetchProducts;
-useEffect(() => {
-  const params = new URLSearchParams(location.search); 
-  const urlBrands = params.get("brand");
-  setSelectedBrands(urlBrands ? urlBrands.split(",") : []);
-  fetchProducts(true);
-}, [location.search]);
+    const needsRefresh = location.state?.refresh;
+    if (needsRefresh) {
+      navigate(location.pathname + location.search, {
+        replace: true,
+        state: {},
+      });
+    }
 
-useEffect(() => {
-  const params = new URLSearchParams(location.search);
+    parseUrlFilters();
 
-  const hasTimestamp = params.has("_k");
-  if (hasTimestamp) {
-    params.delete("_k");
-    const cleanUrl = `${location.pathname}${
-      params.toString() ? "?" + params.toString() : ""
-    }`;
-    navigate(cleanUrl, { replace: true });
-    return; 
-  }
+    const newSubcategoryFromUrl = params.get("subcategory");
+    setSelectedSubcategory(newSubcategoryFromUrl || null);
+    setPage(1);
 
-  const needsRefresh = location.state?.refresh;
-  if (needsRefresh) {
-    navigate(location.pathname + location.search, {
-      replace: true,
-      state: {},
-    });
-  }
-
-  parseUrlFilters();
-
-  const newSubcategoryFromUrl = params.get("subcategory");
-  setSelectedSubcategory(newSubcategoryFromUrl || null);
-  setPage(1);
-
-  fetchProductsRef.current(true);
-
-}, [location.search, location.pathname, location.state?.refresh, navigate, parseUrlFilters]);
+    fetchProductsRef.current(true);
+  }, [
+    location.search,
+    location.pathname,
+    location.state?.refresh,
+    navigate,
+    parseUrlFilters,
+  ]);
   useEffect(() => {
     const fetchWishlist = async () => {
       try {
@@ -299,97 +353,100 @@ useEffect(() => {
     fetchProducts(true);
   };
 
- 
-const toggleWishlist = async (e, productId, productName = "Product") => {
-  e.stopPropagation();
+  const toggleWishlist = async (e, productId, productName = "Product") => {
+    e.stopPropagation();
 
-  const token = localStorage.getItem("accessuserToken");
-  if (!token) {
-    toast.error("Please sign in to add items to wishlist", {
-      duration: 3000,
-      position: "top-center",
-    });
-    navigate("/signin");
-    return;
-  }
-
-  const isCurrentlyWishlisted = wishlist.has(String(productId));
-  const loadingToastId = toast.loading(
-    isCurrentlyWishlisted ? "Removing from wishlist..." : "Adding to wishlist...",
-    {
-      position: "top-center",
-    }
-  );
-
-  try {
-    let response;
-    
-    if (isCurrentlyWishlisted) {
-      response = await removefromWishlist(productId);
-    } else {
-      response = await addWishlistApi(productId);
+    const token = localStorage.getItem("accessuserToken");
+    if (!token) {
+      toast.error("Please sign in to add items to wishlist", {
+        duration: 3000,
+        position: "top-center",
+      });
+      navigate("/signin");
+      return;
     }
 
+    const isCurrentlyWishlisted = wishlist.has(String(productId));
+    const loadingToastId = toast.loading(
+      isCurrentlyWishlisted
+        ? "Removing from wishlist..."
+        : "Adding to wishlist...",
+      {
+        position: "top-center",
+      }
+    );
 
-    if (!response.success) {
-      console.error("Failed to toggle wishlist:", response.error);
-      toast.error("Failed to update wishlist. Please try again.", {
+    try {
+      let response;
+
+      if (isCurrentlyWishlisted) {
+        response = await removefromWishlist(productId);
+      } else {
+        response = await addWishlistApi(productId);
+      }
+
+      if (!response.success) {
+        console.error("Failed to toggle wishlist:", response.error);
+        toast.error("Failed to update wishlist. Please try again.", {
+          id: loadingToastId,
+          duration: 3000,
+          position: "top-center",
+        });
+        return;
+      }
+
+      // Update wishlist state
+      setWishlist((prevWishlist) => {
+        const updatedWishlist = new Set(prevWishlist);
+        if (isCurrentlyWishlisted) {
+          updatedWishlist.delete(String(productId));
+        } else {
+          updatedWishlist.add(String(productId));
+        }
+        return updatedWishlist;
+      });
+
+      // Show success toast
+      if (isCurrentlyWishlisted) {
+        toast.success(`${productName} removed from wishlist`, {
+          id: loadingToastId,
+          duration: 2000,
+          position: "top-center",
+          icon: "💔",
+        });
+      } else {
+        toast.success(`${productName} added to wishlist`, {
+          id: loadingToastId,
+          duration: 2000,
+          position: "top-center",
+          icon: "❤️",
+        });
+      }
+    } catch (error) {
+      console.error("Failed to toggle wishlist:", error);
+      toast.error("Something went wrong. Please try again.", {
         id: loadingToastId,
         duration: 3000,
         position: "top-center",
       });
-      return;
     }
-
-    // Update wishlist state
-    setWishlist((prevWishlist) => {
-      const updatedWishlist = new Set(prevWishlist);
-      if (isCurrentlyWishlisted) {
-        updatedWishlist.delete(String(productId));
-      } else {
-        updatedWishlist.add(String(productId));
-      }
-      return updatedWishlist;
-    });
-
-    // Show success toast
-    if (isCurrentlyWishlisted) {
-      toast.success(`${productName} removed from wishlist`, {
-        id: loadingToastId,
-        duration: 2000,
-        position: "top-center",
-        icon: "💔",
-      });
-    } else {
-      toast.success(`${productName} added to wishlist`, {
-        id: loadingToastId,
-        duration: 2000,
-        position: "top-center",
-        icon: "❤️",
-      });
-    }
-  } catch (error) {
-    console.error("Failed to toggle wishlist:", error);
-    toast.error("Something went wrong. Please try again.", {
-      id: loadingToastId,
-      duration: 3000,
-      position: "top-center",
-    });
-  }
-};
+  };
 
   const handleNavigate = (id) => {
     navigate(`/product/${id}`);
   };
   const handleRatingChange = (rating) => {
     const params = new URLSearchParams(location.search);
-    
+
     if (rating) {
-      params.set("minRating", rating === "less-than-3" ? 1 : rating === "3-to-4" ? 3 : 4);
+      params.set(
+        "minRating",
+        rating === "less-than-3" ? 1 : rating === "3-to-4" ? 3 : 4
+      );
     } else {
       params.delete("minRating");
     }
-    
+
     navigate(`${location.pathname}?${params.toString()}`, { replace: true });
     setSelectedRating(rating);
     setPage(1);
@@ -421,7 +478,7 @@ const toggleWishlist = async (e, productId, productName = "Product") => {
       transition: { type: "spring", stiffness: 300, damping: 25 },
     },
   };
-  
+
   const clearAllFilters = () => {
     setSelectedProductType([]);
     setSelectedDiscount(null);
@@ -429,7 +486,7 @@ const toggleWishlist = async (e, productId, productName = "Product") => {
     setSelectedRating(null);
     setPrice([0, 5000]);
     setSortOption("popularity");
-    
+
     // Clear URL parameters as well
     navigate("/allproducts", { replace: true });
   };
@@ -444,10 +501,7 @@ const toggleWishlist = async (e, productId, productName = "Product") => {
           </div>
           <h3>No Products Found</h3>
           <p>We couldn't find any products matching your criteria.</p>
-          <button
-            className="clear-filters-btn"
-            onClick={clearAllFilters}
-          >
+          <button className="clear-filters-btn" onClick={clearAllFilters}>
             Clear Filters
           </button>
         </div>
@@ -474,12 +528,11 @@ const toggleWishlist = async (e, productId, productName = "Product") => {
             product.variants[0]?.offerPrice &&
             product.variants[0]?.price && (
               <div className="discount-tag">
-                {product.discountPercentage}
-                % OFF
+                {product.discountPercentage}% OFF
               </div>
             )}
 
-<button
+          <button
             className={`wishlist-btn ${
               wishlist.has(String(product._id)) ? "active" : ""
             }`}
@@ -501,9 +554,12 @@ const toggleWishlist = async (e, productId, productName = "Product") => {
         </div>
 
         <div className="product-info">
-          <h3 className="product-name">{product.name}</h3>
+          <h3 className="product-name">
+            {" "}
+            {product.brandName || product.brand}
+          </h3>
           <div className="product-meta">
-            <p className="product-type">{product.productType}</p>
+            <p className="product-type">{product.name}</p>
             {product.averageRating && (
               <div className="product-rating">
                 <i className="fas fa-star"></i>
@@ -511,12 +567,18 @@ const toggleWishlist = async (e, productId, productName = "Product") => {
               </div>
             )}
           </div>
-          <div className="product-price">
+          <div className="product-prices">
             {product.variants && product.variants[0]?.offerPrice ? (
               <>
                 <span className="price-current">
-                  ₹{product.variants[0].offerPrice}
+                  ₹
+                  {product.offers?.length > 0
+                    ? product.variants?.[0]?.offerPrice
+                    : product.variants?.[0]?.price ||
+                      product.defaultPrice ||
+                      "N/A"}
                 </span>
+                <span>M.R.P</span>
                 <span className="price-original">
                   ₹{product.variants[0].wholesalePrice}
                 </span>
@@ -557,21 +619,21 @@ const toggleWishlist = async (e, productId, productName = "Product") => {
       <div
         className={`products-container ${isFilterOpen ? "filter-open" : ""}`}
       >
-      <FilterPanel
-  onApplyFilters={handleApplyFilters}
-  price={price}
-  setPrice={setPrice}
-  selectedProductType={selectedProductType}
-  setSelectedProductType={setSelectedProductType}
-  selectedDiscount={selectedDiscount}
-  setSelectedDiscount={setSelectedDiscount}
-  selectedBrands={selectedBrands}
-  setSelectedBrands={handleBrandChange}
-  selectedRating={selectedRating}
- setSelectedRating={handleRatingChange}
-  isFilterOpen={isFilterOpen}
-  setIsFilterOpen={setIsFilterOpen}
-/>
+        <FilterPanel
+          onApplyFilters={handleApplyFilters}
+          price={price}
+          setPrice={setPrice}
+          selectedProductType={selectedProductType}
+          setSelectedProductType={setSelectedProductType}
+          selectedDiscount={selectedDiscount}
+          setSelectedDiscount={setSelectedDiscount}
+          selectedBrands={selectedBrands}
+          setSelectedBrands={handleBrandChange}
+          selectedRating={selectedRating}
+          setSelectedRating={handleRatingChange}
+          isFilterOpen={isFilterOpen}
+          setIsFilterOpen={setIsFilterOpen}
+        />
 
         <main className="products-main">
           <div className="products-sort-bar">
@@ -644,10 +706,9 @@ const toggleWishlist = async (e, productId, productName = "Product") => {
             <div className="no-more-products">
               <p>You've seen all products</p>
             </div>
-            )}
+          )}
         </main>
       </div>
-
     </div>
   );
 }

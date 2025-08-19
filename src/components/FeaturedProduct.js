@@ -17,11 +17,10 @@ function FeaturedProduct({ products = [] }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { ref, inView } = useInView({ threshold: 0.2 });
-  console.log("products",products);
-  
+  console.log("products", products);
 
   const navigate = useNavigate();
-  console.log("products",products);
+  console.log("products", products);
 
   useEffect(() => {
     const fetchWishlist = async () => {
@@ -286,48 +285,38 @@ function FeaturedProduct({ products = [] }) {
                   ></i>
                 </motion.div>
               </div>
-              <p className="feature-card-title">{(product.brandName || product.brand)}</p>
-              <p className="feature-card-description">{truncateText(product.name)}</p>
+              <p className="feature-card-title">
+                {product.brandName || product.brand}
+              </p>
+              <p className="feature-card-description">
+                {truncateText(product.name)}
+              </p>
               <div className="price-container2">
-        {product.variants?.[0]?.offerPrice ? (
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <span className="current-price">
-              ₹{product.variants[0].offerPrice}
-            </span>
-            <span className="wholesale-price">
-              ₹{product.variants[0].wholesalePrice}
-            </span>
-            {product.variants[0].wholesalePrice && (
-              <span className="discount-badge">
-                {(product.discountPercentage)}
-                % OFF
-              </span>
-            )}
-          </div>
-        ) : product.variants?.[0]?.wholesalePrice ? (
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <span className="current-price">
-              ₹{product.variants[0].price}
-            </span>
-            <span className="wholesale-price">
-              ₹{product.variants[0].wholesalePrice}
-            </span>
-            {product.variants[0].wholesalePrice && (
-              <span className="discount-badge">
-                 {(product.discountPercentage)}
-                % OFF
-              </span>
-            )}
-          </div>
-        ) : (
-          <span className="current-price">
-            ₹
-            {product.variants?.[0]?.price ||
-              product.defaultPrice ||
-              "N/A"}
-          </span>
-        )}
-      </div>
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
+                  {/* Current price - show offerPrice if offers exist, otherwise regular price */}
+                  <span className="current-price">
+                    ₹
+                    {product.offers?.length > 0
+                      ? product.variants?.[0]?.offerPrice
+                      : product.variants?.[0]?.price ||
+                        product.defaultPrice ||
+                        "N/A"}
+                  </span>
+
+                  {/* Always show wholesale price if it exists */}
+                  {product.variants?.[0]?.wholesalePrice && (
+                    <span className="wholesale-price">
+                      ₹{product.variants[0].wholesalePrice}
+                    </span>
+                  )}
+
+                  <span className="discount-badge">
+                    {product.discountPercentage}% OFF
+                  </span>
+                </div>
+              </div>
             </motion.div>
           ))}
         </div>
