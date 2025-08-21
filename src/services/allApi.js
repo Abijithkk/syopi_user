@@ -217,15 +217,9 @@ export const getUserHomePageApi = async () => {
 export const getRefferOfferContentApi = async (refferId) => {
   const url = `${BASE_URL}/user/home/info/${refferId}`;
 
-  const accessToken = localStorage.getItem("accessuserToken");
-
-  if (!accessToken) {
-    return { success: false, error: "No token provided" };
-  }
 
   try {
     const response = await commonApi("GET", url, null, {
-      Authorization: `Bearer ${accessToken}`,
     });
 
     return response;

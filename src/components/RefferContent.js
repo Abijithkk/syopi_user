@@ -12,7 +12,6 @@ function RefferContent() {
     const [isMobile, setIsMobile] = useState(false)
 
     useEffect(() => {
-        // Check if mobile on mount and on resize
         const checkIfMobile = () => {
             setIsMobile(window.innerWidth <= 768)
         }
@@ -29,9 +28,10 @@ function RefferContent() {
                 setLoading(true)
                 setError(null)
                 const response = await getRefferOfferContentApi(id)
+                console.log(response);
                 
-                // More robust response checking
-                if (response?.status === 200 && response?.data?.data?.length > 0) {
+                
+                if (response?.status === 200 ) {
                     setContent(response.data.data[0])
                 } else {
                     setError("This content isn't available right now")
