@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/static/css/main.be4a54bc.css",
-    "main.js": "/static/js/main.3f87ed8c.js",
+    "main.css": "/static/css/main.df08cf0d.css",
+    "main.js": "/static/js/main.43bf5379.js",
     "static/media/Landing.jpeg": "/static/media/Landing.1e1b3c6ad52ca958aac2.jpeg",
     "static/media/cd.png": "/static/media/cd.2aab3de11e35d64aa734.png",
     "static/media/refer3.png": "/static/media/refer3.7f02c7b1077aa142abd6.png",
@@ -14,11 +14,11 @@
     "static/media/f2.png": "/static/media/f2.2be29c88bfd54927d5e2.png",
     "static/media/apple.png": "/static/media/apple.1511c3d419cb16aec154.png",
     "index.html": "/index.html",
-    "main.be4a54bc.css.map": "/static/css/main.be4a54bc.css.map",
-    "main.3f87ed8c.js.map": "/static/js/main.3f87ed8c.js.map"
+    "main.df08cf0d.css.map": "/static/css/main.df08cf0d.css.map",
+    "main.43bf5379.js.map": "/static/js/main.43bf5379.js.map"
   },
   "entrypoints": [
-    "static/css/main.be4a54bc.css",
-    "static/js/main.3f87ed8c.js"
+    "static/css/main.df08cf0d.css",
+    "static/js/main.43bf5379.js"
   ]
 }

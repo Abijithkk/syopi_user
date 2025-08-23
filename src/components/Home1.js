@@ -94,7 +94,7 @@ function Home1({ productSlider, isLoading = false }) {
           &#10095;
         </button>
         
-        <div className="carousel-indicators">
+        {/* <div className="carousel-indicators">
           {productSlider.map((_, index) => (
             <button
               key={index}
@@ -104,7 +104,7 @@ function Home1({ productSlider, isLoading = false }) {
               aria-label={`Slide ${index + 1}`}
             ></button>
           ))}
-        </div>
+        </div> */}
       </div>
     </div>
   );

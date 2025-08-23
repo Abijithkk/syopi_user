@@ -483,9 +483,9 @@
 }
 
 .action-card {
-  width: 30%; /* Auto width for cards */
+  width: 30%; 
   padding: 10px;
-  background-color: #f9f9f9;
+  background-color: #FFEB3B;
   border: 1px solid #ddd;
   border-radius: 10px;
   text-align: center;
@@ -509,8 +509,8 @@
   margin: 0;
 }
 .addtocart {
-  background-color: #1265fd;
-  color: white;
+  background-color: #e9e8e5;
+  color: black;
 }
 
 
@@ -591,7 +591,7 @@
 .pincode-input {
   flex: 1;
   height: 40px;
-  padding: 0 1rem;
+  padding: 8px 1rem;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 0.9rem;
@@ -726,7 +726,7 @@
     display: none;
   }
   .product-path {
-    font-size: 12px; /* Smaller font size */
+    font-size: 12px; 
     line-height: 20px;
   }
   .singleproduct {
@@ -734,12 +734,12 @@
   }
   .product-title {
     font-size: 24px; /* Reduce title size */
-    line-height: 1.2;
+    line-height: .4;
   }
 
    .product-title2 {
     font-size: 13px; /* Reduce title size */
-    line-height: 1.2;
+    line-height: .4;
   }
   .product-description {
     font-size: 14px;
@@ -783,13 +783,18 @@
     grid-template-columns: 1fr;
   }
 .details-list{
-  margin-top: -20px;
+  margin-top: -10px;
 }
   .product-path,
   .product-description,
   .select-size,
   .select-color {
     font-size: 12px;
+  }
+
+
+   .size-options , .color-options {
+    margin-top: -10px;
   }
 
   .size-circle,
@@ -812,6 +817,11 @@
     padding: 10px;
   }
 
+  .price-section {
+ 
+  margin-top: -10px;
+}
+
   .action-cards {
     gap: 10px;
   }
@@ -819,6 +829,12 @@
   .right-col {
     gap: 10px;
   }
+  .color-section {
+  margin-top: -20px;
+}
+.product-description-section{
+  margin: 0px;
+}
 }
 
 .main-image-skeleton {

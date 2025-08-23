@@ -174,7 +174,7 @@ function SingleOrder() {
                     </Col>
                     <Col xs={9} md={6}>
                       <h6 className="product-title">{product?.productId?.name}</h6>
-                      <div className="product-details">
+                      <div className="product-details2">
                         <span className="detail-item">Color: <Badge bg="light" text="dark">{product?.color}</Badge></span>
                         <span className="detail-item">Size: {product?.size}</span>
                         <span className="detail-item">Qty: {product?.quantity}</span>

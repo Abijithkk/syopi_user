@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./singleproduct.css";
-import Rating from "../components/Rating";
-import Review from "../components/Review";
+// import Rating from "../components/Rating";
+// import Review from "../components/Review";
 import SimilarProduct from "../components/SimilarProduct";
 import Footer from "../components/Footer";
 import {
@@ -157,11 +157,6 @@ function SingleProduct() {
       })) || [],
     [selectedVariant]
   );
-
-  const toTwoDecimals = (num) => Math.round(num * 100) / 100;
-
-  // const discountedPrice = toTwoDecimals(selectedVariant?.offerPrice || originalPrice);
-  // const discountAmount = toTwoDecimals(originalPrice - discountedPrice);
 
   const currentPrice =
     product?.offers?.length > 0
@@ -813,8 +808,8 @@ function SingleProduct() {
               </div>
             </div>
 
-            <Rating reviews={reviews} />
-            <Review reviews={reviews} />
+            {/* <Rating reviews={reviews} />
+            <Review reviews={reviews} /> */}
 
             <div
               className="zoomed-image-container"

@@ -177,7 +177,7 @@
   color: #343a40;
 }
 
-.product-details {
+.product-details2 {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
@@ -238,7 +238,7 @@
     font-size: 1rem;
   }
   
-  .product-details {
+  .product-details2 {
     gap: 8px;
     font-size: 0.85rem;
   }
