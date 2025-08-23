@@ -32,12 +32,13 @@ const handleOAuthCallback = async () => {
     const loadingToast = toast.loading("Completing Google sign-in...");
     
     try {
-      const response = await fetch(`${BASE_URL}/user/auth/google/callback`, {
+      // For GET requests, parameters should be in the URL, not in the body
+      const response = await fetch(`${BASE_URL}/user/auth/google/callback?code=${encodeURIComponent(googleCode)}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ code: googleCode })
+        }
+        // No body for GET requests
       });
       
       // Check if response is JSON before parsing
