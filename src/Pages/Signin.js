@@ -33,7 +33,7 @@ const handleOAuthCallback = async () => {
     
     try {
       const response = await fetch(`${BASE_URL}/user/auth/google/callback`, {
-        method: 'POST',
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json'
         },
