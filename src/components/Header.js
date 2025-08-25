@@ -159,40 +159,43 @@ const buildFilterUrl = (baseQuery = "") => {
       navigateWithKey(`/allproducts?${params.toString()}`);
     }
   };
-
-  const handleQuickFilter = (filterName) => {
-    switch (filterName) {
-      case 'sales':
-        handlePredefinedSearch({ discountMin: 10 });
-        break;
-      case 'newArrivals':
-        handlePredefinedSearch({ newArrivals: true });
-        break;
-      case 'topRated':
-        handlePredefinedSearch({ minRating: 4.5 });
-        break;
-      case 'men':
-        handlePredefinedSearch({ productType: 'men' });
-        break;
-      case 'women':
-        handlePredefinedSearch({ productType: 'women' });
-        break;
-      case 'kids':
-        handlePredefinedSearch({ productType: 'kids' });
-        break;
-      default:
-        break;
-    }
+  const handleNavigation = () => {
+    navigate("/");
   };
+
+  // const handleQuickFilter = (filterName) => {
+  //   switch (filterName) {
+  //     case 'sales':
+  //       handlePredefinedSearch({ discountMin: 10 });
+  //       break;
+  //     case 'newArrivals':
+  //       handlePredefinedSearch({ newArrivals: true });
+  //       break;
+  //     case 'topRated':
+  //       handlePredefinedSearch({ minRating: 4.5 });
+  //       break;
+  //     case 'men':
+  //       handlePredefinedSearch({ productType: 'men' });
+  //       break;
+  //     case 'women':
+  //       handlePredefinedSearch({ productType: 'women' });
+  //       break;
+  //     case 'kids':
+  //       handlePredefinedSearch({ productType: 'kids' });
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  // };
   
   // Clear search
-  const clearSearch = () => {
-    setInputValue('');
-    setSearchQuery('');
-    if (searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-  };
+  // const clearSearch = () => {
+  //   setInputValue('');
+  //   setSearchQuery('');
+  //   if (searchInputRef.current) {
+  //     searchInputRef.current.focus();
+  //   }
+  // };
 
   return (
     <Navbar expand="lg" className="p-3 header">
@@ -210,19 +213,22 @@ const buildFilterUrl = (baseQuery = "") => {
       <Navbar.Collapse id="navbar-nav" className="justify-content-end">
         <div className="d-flex align-items-center header2">
           <Nav className="me-3">
+          
+           
             <Nav.Link 
               className="px-3 headerlink" 
-              onClick={() => handleQuickFilter('sales')}
+              onClick={() => handleNavigation}
             >
-              Sale
+              Home
             </Nav.Link>
-
+ {/* 
             <Nav.Link 
               className="px-3 headerlink"
               onClick={() => handleQuickFilter('newArrivals')}
             >
               New Arrivals
-            </Nav.Link>
+            </Nav.Link> */}
+
 
             <Link to="/category" className="nav-link px-3 headerlink">
               Categories

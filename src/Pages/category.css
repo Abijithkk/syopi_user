@@ -63,6 +63,7 @@
   height: 50px;
   margin-top: 8px;
   object-fit: fill;
+  border-radius: 50%;
 }
 
 .category-name {
@@ -104,8 +105,9 @@
 .category-card img {
   width: 100px;
   height: 100px;
-  object-fit: cover;
+  object-fit: fill;
   margin-bottom: 12px;
+  border-radius:50%;
 }
 
 .category-card h3 {

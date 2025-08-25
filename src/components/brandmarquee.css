@@ -1,0 +1,208 @@
+/* brandmarquee.css */
+.brand-marquee-container {
+    width: 100%;
+    overflow: hidden;
+    padding: 10px 0;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-top: 1px solid rgba(226, 232, 240, 0.8);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    margin-top: 3%;
+}
+
+.marquee-title {
+    text-align: center;
+    margin-bottom: 30px;
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 1.5rem;
+    letter-spacing: 0.5px;
+}
+
+.brand-marquee-container::before,
+.brand-marquee-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 80px;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.brand-marquee-container::before {
+    left: 0;
+    background: linear-gradient(to right, #f8fafc 0%, transparent 100%);
+}
+
+.brand-marquee-container::after {
+    right: 0;
+    background: linear-gradient(to left, #f8fafc 0%, transparent 100%);
+}
+
+.marquee-wrapper {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    height: 30px;
+    display: flex;
+    align-items: center;
+}
+
+.marquee {
+    position: absolute;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    will-change: transform;
+}
+
+.marquee-left {
+    animation: marqueeLeft var(--scroll-duration, 40s) linear infinite;
+}
+
+.marquee-right {
+    animation: marqueeRight var(--scroll-duration, 40s) linear infinite;
+}
+
+.marquee-item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 40px;
+    transition: all 0.3s ease;
+    padding: 10px 0;
+}
+
+.brand-logo {
+    height: 30px;
+    width: auto;
+    max-width: 150px;
+    object-fit: contain;
+    filter: grayscale(100%) opacity(0.8);
+    transition: all 0.3s ease;
+}
+
+.brand-name {
+    font-weight: 700;
+    color: #4a5568;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    position: relative;
+    padding: 5px 0;
+}
+
+.brand-name::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #4299e1;
+    transition: width 0.3s ease;
+}
+
+@keyframes marqueeLeft {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+@keyframes marqueeRight {
+    0% {
+        transform: translateX(-50%);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .marquee {
+        animation: none !important;
+        white-space: normal;
+        position: relative;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+    
+    .marquee-wrapper {
+        height: auto;
+        overflow: visible;
+    }
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+    .marquee-item {
+        margin: 0 30px;
+    }
+    
+    .brand-logo {
+        height: 45px;
+        max-width: 130px;
+    }
+}
+
+@media (max-width: 768px) {
+    .brand-marquee-container {
+        padding: 30px 0;
+    }
+    
+    .marquee-title {
+        font-size: 1.3rem;
+        margin-bottom: 20px;
+    }
+    
+    .marquee-item {
+        margin: 0 20px;
+    }
+    
+    .brand-logo {
+        height: 35px;
+        max-width: 110px;
+    }
+    
+    .brand-name {
+        font-size: 14px;
+    }
+    
+    .brand-marquee-container::before,
+    .brand-marquee-container::after {
+        width: 50px;
+    }
+}
+
+@media (max-width: 480px) {
+    .marquee-item {
+        margin: 0 15px;
+    }
+    
+    .brand-logo {
+        height: 30px;
+        max-width: 90px;
+    }
+    
+    .brand-name {
+        font-size: 12px;
+        letter-spacing: 0.8px;
+    }
+    
+    .marquee-title {
+        font-size: 1.1rem;
+    }
+    
+    .brand-marquee-container::before,
+    .brand-marquee-container::after {
+        width: 30px;
+    }
+}

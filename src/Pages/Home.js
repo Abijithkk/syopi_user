@@ -17,6 +17,7 @@ import Filter from '../components/Filter';
 import { SearchContext } from '../components/SearchContext';
 import Allproducts from '../components/Allproducts';
 import { getUserHomePageApi } from '../services/allApi';
+import BrandMarquee from '../components/BrandMarquee';
 
 function Home() {
   const { searchQuery } = useContext(SearchContext);
@@ -75,7 +76,8 @@ function Home() {
             <Delight brands={homeData.brands} />
             <Trending products={homeData.affordableProducts} />
             {/* <Brandoffer sliders={homeData.BrandSliders} /> */}
-            <Brand brands={homeData.brands} />
+            {/* <Brand brands={homeData.brands} /> */}
+            <BrandMarquee></BrandMarquee>
             <Toppicks products={homeData.topPicksBestPrice} />
             <Lowest products={homeData.lowToHighProducts} />
             <Footer />
