@@ -40,8 +40,6 @@ function Home() {
     try {
       setLoading(true);
       const response = await getUserHomePageApi();
-      console.log("home",response);
-      
       
       if (response.status === 200 && response.success) {
         setHomeData(response.data);
@@ -55,31 +53,61 @@ function Home() {
 
   useEffect(() => {
     fetchHome();
-  }, []); 
-  const content = useMemo(() => {
-   
+  }, []);
 
+  // Helper function to check if an array has data
+  const hasData = (array) => {
+    return Array.isArray(array) && array.length > 0;
+  };
+
+  const content = useMemo(() => {
     return (
       <>
         {searchQuery ? (
           <Allproducts />
         ) : (
           <>
-            <Home1 productSlider={homeData.ProductSliders}/>
+            {hasData(homeData.ProductSliders) && <Home1 productSlider={homeData.ProductSliders} />}
             <Filter />
-            <FeaturedProduct products={homeData.newArrivals} />
-            <Topsales products={homeData.topSales} />
-            <Street sliders={homeData.CategorySliders} />
-            <Offer offerData={homeData.OfferSection} />
-            <Featuringbrands brands={homeData.featuringBrandsNow} />
-            <Premium sliders={homeData.ProductSliders} />
-            <Delight brands={homeData.brands} />
-            <Trending products={homeData.affordableProducts} />
-            {/* <Brandoffer sliders={homeData.BrandSliders} /> */}
-            {/* <Brand brands={homeData.brands} /> */}
-            <BrandMarquee></BrandMarquee>
-            <Toppicks products={homeData.topPicksBestPrice} />
-            <Lowest products={homeData.lowToHighProducts} />
+            
+            {hasData(homeData.newArrivals) && <FeaturedProduct products={homeData.newArrivals} />}
+            
+            {hasData(homeData.topSales) && <Topsales products={homeData.topSales} />}
+            
+            {/* Assuming Street doesn't need data from API */}
+            <Street />
+            
+            {hasData(homeData.OfferSection) && <Offer offerData={homeData.OfferSection} />}
+            
+            {/* {hasData(homeData.featuringBrandsNow) && (
+              <Featuringbrands brands={homeData.featuringBrandsNow} />
+            )} */}
+            
+            {/* Assuming Premium doesn't need data from API */}
+            <Premium />
+            
+            {hasData(homeData.brands) && <Delight brands={homeData.brands} />}
+            
+            {hasData(homeData.affordableProducts) && (
+              <Trending products={homeData.affordableProducts} />
+            )}
+            
+            {/* Uncomment if you need Brandoffer and have data for it */}
+            {/* {hasData(homeData.BrandSliders) && <Brandoffer sliders={homeData.BrandSliders} />} */}
+            
+            {/* Uncomment if you need Brand and have data for it */}
+            {/* {hasData(homeData.brands) && <Brand brands={homeData.brands} />} */}
+            
+            <BrandMarquee />
+            
+            {hasData(homeData.topPicksBestPrice) && (
+              <Toppicks products={homeData.topPicksBestPrice} />
+            )}
+            
+            {hasData(homeData.lowToHighProducts) && (
+              <Lowest products={homeData.lowToHighProducts} />
+            )}
+            
             <Footer />
           </>
         )}
@@ -91,6 +119,3 @@ function Home() {
 }
 
 export default Home;
-
-
-

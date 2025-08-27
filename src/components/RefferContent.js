@@ -28,8 +28,6 @@ function RefferContent() {
                 setLoading(true)
                 setError(null)
                 const response = await getRefferOfferContentApi(id)
-                console.log(response);
-                
                 
                 if (response?.status === 200 ) {
                     setContent(response.data.data[0])

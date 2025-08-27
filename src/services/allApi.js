@@ -6,6 +6,23 @@ export const userLoginApi = async (loginData) => {
   return await commonApi("POST", url, loginData);
 };
 
+export const userLoginOrRegisterApi = async (loginData) => {
+  const url = `${BASE_URL}/user/auth/send-otp`;
+  return await commonApi("POST", url, loginData);
+};
+
+export const userLoginResendOtpApi = async (loginData) => {
+  const url = `${BASE_URL}/user/auth/resend-otp`;
+  return await commonApi("POST", url, loginData);
+};
+
+export const userLoginVerifyOtpApi = async (loginData) => {
+  const url = `${BASE_URL}/user/auth/verify-otp`;
+  return await commonApi("POST", url, loginData);
+};
+
+
+
 export const userLoginVerifyApi = async (loginData) => {
   const url = `${BASE_URL}/user/auth/login/verify-otp`;
   return await commonApi("POST", url, loginData);

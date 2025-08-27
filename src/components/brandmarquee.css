@@ -1,9 +1,8 @@
-/* brandmarquee.css */
 .brand-marquee-container {
     width: 100%;
     overflow: hidden;
-    padding: 10px 0;
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    padding: 0px 0;
+    background: #607D8B ;
     border-top: 1px solid rgba(226, 232, 240, 0.8);
     border-bottom: 1px solid rgba(226, 232, 240, 0.8);
     position: relative;
@@ -45,9 +44,10 @@
     position: relative;
     width: 100%;
     overflow: hidden;
-    height: 30px;
+    height: 20px;
     display: flex;
     align-items: center;
+    margin: 10px 0;
 }
 
 .marquee {
@@ -57,13 +57,16 @@
     align-items: center;
     will-change: transform;
 }
-
+ .marquee-left,
+    .marquee-right {
+        animation-duration: 25s !important;
+    }
 .marquee-left {
-    animation: marqueeLeft var(--scroll-duration, 40s) linear infinite;
+    animation: marqueeLeft var(--scroll-duration, 30s) linear infinite;
 }
 
 .marquee-right {
-    animation: marqueeRight var(--scroll-duration, 40s) linear infinite;
+    animation: marqueeRight var(--scroll-duration, 30s) linear infinite;
 }
 
 .marquee-item {
@@ -76,12 +79,17 @@
 }
 
 .brand-logo {
-    height: 30px;
+    height: 20px;
     width: auto;
     max-width: 150px;
     object-fit: contain;
-    filter: grayscale(100%) opacity(0.8);
     transition: all 0.3s ease;
+}
+
+
+.brand-logo:hover {
+    filter: grayscale(0%) opacity(1);
+    transform: scale(1.05);
 }
 
 .brand-name {
@@ -89,7 +97,7 @@
     color: #4a5568;
     text-transform: uppercase;
     letter-spacing: 1.2px;
-    font-size: 14px;
+    font-size: 12px;
     transition: all 0.3s ease;
     position: relative;
     padding: 5px 0;
@@ -104,6 +112,10 @@
     height: 2px;
     background: #4299e1;
     transition: width 0.3s ease;
+}
+
+.brand-name:hover::after {
+    width: 100%;
 }
 
 @keyframes marqueeLeft {
@@ -141,55 +153,30 @@
     }
 }
 
-/* Responsive design */
-@media (max-width: 1024px) {
-    .marquee-item {
-        margin: 0 30px;
-    }
-    
-    .brand-logo {
-        height: 45px;
-        max-width: 130px;
-    }
-}
-
+/* Mobile-specific styles */
 @media (max-width: 768px) {
     .brand-marquee-container {
-        padding: 30px 0;
+        padding: 15px 0;
+        margin-top: 5%;
     }
     
     .marquee-title {
-        font-size: 1.3rem;
+        font-size: 1.2rem;
         margin-bottom: 20px;
     }
     
-    .marquee-item {
-        margin: 0 20px;
-    }
-    
-    .brand-logo {
+    .marquee-wrapper {
         height: 35px;
-        max-width: 110px;
+        margin: 8px 0;
     }
     
-    .brand-name {
-        font-size: 14px;
-    }
-    
-    .brand-marquee-container::before,
-    .brand-marquee-container::after {
-        width: 50px;
-    }
-}
-
-@media (max-width: 480px) {
     .marquee-item {
-        margin: 0 15px;
+        margin: 0 25px;
     }
     
     .brand-logo {
-        height: 30px;
-        max-width: 90px;
+        height: 25px;
+        max-width: 120px;
     }
     
     .brand-name {
@@ -197,12 +184,54 @@
         letter-spacing: 0.8px;
     }
     
+    .brand-marquee-container::before,
+    .brand-marquee-container::after {
+        width: 40px;
+    }
+    
+    /* Slower animation on mobile */
+    .marquee-left,
+    .marquee-right {
+        animation-duration: 25s !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .brand-marquee-container {
+        padding: 12px 0;
+    }
+    
     .marquee-title {
         font-size: 1.1rem;
+        margin-bottom: 15px;
+    }
+    
+    .marquee-wrapper {
+        height: 30px;
+        margin: 5px 0;
+    }
+    
+    .marquee-item {
+        margin: 0 20px;
+    }
+    
+    .brand-logo {
+        height: 22px;
+        max-width: 100px;
+    }
+    
+    .brand-name {
+        font-size: 11px;
+        letter-spacing: 0.5px;
     }
     
     .brand-marquee-container::before,
     .brand-marquee-container::after {
         width: 30px;
+    }
+    
+    .marquee-left,
+    .marquee-right {
+        animation-duration: 30s !important;
     }
 }

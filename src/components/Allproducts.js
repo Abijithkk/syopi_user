@@ -205,7 +205,6 @@ function Allproducts() {
         }
 
         const response = await getProductsWithSort(apiOptions);
-        console.log(response);
 
         if (response.success) {
           const newProducts = response.data.products;

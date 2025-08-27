@@ -6,7 +6,6 @@ import { BASE_URL } from "../services/baseUrl";
 function Toppicks({ products }) {
   const navigate = useNavigate();
   const location = useLocation();
-  console.log("toppicks", products);
   
 
   const navigateWithKey = (url) => {

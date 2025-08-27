@@ -24,7 +24,7 @@ function BrandMarquee() {
     
     useEffect(() => {
         if (brands.length > 0) {
-            // Setup full-width scrolling
+            // Setup full-width scrolling with reduced speed
             const setupMarquee = (marqueeRef, direction) => {
                 if (!marqueeRef.current) return;
                 
@@ -45,8 +45,9 @@ function BrandMarquee() {
                 
                 marqueeRef.current.innerHTML = clonesHTML;
                 
-                // Calculate animation duration based on content width and desired speed
-                const animationDuration = contentWidth / 50; // 50px per second for original content
+                // Calculate animation duration based on content width with reduced speed
+                // Increased duration = slower speed (from 50px/sec to 30px/sec)
+                const animationDuration = contentWidth / 30;
                 marqueeRef.current.style.setProperty('--scroll-duration', `${animationDuration}s`);
                 
                 // Set animation direction

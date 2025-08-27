@@ -410,7 +410,10 @@
 
   .feature-card-description {
     font-size: 13px;
-    line-height: 0px;
+    line-height: 15px;
 
+  }
+  .price-container2{
+    margin-top: 0px;
   }
 }

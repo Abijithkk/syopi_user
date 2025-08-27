@@ -47,7 +47,7 @@
 .filter-img {
   width: 40px;
   height: 40px;
-  border-radius: 0%;
+  border-radius: 50%;
   object-fit: cover;
   margin-right: 10px;
   transition: transform 0.2s;

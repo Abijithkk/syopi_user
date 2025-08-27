@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
 import signimg from "../images/Landing.jpeg";
 import "./signin.css";
-import { userLoginApi, googleLoginApi, userLoginVerifyApi, resendLoginOtpApi } from "../services/allApi";
+import { googleLoginApi, userLoginOrRegisterApi, userLoginResendOtpApi, userLoginVerifyOtpApi } from "../services/allApi";
 import { BASE_URL } from "../services/baseUrl";
 
 function Signin() {
   const [phone, setPhone] = useState("");
-  const [otp, setOtp] = useState("");
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [showOtpField, setShowOtpField] = useState(false);
   const [sessionId, setSessionId] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,62 +19,60 @@ function Signin() {
   const [countdown, setCountdown] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
+  const otpInputRefs = useRef([]);
 
   useEffect(() => {
-const handleOAuthCallback = async () => {
-  const urlParams = new URLSearchParams(location.search);
-  const googleCode = urlParams.get('code');
-  const provider = urlParams.get('provider');
-  const state = urlParams.get('state');
-  
-  if (googleCode && (!provider || provider === 'google' || state === 'google')) {
-    setGoogleLoading(true);
-    const loadingToast = toast.loading("Completing Google sign-in...");
-    
-    try {
-      // For GET requests, parameters should be in the URL, not in the body
-      const response = await fetch(`${BASE_URL}/user/auth/google/callback?code=${encodeURIComponent(googleCode)}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-        // No body for GET requests
-      });
+    const handleOAuthCallback = async () => {
+      const urlParams = new URLSearchParams(location.search);
+      const googleCode = urlParams.get('code');
+      const provider = urlParams.get('provider');
+      const state = urlParams.get('state');
       
-      // Check if response is JSON before parsing
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        const text = await response.text();
-        throw new Error(`Expected JSON but received: ${text.substring(0, 100)}...`);
-      }
-      
-      const data = await response.json();
+      if (googleCode && (!provider || provider === 'google' || state === 'google')) {
+        setGoogleLoading(true);
+        const loadingToast = toast.loading("Completing Google sign-in...");
+        
+        try {
+          const response = await fetch(`${BASE_URL}/user/auth/google/callback?code=${encodeURIComponent(googleCode)}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          const contentType = response.headers.get('content-type');
+          if (!contentType || !contentType.includes('application/json')) {
+            const text = await response.text();
+            throw new Error(`Expected JSON but received: ${text.substring(0, 100)}...`);
+          }
+          
+          const data = await response.json();
 
-      if (response.ok && data && data.token) {
-        localStorage.setItem("userId", data.user.userId || data.user._id || data.user.id);
-        localStorage.setItem("accessuserToken", data.token || data.accessToken);
-        localStorage.setItem("username", data.user.name || data.user.username);
-        localStorage.setItem("role", data.user.role || "user");
-        
-        toast.success("Google sign-in successful!");
-        
-        setTimeout(() => {
-          navigate("/");
-        }, 1000);
-      } else {
-        toast.error(data.message || "Failed to complete Google sign-in");
+          if (response.ok && data && data.token) {
+            localStorage.setItem("userId", data.user.userId || data.user._id || data.user.id);
+            localStorage.setItem("accessuserToken", data.token || data.accessToken);
+            localStorage.setItem("username", data.user.name || data.user.username);
+            localStorage.setItem("role", data.user.role || "user");
+            
+            toast.success("Google sign-in successful!");
+            
+            setTimeout(() => {
+              navigate("/");
+            }, 1000);
+          } else {
+            toast.error(data.message || "Failed to complete Google sign-in");
+          }
+        } catch (error) {
+          console.error("Google Callback Error:", error);
+          toast.error(error.message || "Failed to authenticate with Google");
+        } finally {
+          toast.dismiss(loadingToast);
+          setGoogleLoading(false);
+          
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
       }
-    } catch (error) {
-      console.error("Google Callback Error:", error);
-      toast.error(error.message || "Failed to authenticate with Google");
-    } finally {
-      toast.dismiss(loadingToast);
-      setGoogleLoading(false);
-      
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  }
-};
+    };
 
     handleOAuthCallback();
   }, [location, navigate]);
@@ -90,6 +88,49 @@ const handleOAuthCallback = async () => {
     return () => clearTimeout(timer);
   }, [countdown, resendDisabled]);
 
+  // Focus on first OTP input when OTP field is shown
+  useEffect(() => {
+    if (showOtpField && otpInputRefs.current[0]) {
+      otpInputRefs.current[0].focus();
+    }
+  }, [showOtpField]);
+
+  const handleOtpChange = (index, value) => {
+    if (!/^\d*$/.test(value)) return; // Only allow numbers
+    
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+    
+    // Auto-focus to next input if current input is filled
+    if (value && index < 5) {
+      otpInputRefs.current[index + 1].focus();
+    }
+  };
+
+  const handleOtpKeyDown = (index, e) => {
+    // Move to previous input on backspace if current input is empty
+    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+      otpInputRefs.current[index - 1].focus();
+    }
+  };
+
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text/plain').slice(0, 6);
+    if (/^\d+$/.test(pastedData)) {
+      const newOtp = pastedData.split('').slice(0, 6);
+      setOtp([...newOtp, ...Array(6 - newOtp.length).fill('')]);
+      
+      // Focus on the last input field after pasting
+      if (newOtp.length < 6) {
+        otpInputRefs.current[newOtp.length].focus();
+      } else {
+        otpInputRefs.current[5].focus();
+      }
+    }
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
   
@@ -102,10 +143,10 @@ const handleOAuthCallback = async () => {
     const loadingToast = toast.loading("Sending OTP to your phone...");
 
     try {
-      const response = await userLoginApi({ phone });
+      const response = await userLoginOrRegisterApi({ phone });
       
       if (response.success && response.status === 200) {
-        setSessionId(response.data.sessionId);
+        setSessionId(response.data.sessionId || "TEST_SESSION");
         setShowOtpField(true);
         setResendDisabled(true);
         setCountdown(30); // 30 seconds countdown
@@ -126,8 +167,9 @@ const handleOAuthCallback = async () => {
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     
-    if (!otp) {
-      toast.error("Please enter OTP");
+    const otpString = otp.join('');
+    if (otpString.length !== 6) {
+      toast.error("Please enter a valid 6-digit OTP");
       return;
     }
     
@@ -135,9 +177,9 @@ const handleOAuthCallback = async () => {
     const loadingToast = toast.loading("Verifying OTP...");
 
     try {
-      const response = await userLoginVerifyApi({
+      const response = await userLoginVerifyOtpApi({
         phone,
-        otp,
+        otp: otpString,
         sessionId: sessionId || "TEST_SESSION" 
       });
       
@@ -177,7 +219,7 @@ const handleOAuthCallback = async () => {
     setCountdown(30); // Reset countdown
     
     try {
-      const response = await resendLoginOtpApi({ phone });
+      const response = await userLoginResendOtpApi({ phone });
       
       if (response.success && response.status === 200) {
         toast.success("New OTP sent successfully!");
@@ -200,8 +242,6 @@ const handleOAuthCallback = async () => {
     window.location.href = googleLoginApi();
   };
 
- 
-
   return (
     <div className="signin-container">
       <div className="signin-left">
@@ -221,12 +261,21 @@ const handleOAuthCallback = async () => {
           {showOtpField && (
             <>
               <label>OTP</label>
-              <input
-                type="text"
-                placeholder="Enter OTP"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-              />
+              <div className="otp-container">
+                {otp.map((digit, index) => (
+                  <input
+                    key={index}
+                    type="text"
+                    maxLength="1"
+                    value={digit}
+                    onChange={(e) => handleOtpChange(index, e.target.value)}
+                    onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                    onPaste={index === 0 ? handlePaste : undefined}
+                    ref={(el) => (otpInputRefs.current[index] = el)}
+                    className="otp-input"
+                  />
+                ))}
+              </div>
               <div className="resend-otp">
                 <button
                   type="button"
@@ -273,13 +322,8 @@ const handleOAuthCallback = async () => {
                 }
               </span>
             </button>
-          
           </div>
         )}
-
-        <p className="signup-text">
-          Don&apos;t have an account? <a href="/signup">Sign up</a>
-        </p>
       </div>
 
       <div className="signin-right">
@@ -331,4 +375,3 @@ const handleOAuthCallback = async () => {
 }
 
 export default Signin;
-
