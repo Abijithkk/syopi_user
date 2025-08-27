@@ -119,6 +119,7 @@ function SingleProduct() {
     }
   }, [selectedColor, selectedSize, product]);
 
+
   const allColors = useMemo(
     () =>
       product?.variants.map((variant) => ({
@@ -147,15 +148,22 @@ function SingleProduct() {
     }
   }, [selectedVariant, product]);
 
-  const sizesForSelectedColor = useMemo(
-    () =>
-      selectedVariant?.sizes.map((s) => ({
+ const sizesForSelectedColor = useMemo(
+  () =>
+    selectedVariant?.sizes
+      ?.filter(s => s.stock > 0) // Filter out sizes with 0 stock
+      .map((s) => ({
         size: s.size,
         stock: s.stock,
         isAvailable: s.stock > 0,
       })) || [],
-    [selectedVariant]
-  );
+  [selectedVariant]
+);
+useEffect(() => {
+  if (sizesForSelectedColor.length > 0 && !selectedSize) {
+    setSelectedSize(sizesForSelectedColor[0].size);
+  }
+}, [sizesForSelectedColor, selectedSize]);
 
   const currentPrice =
     product?.offers?.length > 0
@@ -581,39 +589,33 @@ const handleBuyNow = async () => {
             </div>
 
             {/* Size Section */}
-            <div className="size-section">
-              <p className="select-size">Select Size:</p>
-              <div className="size-options">
-                {sizesForSelectedColor.map((sizeObj, index) => (
-                  <div
-                    key={index}
-                    className={`size-circle ${
-                      selectedSize === sizeObj.size ? "selected" : ""
-                    } ${!sizeObj.isAvailable ? "out-of-stock" : ""}`}
-                    onClick={() =>
-                      sizeObj.isAvailable && setSelectedSize(sizeObj.size)
-                    }
-                    title={
-                      !sizeObj.isAvailable
-                        ? "Out of Stock"
-                        : `${sizeObj.stock} available`
-                    }
-                  >
-                    {sizeObj.size}
-                    {!sizeObj.isAvailable && (
-                      <div className="size-unavailable"></div>
-                    )}
-                  </div>
-                ))}
-              </div>
-              {/* {selectedSize && selectedVariant && (
-                <p className="stock-info">
-                  {selectedVariant.sizes.find((s) => s.size === selectedSize)
-                    ?.stock || 0}{" "}
-                  items available
-                </p>
-              )} */}
-            </div>
+<div className="size-section">
+  <p className="select-size">Select Size:</p>
+  <div className="size-options">
+    {sizesForSelectedColor.map((sizeObj, index) => (
+      <div
+        key={index}
+        className={`size-circle ${
+          selectedSize === sizeObj.size ? "selected" : ""
+        } ${!sizeObj.isAvailable ? "out-of-stock" : ""}`}
+        onClick={() =>
+          sizeObj.isAvailable && setSelectedSize(sizeObj.size)
+        }
+        title={
+          !sizeObj.isAvailable
+            ? "Out of Stock"
+            : `${sizeObj.stock} available`
+        }
+      >
+        {selectedSize === sizeObj.size ? (
+          <i className="fas fa-check"></i>
+        ) : (
+          sizeObj.size
+        )}
+      </div>
+    ))}
+  </div>
+</div>
 
             {/* Action Cards Section */}
             <div className="action-cards">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import ContentLoader from "react-content-loader";
 import { toast } from "react-hot-toast";
 import "./wishlist.css";
@@ -99,7 +99,12 @@ function Wishlist() {
       }
     };
   }, []);
-
+  const handleNavigate = useCallback(
+    (id) => {
+      navigate(`/product/${id}`);
+    },
+    [navigate]
+  );
   const handleRemoveFromWishlist = async (id) => {
     try {
       // Prevent multiple clicks on the same item
@@ -179,7 +184,8 @@ function Wishlist() {
           </p>
           <div className="wishlist-card-row">
             {wishlist.map((item) => (
-              <div className="wishlist-card" key={item._id}>
+              <div className="wishlist-card" key={item._id}               onClick={() => handleNavigate(item.productId._id)}
+>
                 <div className="feature-card-image-container">
                   <img
                     src={`${BASE_URL}/uploads/${item.productId.images[0]}`}

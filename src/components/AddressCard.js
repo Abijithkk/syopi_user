@@ -34,6 +34,7 @@ const indianStates = [
   { value: "Uttarakhand", label: "Uttarakhand" },
   { value: "West Bengal", label: "West Bengal" },
 ];
+
 function AddressCard({ onSuccess }) {
   const [formData, setFormData] = useState({
     name: "",
@@ -49,10 +50,51 @@ function AddressCard({ onSuccess }) {
 
   const [selectedType, setSelectedType] = useState("home");
   const [loading, setLoading] = useState(false);
+  const [pincodeLoading, setPincodeLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
   // Regular expressions for validation
   const phoneRegex = /^[6-9]\d{9}$/;
+  const pincodeRegex = /^[1-9][0-9]{5}$/;
+
+  // Pincode verification API call
+  const verifyPincode = async (pincode) => {
+    try {
+      setPincodeLoading(true);
+      
+      // Using Indian Postal Pincode API (free service)
+      const response = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+      const data = await response.json();
+      
+      if (data[0].Status === "Success" && data[0].PostOffice && data[0].PostOffice.length > 0) {
+        const postOffice = data[0].PostOffice[0];
+        
+        // Auto-populate city and state
+        setFormData(prev => ({
+          ...prev,
+          city: postOffice.District,
+          state: postOffice.State
+        }));
+        
+        // Clear pincode error if verification successful
+        setErrors(prev => ({ ...prev, pincode: "" }));
+        
+        toast.success("Pincode verified successfully!");
+        return true;
+      } else {
+        setErrors(prev => ({ ...prev, pincode: "Invalid pincode. Please check and try again." }));
+        toast.error("Invalid pincode. Please check and try again.");
+        return false;
+      }
+    } catch (error) {
+      console.error("Pincode verification error:", error);
+      setErrors(prev => ({ ...prev, pincode: "Unable to verify pincode. Please check your connection." }));
+      toast.error("Unable to verify pincode. Please check your connection.");
+      return false;
+    } finally {
+      setPincodeLoading(false);
+    }
+  };
 
   // Handle form field changes
   const handleChange = (e) => {
@@ -61,6 +103,11 @@ function AddressCard({ onSuccess }) {
 
     // Validate fields immediately
     validateField(id, value);
+    
+    // Auto-verify pincode when 6 digits are entered
+    if (id === "pincode" && pincodeRegex.test(value)) {
+      verifyPincode(value);
+    }
   };
 
   const handleStateChange = (selectedOption) => {
@@ -88,11 +135,26 @@ function AddressCard({ onSuccess }) {
         newErrors.alternatenumber = "Alternate number cannot be the same as primary number";
       }
     }
+
+    if (id === "pincode") {
+      if (value && !pincodeRegex.test(value)) {
+        newErrors.pincode = "Enter a valid 6-digit pincode";
+      } else if (!value) {
+        newErrors.pincode = "";
+      }
+    }
   
     setErrors(newErrors);
   };
-  
-  
+
+  // Manual pincode verification button handler
+  const handleVerifyPincode = () => {
+    if (pincodeRegex.test(formData.pincode)) {
+      verifyPincode(formData.pincode);
+    } else {
+      toast.error("Please enter a valid 6-digit pincode");
+    }
+  };
 
   const handleAddAddress = async () => {
     setLoading(true);
@@ -114,7 +176,7 @@ function AddressCard({ onSuccess }) {
     }
 
     // Final validation check
-    if ( errors.number || errors.alternatenumber) {
+    if (errors.number || errors.alternatenumber || errors.pincode) {
       toast.error("Please correct errors before submitting.");
       setLoading(false);
       return;
@@ -143,8 +205,7 @@ function AddressCard({ onSuccess }) {
     } catch (error) {
       console.error("API Error:", error);
       toast.error("Something went wrong. Please try again.");
-    }
-     finally {
+    } finally {
       setLoading(false);
     }
   };
@@ -166,7 +227,6 @@ function AddressCard({ onSuccess }) {
                 />
               </Form.Group>
             </Col>
-           
           </Row>
 
           <Row>
@@ -197,6 +257,7 @@ function AddressCard({ onSuccess }) {
               </Form.Group>
             </Col>
           </Row>
+
           <Form.Group controlId="address" className="mb-3">
             <Form.Label className="form-head">Address</Form.Label>
             <Form.Control
@@ -210,12 +271,41 @@ function AddressCard({ onSuccess }) {
 
           <Form.Group controlId="pincode" className="mb-3">
             <Form.Label className="form-head">Pincode</Form.Label>
-            <Form.Control
-              type="text"
-              value={formData.pincode}
-              onChange={handleChange}
-              style={{ border: "1px solid #9F9F9F", borderRadius: "12px" }}
-            />
+            <div className="d-flex gap-2">
+              <Form.Control
+                type="text"
+                value={formData.pincode}
+                onChange={handleChange}
+                isInvalid={!!errors.pincode}
+                placeholder="Enter 6-digit pincode"
+                style={{ 
+                  border: "1px solid #9F9F9F", 
+                  borderRadius: "12px",
+                  flex: 1
+                }}
+              />
+              <button
+                type="button"
+                onClick={handleVerifyPincode}
+                disabled={pincodeLoading || !pincodeRegex.test(formData.pincode)}
+                className="btn btn-outline-primary"
+                style={{ 
+                  borderRadius: "12px",
+                  minWidth: "100px",
+                  height: "38px"
+                }}
+              >
+                {pincodeLoading ? <Spinner animation="border" size="sm" /> : "Verify"}
+              </button>
+            </div>
+            <Form.Control.Feedback type="invalid" style={{ display: errors.pincode ? 'block' : 'none' }}>
+              {errors.pincode}
+            </Form.Control.Feedback>
+            {pincodeLoading && (
+              <Form.Text className="text-muted">
+                Verifying pincode...
+              </Form.Text>
+            )}
           </Form.Group>
 
           <Form.Group controlId="city" className="mb-3">
@@ -224,8 +314,18 @@ function AddressCard({ onSuccess }) {
               type="text"
               value={formData.city}
               onChange={handleChange}
-              style={{ border: "1px solid #9F9F9F", borderRadius: "12px" }}
+              style={{ 
+                border: "1px solid #9F9F9F", 
+                borderRadius: "12px",
+                backgroundColor: formData.city && !errors.pincode ? "#f8f9fa" : "white"
+              }}
+              readOnly={formData.city && !errors.pincode}
             />
+            {formData.city && !errors.pincode && (
+              <Form.Text className="text-success">
+                Auto-populated from pincode verification
+              </Form.Text>
+            )}
           </Form.Group>
 
           <Form.Group controlId="state" className="mb-3">
@@ -236,16 +336,24 @@ function AddressCard({ onSuccess }) {
               isSearchable
               value={indianStates.find((state) => state.value === formData.state)}
               onChange={handleStateChange}
+              isDisabled={formData.state && !errors.pincode}
               styles={{
                 control: (provided) => ({
                   ...provided,
                   border: "1px solid #9F9F9F",
                   borderRadius: "12px",
                   padding: "2px",
+                  backgroundColor: formData.state && !errors.pincode ? "#f8f9fa" : "white"
                 }),
               }}
             />
+            {formData.state && !errors.pincode && (
+              <Form.Text className="text-success">
+                Auto-populated from pincode verification
+              </Form.Text>
+            )}
           </Form.Group>
+
           <Form.Group controlId="landmark" className="mb-3">
             <Form.Label className="form-head">Landmark</Form.Label>
             <Form.Control
@@ -287,4 +395,5 @@ function AddressCard({ onSuccess }) {
     </div>
   );
 }
+
 export default AddressCard;

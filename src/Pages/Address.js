@@ -268,7 +268,6 @@ function Address() {
           loading: false,
         }));
         // Optional - show a toast to prompt user to add an address
-        toast.error("No addresses found. Please add a shipping address.");
       } 
       // Handle other errors
       else {
@@ -282,7 +281,7 @@ function Address() {
         loading: false,
         error: error.message,
       }));
-      toast.error("Error loading addresses. Please try again later.");
+      // toast.error("Error loading addresses. Please try again later.");
     }
   };
 
