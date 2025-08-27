@@ -56,6 +56,8 @@ function Wishlist() {
 
       if (response.success) {
         setWishlist(response.data.wishlist);
+        console.log(response);
+        
 
         const initialStatus = response.data.wishlist.reduce((acc, item) => {
           acc[item._id] = true;
@@ -178,7 +180,7 @@ function Wishlist() {
           <div className="wishlist-card-row">
             {wishlist.map((item) => (
               <div className="wishlist-card" key={item._id}>
-                <div className="wishlist-card-image-container">
+                <div className="feature-card-image-container">
                   <img
                     src={`${BASE_URL}/uploads/${item.productId.images[0]}`}
                     alt={item.productId.name}
@@ -201,10 +203,36 @@ function Wishlist() {
                     ></i>
                   </div>
                 </div>
-                <p className="wishlist-card-title">{item.productId.name}</p>
-                <p className="wishlist-card-description">
-                  {item.productId.productType}
+                <p className="feature-card-title">{item.productId.brandName || item.productId.brand}</p>
+                <p className="feature-card-description">
+                  {item.productId.name}
                 </p>
+                 <div className="price-container2">
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
+                  {/* Current price - show offerPrice if offers exist, otherwise regular price */}
+                  <span className="current-price">
+                    ₹
+                    {item.productId.offers?.length > 0
+                      ? item.productId.variants?.[0]?.offerPrice
+                      : item.productId.variants?.[0]?.price ||
+                        item.productId.defaultPrice ||
+                        "N/A"}
+                  </span>
+
+                  {/* Always show wholesale price if it exists */}
+                  {item.productId.variants?.[0]?.wholesalePrice && (
+                    <span className="wholesale-price">
+                      ₹{item.productId.variants[0].wholesalePrice}
+                    </span>
+                  )}
+
+                  <span className="discount-badge">
+                    {item.productId.discountPercentage}% OFF
+                  </span>
+                </div>
+              </div>
               </div>
             ))}
           </div>

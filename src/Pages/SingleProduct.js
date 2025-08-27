@@ -270,66 +270,68 @@ function SingleProduct() {
     }
   };
 
-  const handleBuyNow = async () => {
-    if (!selectedColor || !selectedSize) {
-      toast.error("Please select a color and size before buying.");
-      return;
-    }
+const handleBuyNow = async () => {
+  if (!selectedColor || !selectedSize) {
+    toast.error("Please select a color and size before buying.");
+    return;
+  }
 
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
-      toast.error("Please log in to proceed with purchase");
-      setTimeout(() => navigate("/signin"), 1500);
-      return;
-    }
+  const userId = localStorage.getItem("userId");
+  if (!userId) {
+    toast.error("Please log in to proceed with purchase");
+    setTimeout(() => navigate("/signin"), 1500);
+    return;
+  }
 
-    setIsBuyNowLoading(true);
+  setIsBuyNowLoading(true);
 
-    try {
-      const buyNowData = {
-        productId: id,
-        quantity: 1,
-        color: selectedColor,
-        size: selectedSize,
-        colorName: selectedColorName,
-        price: currentPrice,
-      };
+  try {
+    const buyNowData = {
+      productId: id,
+      quantity: 1,
+      color: selectedColor,
+      size: selectedSize,
+      colorName: selectedColorName,
+      price: currentPrice,
+    };
 
-      const response = await buyNowCheckoutApi(buyNowData);
+    const response = await buyNowCheckoutApi(buyNowData);
 
-      if (response.success) {
-        toast.success(
-          `Proceeding to checkout - ₹${currentPrice} for ${product.name}`,
-          {
-            duration: 2000,
-            icon: "🛒",
-          }
-        );
-        setTimeout(() => {
-          navigate(
-            `/address/${response.data.checkoutId || "683ad85b48e6caddbea652f9"}`
-          );
-        }, 1000);
-      } else {
-        if (response.status === 401) {
-          toast.error("Session expired. Redirecting to login...");
-          localStorage.removeItem("accessuserToken");
-          localStorage.removeItem("userId");
-          setTimeout(() => navigate("/signin"), 1500);
-        } else {
-          toast.error(response.message || "Failed to proceed with purchase");
+    // 👉 Show the full response in console
+    console.log("Buy Now API Response:", response);
+
+    if (response.success) {
+      toast.success(
+        `Proceeding to checkout - ₹${currentPrice} for ${product.name}`,
+        {
+          duration: 2000,
+          icon: "🛒",
         }
+      );
+      setTimeout(() => {
+        navigate(`/address/${response.data.checkout?._id}`);
+      }, 1000);
+    } else {
+      if (response.status === 401) {
+        toast.error("Session expired. Redirecting to login...");
+        localStorage.removeItem("accessuserToken");
+        localStorage.removeItem("userId");
+        setTimeout(() => navigate("/signin"), 1500);
+      } else {
+        toast.error(response.message || "Failed to proceed with purchase");
       }
-    } catch (error) {
-      const errorMessage =
-        error.response?.data?.message ||
-        "Something went wrong. Please try again.";
-      toast.error(errorMessage);
-      console.error("Failed to process buy now:", error);
-    } finally {
-      setIsBuyNowLoading(false);
     }
-  };
+  } catch (error) {
+    const errorMessage =
+      error.response?.data?.message ||
+      "Something went wrong. Please try again.";
+    toast.error(errorMessage);
+    console.error("Failed to process buy now:", error);
+  } finally {
+    setIsBuyNowLoading(false);
+  }
+};
+
 
   const handleMouseEnter = (e) => {
     if (!mainImage) return;

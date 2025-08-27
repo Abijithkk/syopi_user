@@ -192,36 +192,46 @@ const fetchCart = async () => {
     }
   };
 
-  const handleCheckout = async () => {
-    if (!cartData?._id) {
+const handleCheckout = async () => {
+  if (!cartData?._id) {
+    toast.dismiss();
+    toast.error("Cart ID is missing. Please add items to your cart first.");
+    return;
+  }
+
+  setCheckoutLoading(true);
+
+  try {
+    const response = await checkoutCreateApi(cartData._id);
+
+    if (response?.success) {
       toast.dismiss();
-      toast.error("Cart ID is missing. Please add items to your cart first.");
-      return;
+      toast.success("Checkout successful!");
+      navigate(`/address/${response.data.checkout._id}`);
+    } else if (response?.status === 400) {
+      // Handle insufficient stock case
+      toast.dismiss();
+      toast.error("Insufficient stock available for one or more items.");
+    } else {
+      throw new Error(
+        response?.error || "Checkout failed. Please try again."
+      );
     }
+  } catch (error) {
+    toast.dismiss();
 
-    setCheckoutLoading(true);
-
-    try {
-      const response = await checkoutCreateApi(cartData._id);
-
-      if (response?.success) {
-        toast.dismiss();
-        toast.success("Checkout successful!");
-        navigate(`/address/${response.data.checkout._id}`);
-      } else {
-        throw new Error(
-          response?.error || "Checkout failed. Please try again."
-        );
-      }
-    } catch (error) {
-      toast.dismiss();
+    if (error?.response?.status === 400) {
+      // If axios or fetch throws error with status
+      toast.error("Insufficient stock available for one or more items.");
+    } else {
       toast.error(
         error.message || "An unexpected error occurred. Please try again."
       );
-    } finally {
-      setCheckoutLoading(false);
     }
-  };
+  } finally {
+    setCheckoutLoading(false);
+  }
+};
 
   return (
     <div>

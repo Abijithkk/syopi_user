@@ -215,20 +215,10 @@ const buildFilterUrl = (baseQuery = "") => {
           <Nav className="me-3">
           
            
-            <Nav.Link 
-              className="px-3 headerlink" 
-              onClick={() => handleNavigation}
-            >
+            <Link to="/" className="nav-link px-3 headerlink">
               Home
-            </Nav.Link>
- {/* 
-            <Nav.Link 
-              className="px-3 headerlink"
-              onClick={() => handleQuickFilter('newArrivals')}
-            >
-              New Arrivals
-            </Nav.Link> */}
-
+            </Link>
+ 
 
             <Link to="/category" className="nav-link px-3 headerlink">
               Categories

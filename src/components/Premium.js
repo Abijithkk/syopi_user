@@ -24,34 +24,41 @@ function Premium() {
       <div className="premium-marquee" ref={marqueeRef}>
         <div className="icon-text-pair">
           <FontAwesomeIcon icon={faStarOfDavid} className="premium-icon" />
-          <span className="premium-text">Premium Quality</span>
+          <span className="premium-text">"Premium Quality</span>
         </div>
         <div className="icon-text-pair">
           <FontAwesomeIcon icon={faStarOfDavid} className="premium-icon" />
-          <span className="premium-text">Premium Quality</span>
+          <span className="premium-text">Affordable price</span>
         </div>
         <div className="icon-text-pair">
           <FontAwesomeIcon icon={faStarOfDavid} className="premium-icon" />
-          <span className="premium-text">Premium Quality</span>
+          <span className="premium-text">Fast delivery</span>
         </div>
         <div className="icon-text-pair">
           <FontAwesomeIcon icon={faStarOfDavid} className="premium-icon" />
-          <span className="premium-text">Premium Quality</span>
+          <span className="premium-text">Trending Deals</span>
         </div><div className="icon-text-pair">
           <FontAwesomeIcon icon={faStarOfDavid} className="premium-icon" />
-          <span className="premium-text">Premium Quality</span>
+          <span className="premium-text">Incredible delights</span>
+        </div>
+       <div className="icon-text-pair">
+          <FontAwesomeIcon icon={faStarOfDavid} className="premium-icon" />
+          <span className="premium-text">"Premium Quality</span>
+        </div>
+        <div className="icon-text-pair">
+          <FontAwesomeIcon icon={faStarOfDavid} className="premium-icon" />
+          <span className="premium-text">Affordable price</span>
+        </div>
+        <div className="icon-text-pair">
+          <FontAwesomeIcon icon={faStarOfDavid} className="premium-icon" />
+          <span className="premium-text">Fast delivery</span>
+        </div>
+        <div className="icon-text-pair">
+          <FontAwesomeIcon icon={faStarOfDavid} className="premium-icon" />
+          <span className="premium-text">Trending Deals</span>
         </div><div className="icon-text-pair">
           <FontAwesomeIcon icon={faStarOfDavid} className="premium-icon" />
-          <span className="premium-text">Premium Quality</span>
-        </div><div className="icon-text-pair">
-          <FontAwesomeIcon icon={faStarOfDavid} className="premium-icon" />
-          <span className="premium-text">Premium Quality</span>
-        </div><div className="icon-text-pair">
-          <FontAwesomeIcon icon={faStarOfDavid} className="premium-icon" />
-          <span className="premium-text">Premium Quality</span>
-        </div><div className="icon-text-pair">
-          <FontAwesomeIcon icon={faStarOfDavid} className="premium-icon" />
-          <span className="premium-text">Premium Quality</span>
+          <span className="premium-text">Incredible delights</span>
         </div>
       </div>
     </div>
