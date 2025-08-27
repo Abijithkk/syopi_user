@@ -8,15 +8,24 @@ function Premium() {
 
   useEffect(() => {
     const marquee = marqueeRef.current;
+    if (!marquee) return;
 
     // Clone the original content to create seamless scroll
     const clone = marquee.innerHTML;
     marquee.innerHTML += clone;
 
-    // Dynamically set animation duration based on content width
-    const contentWidth = marquee.scrollWidth / 2; // Original content width
-    const animationDuration = contentWidth / 50; // Adjust speed (50px/sec)
+    // Calculate appropriate animation duration
+    const contentWidth = marquee.scrollWidth / 2;
+    // Slower speed for smoother animation (30px/sec instead of 50px/sec)
+    const animationDuration = contentWidth / 30;
+    
     marquee.style.setProperty('--scroll-duration', `${animationDuration}s`);
+    
+    // Force reflow to prevent animation stutter
+    marquee.style.animation = 'none';
+    setTimeout(() => {
+      marquee.style.animation = '';
+    }, 10);
   }, []);
 
   return (
@@ -24,7 +33,7 @@ function Premium() {
       <div className="premium-marquee" ref={marqueeRef}>
         <div className="icon-text-pair">
           <FontAwesomeIcon icon={faStarOfDavid} className="premium-icon" />
-          <span className="premium-text">"Premium Quality</span>
+          <span className="premium-text">Premium Quality</span>
         </div>
         <div className="icon-text-pair">
           <FontAwesomeIcon icon={faStarOfDavid} className="premium-icon" />
@@ -37,26 +46,8 @@ function Premium() {
         <div className="icon-text-pair">
           <FontAwesomeIcon icon={faStarOfDavid} className="premium-icon" />
           <span className="premium-text">Trending Deals</span>
-        </div><div className="icon-text-pair">
-          <FontAwesomeIcon icon={faStarOfDavid} className="premium-icon" />
-          <span className="premium-text">Incredible delights</span>
-        </div>
-       <div className="icon-text-pair">
-          <FontAwesomeIcon icon={faStarOfDavid} className="premium-icon" />
-          <span className="premium-text">"Premium Quality</span>
         </div>
         <div className="icon-text-pair">
-          <FontAwesomeIcon icon={faStarOfDavid} className="premium-icon" />
-          <span className="premium-text">Affordable price</span>
-        </div>
-        <div className="icon-text-pair">
-          <FontAwesomeIcon icon={faStarOfDavid} className="premium-icon" />
-          <span className="premium-text">Fast delivery</span>
-        </div>
-        <div className="icon-text-pair">
-          <FontAwesomeIcon icon={faStarOfDavid} className="premium-icon" />
-          <span className="premium-text">Trending Deals</span>
-        </div><div className="icon-text-pair">
           <FontAwesomeIcon icon={faStarOfDavid} className="premium-icon" />
           <span className="premium-text">Incredible delights</span>
         </div>

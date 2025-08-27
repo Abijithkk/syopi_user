@@ -1,52 +1,65 @@
 .premium-container {
-    width: 100%;
-    overflow: hidden;
-    background-color: #A7DBD8;
-    margin-top: 6%;
-    font-family: 'Poppins', sans-serif;
-    height: 50px; 
-    display: flex;
-    align-items: center;
-    padding: 25px;
-  }
-  
-  .premium-marquee {
-    display: flex;
-    align-items: center;
-    white-space: nowrap;
-    animation: scroll var(--scroll-duration) linear infinite;
-  }
-  
-  .icon-text-pair {
-    display: flex;
-    align-items: center;
-    margin-right: 40px; 
-  }
-  
-  .premium-icon {
-    font-size: 1.8rem;
-    color: #1DA69E; 
-    margin-right: 20px; 
-  }
-  
-  .premium-text {
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 21px;
-    text-align: left;
-    text-underline-position: from-font;
-    text-decoration-skip-ink: none;
-    color: #1DA69E;
+  width: 100%;
+  overflow: hidden;
+  background-color: #A7DBD8;
+  margin-top: 6%;
+  font-family: 'Poppins', sans-serif;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  padding: 25px;
+  box-sizing: border-box;
+}
 
+.premium-marquee {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  animation: scroll var(--scroll-duration, 40s) linear infinite;
+  will-change: transform; /* Improves performance */
+}
+
+.premium-marquee:hover {
+  animation-play-state: paused; /* Pause on hover for better UX */
+}
+
+.icon-text-pair {
+  display: flex;
+  align-items: center;
+  margin-right: 40px;
+  flex-shrink: 0; /* Prevent items from shrinking */
+}
+
+.premium-icon {
+  font-size: 1.8rem;
+  color: #1DA69E;
+  margin-right: 20px;
+}
+
+.premium-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 21px;
+  text-align: left;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+  color: #1DA69E;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
   }
-  
-  @keyframes scroll {
-    0% {
-      transform: translateX(0);
-    }
-    100% {
-      transform: translateX(-50%);
-    }
+  100% {
+    transform: translateX(-50%);
   }
-  
+}
+
+/* Reduced motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  .premium-marquee {
+    animation: none;
+    overflow-x: auto;
+  }
+}
