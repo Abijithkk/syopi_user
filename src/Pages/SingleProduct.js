@@ -41,6 +41,7 @@ function SingleProduct() {
   const [deliveryInfo, setDeliveryInfo] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [discount, setDiscount] = useState(null);
+const [clickedSizes, setClickedSizes] = useState(new Set());
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
@@ -598,16 +599,31 @@ const handleBuyNow = async () => {
         className={`size-circle ${
           selectedSize === sizeObj.size ? "selected" : ""
         } ${!sizeObj.isAvailable ? "out-of-stock" : ""}`}
-        onClick={() =>
-          sizeObj.isAvailable && setSelectedSize(sizeObj.size)
-        }
+        onClick={() => {
+          if (!sizeObj.isAvailable) return;
+          
+          // Toggle between showing size and checkmark
+          if (selectedSize === sizeObj.size && clickedSizes.has(sizeObj.size)) {
+            // If already selected and clicked, show size again but keep selected
+            setClickedSizes(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(sizeObj.size);
+              return newSet;
+            });
+          } else {
+            // Select the size and show checkmark
+            setSelectedSize(sizeObj.size);
+            setClickedSizes(prev => new Set(prev).add(sizeObj.size));
+          }
+        }}
         title={
           !sizeObj.isAvailable
             ? "Out of Stock"
             : `${sizeObj.stock} available`
         }
       >
-        {selectedSize === sizeObj.size ? (
+        {/* Show checkmark only if selected AND clicked, otherwise show size */}
+        {selectedSize === sizeObj.size && clickedSizes.has(sizeObj.size) ? (
           <i className="fas fa-check"></i>
         ) : (
           sizeObj.size

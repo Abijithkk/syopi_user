@@ -10,7 +10,6 @@ function Premium() {
     const marquee = marqueeRef.current;
     if (!marquee) return;
 
-    // Clone the original content to create seamless scroll
     const clone = marquee.innerHTML;
     marquee.innerHTML += clone;
 
@@ -51,6 +50,7 @@ function Premium() {
           <FontAwesomeIcon icon={faStarOfDavid} className="premium-icon" />
           <span className="premium-text">Incredible delights</span>
         </div>
+
       </div>
     </div>
   );

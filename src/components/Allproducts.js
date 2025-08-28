@@ -636,38 +636,36 @@ function Allproducts() {
 
         <main className="products-main">
           <div className="products-sort-bar">
-            <div className="filter-toggle-container">
-              <button
-                onClick={() => setIsFilterOpen(!isFilterOpen)}
-                className="filter-toggle-btn"
-                aria-label={isFilterOpen ? "Close filters" : "Open filters"}
-              >
-                <i
-                  className={`fas fa-${isFilterOpen ? "times" : "filter"}`}
-                ></i>
-                <span>{isFilterOpen ? "Close Filters" : "Filters"}</span>
-              </button>
-            </div>
+  <div className="mobile-sort-controls">
+    <button
+      onClick={() => setIsFilterOpen(!isFilterOpen)}
+      className="mobile-filter-btn"
+      aria-label={isFilterOpen ? "Close filters" : "Open filters"}
+    >
+      <i className={`fas fa-${isFilterOpen ? "times" : "filter"}`}></i>
+    </button>
 
-            <div className="products-count">
-              {!loading && <span>{totalProducts} Products</span>}
-            </div>
+    <div className="products-count-mobile">
+      {!loading && <span>{totalProducts} items</span>}
+    </div>
 
-            <div className="sort-control">
-              <label htmlFor="sort-select">Sort by:</label>
-              <select
-                id="sort-select"
-                value={sortOption}
-                onChange={handleSortChange}
-              >
-                <option value="popularity">Popularity</option>
-                <option value="priceAsc">Price: Low to High</option>
-                <option value="priceDesc">Price: High to Low</option>
-                <option value="newest">Newest Arrivals</option>
-                <option value="rating">Customer Rating</option>
-              </select>
-            </div>
-          </div>
+    <div className="sort-control-mobile">
+      <select
+        id="sort-select-mobile"
+        value={sortOption}
+        onChange={handleSortChange}
+        aria-label="Sort products"
+      >
+        <option value="popularity">Popularity</option>
+        <option value="priceAsc">Price: Low to High</option>
+        <option value="priceDesc">Price: High to Low</option>
+        <option value="newest">Newest Arrivals</option>
+        <option value="rating">Customer Rating</option>
+      </select>
+      <i className="fas fa-chevron-down"></i>
+    </div>
+  </div>
+</div>
 
           <motion.div
             className="products-grid"

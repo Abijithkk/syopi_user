@@ -75,7 +75,7 @@ function Home() {
             {hasData(homeData.topSales) && <Topsales products={homeData.topSales} />}
             
             {/* Assuming Street doesn't need data from API */}
-            <Street />
+            {/* <Street /> */}
             
             {hasData(homeData.OfferSection) && <Offer offerData={homeData.OfferSection} />}
             
