@@ -163,7 +163,7 @@ function AddressCard({ onSuccess }) {
     if (
       !formData.name ||
       !formData.number ||
-      !formData.alternatenumber ||
+
       !formData.address ||
       !formData.landmark ||
       !formData.pincode ||
@@ -176,7 +176,7 @@ function AddressCard({ onSuccess }) {
     }
 
     // Final validation check
-    if (errors.number || errors.alternatenumber || errors.pincode) {
+    if (errors.number  || errors.pincode) {
       toast.error("Please correct errors before submitting.");
       setLoading(false);
       return;
@@ -251,7 +251,7 @@ function AddressCard({ onSuccess }) {
                   value={formData.alternatenumber}
                   onChange={handleChange}
                   isInvalid={!!errors.alternatenumber}
-                  style={{ border: "1px solid #9F9F9F", borderRadius: "12px" }}
+                  style={{ border: "1px solid #0b0909ff", borderRadius: "12px" }}
                 />
                 <Form.Control.Feedback type="invalid">{errors.alternatenumber}</Form.Control.Feedback>
               </Form.Group>

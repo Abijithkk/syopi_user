@@ -12,6 +12,7 @@ function Contactdetails() {
     email: "",
     gender: "",
   });
+  const [originalData, setOriginalData] = useState({});
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -21,15 +22,19 @@ function Contactdetails() {
     setLoading(true);
     try {
       const response = await getProfileApi();
+      console.log(response);
       
       if (response.success && response.data.user) {
         const user = response.data.user;
-        setFormData({
+        const userData = {
           firstName: user.name || "",
           phone: user.phone || "",
           email: user.email || "",
           gender: user.gender || "",
-        });
+        };
+        
+        setFormData(userData);
+        setOriginalData(userData);
         setCoin(user.coins || 0); 
       } else {
         setError(response.error || "Failed to fetch profile");
@@ -51,17 +56,43 @@ function Contactdetails() {
   };
 
   const handleSave = async () => {
+    // Check if any fields have actually changed
+    const changes = {};
+    
+    Object.keys(formData).forEach(key => {
+      if (formData[key] !== originalData[key]) {
+        changes[key] = formData[key];
+      }
+    });
+    
+    // If no changes, show message and return
+    if (Object.keys(changes).length === 0) {
+      toast.info("No changes to save");
+      return;
+    }
+    
     setSaving(true);
     setError("");
     try {
-      const profileData = {
-        name: formData.firstName,
-        phone: formData.phone,
-        email: formData.email,
-        gender: formData.gender,
-      };
+      // Map the changes to the expected API format
+      const profileData = {};
+      
+      if (changes.hasOwnProperty('firstName')) {
+        profileData.name = changes.firstName;
+      }
+      if (changes.hasOwnProperty('phone')) {
+        profileData.phone = changes.phone;
+      }
+      if (changes.hasOwnProperty('email')) {
+        profileData.email = changes.email;
+      }
+      if (changes.hasOwnProperty('gender')) {
+        profileData.gender = changes.gender;
+      }
+      
       const response = await updateProfileApi(profileData);
-      if (response.success) {
+      if (response.status===204) {
+        setOriginalData({...originalData, ...changes});
         toast.success("Profile updated successfully!");
       } else {
         setError(response.error || "Failed to update profile");
@@ -87,9 +118,7 @@ function Contactdetails() {
           <Form className="mt-3 p-4">
             <div className="contact-details-container">
               <img className="contact-details-img" src={cd} alt="Profile" />
-              <button type="button" className="edit-profile-button">
-                Edit Profile
-              </button>
+              
             </div>
             <div className="coin-display d-flex align-items-center mb-3">
               <div
@@ -122,7 +151,6 @@ function Contactdetails() {
               </span>
             </div>
 
-            {error && <p className="text-danger text-center">{error}</p>}
 
             <Row className="mt-4">
               <Col xs={12} className="mb-3">
@@ -146,15 +174,15 @@ function Contactdetails() {
             </Row>
             <Row className="mt-4">
               <Col xs={12} className="mb-3">
-                <Form.Group controlId="firstName">
+                <Form.Group controlId="email">
                   <Form.Label className="form-head">Email</Form.Label>
                   <Form.Control
-                    type="text"
+                    type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
                     className="custom-placeholder"
-                    placeholder="Enter Name"
+                    placeholder="Enter Email"
                     style={{
                       border: "1px solid #9F9F9F",
                       borderRadius: "12px",
@@ -181,8 +209,6 @@ function Contactdetails() {
                 }}
               />
             </Form.Group>
-
-         
 
             <Form.Group controlId="gender" className="mb-3">
               <Form.Label className="form-head">Gender</Form.Label>
@@ -226,16 +252,7 @@ function Contactdetails() {
           </Form>
         </div>
       )}
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
+      <ToastContainer/>
     </div>
   );
 }

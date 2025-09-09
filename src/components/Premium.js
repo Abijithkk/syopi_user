@@ -13,14 +13,11 @@ function Premium() {
     const clone = marquee.innerHTML;
     marquee.innerHTML += clone;
 
-    // Calculate appropriate animation duration
     const contentWidth = marquee.scrollWidth / 2;
-    // Slower speed for smoother animation (30px/sec instead of 50px/sec)
     const animationDuration = contentWidth / 30;
     
     marquee.style.setProperty('--scroll-duration', `${animationDuration}s`);
     
-    // Force reflow to prevent animation stutter
     marquee.style.animation = 'none';
     setTimeout(() => {
       marquee.style.animation = '';

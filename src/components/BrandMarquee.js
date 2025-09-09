@@ -24,44 +24,21 @@ function BrandMarquee() {
     
     useEffect(() => {
         if (brands.length > 0) {
-            // Setup full-width scrolling with reduced speed
-            const setupMarquee = (marqueeRef, direction) => {
+            // Setup marquee content duplication for seamless looping
+            const setupMarquee = (marqueeRef) => {
                 if (!marqueeRef.current) return;
                 
                 // Clear any previous clones
                 const originalContent = marqueeRef.current.innerHTML;
                 
-                // Calculate the number of clones needed to fill at least 200% of container width
-                const containerWidth = marqueeRef.current.parentElement.offsetWidth;
-                const contentWidth = marqueeRef.current.scrollWidth;
-                
-                // We need enough clones to fill at least 2x container width for seamless looping
-                const clonesNeeded = Math.ceil((containerWidth * 2) / contentWidth) + 1;
-                let clonesHTML = originalContent;
-                
-                for (let i = 0; i < clonesNeeded; i++) {
-                    clonesHTML += originalContent;
-                }
-                
-                marqueeRef.current.innerHTML = clonesHTML;
-                
-                // Calculate animation duration based on content width with reduced speed
-                // Increased duration = slower speed (from 50px/sec to 30px/sec)
-                const animationDuration = contentWidth / 30;
-                marqueeRef.current.style.setProperty('--scroll-duration', `${animationDuration}s`);
-                
-                // Set animation direction
-                if (direction === 'right') {
-                    marqueeRef.current.style.setProperty('--scroll-direction', 'reverse');
-                } else {
-                    marqueeRef.current.style.setProperty('--scroll-direction', 'normal');
-                }
+                // Duplicate content for seamless looping
+                marqueeRef.current.innerHTML = originalContent + originalContent;
             };
             
             // Small delay to ensure DOM is fully rendered
             setTimeout(() => {
-                setupMarquee(topMarqueeRef, 'left');
-                setupMarquee(bottomMarqueeRef, 'right');
+                setupMarquee(topMarqueeRef);
+                setupMarquee(bottomMarqueeRef);
             }, 100);
         }
     }, [brands]);

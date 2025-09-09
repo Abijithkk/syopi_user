@@ -306,17 +306,8 @@ const handleBuyNow = async () => {
 
     const response = await buyNowCheckoutApi(buyNowData);
 
-    // 👉 Show the full response in console
-    console.log("Buy Now API Response:", response);
-
+  
     if (response.success) {
-      toast.success(
-        `Proceeding to checkout - ₹${currentPrice} for ${product.name}`,
-        {
-          duration: 2000,
-          icon: "🛒",
-        }
-      );
       setTimeout(() => {
         navigate(`/address/${response.data.checkout?._id}`);
       }, 1000);

@@ -72,19 +72,13 @@ const CheckoutSummary = memo(({ checkoutData }) => (
         {checkoutData?.items?.length || 0}
       </p>
     </div>
-    <div className="d-flex justify-content-between">
-      <p className="address-check-total">Total MRP:</p>
-      <p className="text-end address-check-total">₹{checkoutData?.subtotal}</p>
-    </div>
+
     <div className="d-flex justify-content-between">
       <p className="address-check-total">Delivery Charge</p>
       <p className="text-end address-check-total">₹{checkoutData?.deliveryCharge}</p>
     </div>
     
-    <div className="d-flex justify-content-between">
-      <p className="address-check-total">Total Discount:</p>
-      <p className="text-end points">₹{checkoutData?.ReducedDiscount || 0}</p>
-    </div>
+
     <div className="d-flex justify-content-between">
       <p className="address-check-total">Syopi Points:</p>
       <p className="text-end points">₹{checkoutData?.coinsApplied || 0}</p>
@@ -338,13 +332,14 @@ const handleApplyCoins = async () => {
   setState(prev => ({ ...prev, applyingCoins: true }));
   try {
     const response = await applyCoinsApi(state.checkoutId);
+    console.log(response);
     
     if (response.status === 200) {
       toast.success("Syopi points applied successfully!");
-      // Update checkout data
+      // Update checkout data - use the correct nested path
       setState(prev => ({
         ...prev,
-        checkoutData: response.checkout || response.data,
+        checkoutData: response.data.checkout || response.data, // Fixed this line
         applyingCoins: false
       }));
     } else {

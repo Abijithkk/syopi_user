@@ -16,18 +16,16 @@
   align-items: center;
   white-space: nowrap;
   animation: scroll var(--scroll-duration, 40s) linear infinite;
-  will-change: transform; /* Improves performance */
+  will-change: transform;
 }
 
-.premium-marquee:hover {
-  animation-play-state: paused; /* Pause on hover for better UX */
-}
+
 
 .icon-text-pair {
   display: flex;
   align-items: center;
   margin-right: 40px;
-  flex-shrink: 0; /* Prevent items from shrinking */
+  flex-shrink: 0; 
 }
 
 .premium-icon {

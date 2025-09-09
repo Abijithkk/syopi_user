@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/static/css/main.1fe49b2b.css",
-    "main.js": "/static/js/main.aa68409e.js",
+    "main.css": "/static/css/main.b6f3fbe9.css",
+    "main.js": "/static/js/main.14be324d.js",
     "static/media/Landing.jpeg": "/static/media/Landing.1e1b3c6ad52ca958aac2.jpeg",
     "static/media/cd.png": "/static/media/cd.2aab3de11e35d64aa734.png",
     "static/media/refer3.png": "/static/media/refer3.7f02c7b1077aa142abd6.png",
@@ -14,11 +14,11 @@
     "static/media/f2.png": "/static/media/f2.2be29c88bfd54927d5e2.png",
     "static/media/apple.png": "/static/media/apple.1511c3d419cb16aec154.png",
     "index.html": "/index.html",
-    "main.1fe49b2b.css.map": "/static/css/main.1fe49b2b.css.map",
-    "main.aa68409e.js.map": "/static/js/main.aa68409e.js.map"
+    "main.b6f3fbe9.css.map": "/static/css/main.b6f3fbe9.css.map",
+    "main.14be324d.js.map": "/static/js/main.14be324d.js.map"
   },
   "entrypoints": [
-    "static/css/main.1fe49b2b.css",
-    "static/js/main.aa68409e.js"
+    "static/css/main.b6f3fbe9.css",
+    "static/js/main.14be324d.js"
   ]
 }

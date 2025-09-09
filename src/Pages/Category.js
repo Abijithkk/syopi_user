@@ -101,12 +101,13 @@ function Category() {
                     className={`category-item ${selectedCategory === category._id ? 'active' : ''}`}
                     onClick={() => handleCategoryClick(category._id)}
                   >
-                    <span className="category-name">{category.name}</span>
+                   
                     <img
                       src={`${BASE_URL}/uploads/${category.image}`}
                       alt={category.name}
                       className="category-image"
                     />
+                     <span className="category-name mt-2">{category.name}</span>
                   </li>
                 ))}
               </ul>

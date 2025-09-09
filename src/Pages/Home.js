@@ -36,6 +36,15 @@ function Home() {
   });
   const [loading, setLoading] = useState(true);
   
+  // Scroll to top on component mount and when search query changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+  
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [searchQuery]);
+
   const fetchHome = async () => {
     try {
       setLoading(true);
@@ -61,6 +70,10 @@ function Home() {
   };
 
   const content = useMemo(() => {
+    if (loading) {
+      return <div>Loading...</div>; // Simple loading text instead of spinner
+    }
+    
     return (
       <>
         {searchQuery ? (
@@ -74,16 +87,8 @@ function Home() {
             
             {hasData(homeData.topSales) && <Topsales products={homeData.topSales} />}
             
-            {/* Assuming Street doesn't need data from API */}
-            {/* <Street /> */}
-            
             {hasData(homeData.OfferSection) && <Offer offerData={homeData.OfferSection} />}
             
-            {/* {hasData(homeData.featuringBrandsNow) && (
-              <Featuringbrands brands={homeData.featuringBrandsNow} />
-            )} */}
-            
-            {/* Assuming Premium doesn't need data from API */}
             <Premium />
             
             {hasData(homeData.brands) && <Delight brands={homeData.brands} />}
@@ -91,12 +96,6 @@ function Home() {
             {hasData(homeData.affordableProducts) && (
               <Trending products={homeData.affordableProducts} />
             )}
-            
-            {/* Uncomment if you need Brandoffer and have data for it */}
-            {/* {hasData(homeData.BrandSliders) && <Brandoffer sliders={homeData.BrandSliders} />} */}
-            
-            {/* Uncomment if you need Brand and have data for it */}
-            {/* {hasData(homeData.brands) && <Brand brands={homeData.brands} />} */}
             
             <BrandMarquee />
             

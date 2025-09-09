@@ -8,6 +8,7 @@ import { BASE_URL } from "../services/baseUrl";
 
 function Signin() {
   const [phone, setPhone] = useState("");
+  const [referralId, setReferralId] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [showOtpField, setShowOtpField] = useState(false);
   const [sessionId, setSessionId] = useState("");
@@ -131,38 +132,56 @@ function Signin() {
     }
   };
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+const handleLogin = async (e) => {
+  e.preventDefault();
+
+  if (!phone) {
+    toast.error("Please enter Phone number");
+    return;
+  }
   
-    if (!phone) {
-      toast.error("Please enter Phone number");
-      return;
+  setLoading(true);
+  const loadingToast = toast.loading("Sending OTP to your phone...");
+
+  try {
+    const requestData = { phone };
+    
+    // Only add referralId if it's a non-empty string
+    if (referralId && referralId.trim() !== "") {
+      requestData.referredBy = referralId.trim();
     }
     
-    setLoading(true);
-    const loadingToast = toast.loading("Sending OTP to your phone...");
-
-    try {
-      const response = await userLoginOrRegisterApi({ phone });
-      
-      if (response.success && response.status === 200) {
-        setSessionId(response.data.sessionId || "TEST_SESSION");
-        setShowOtpField(true);
-        setResendDisabled(true);
-        setCountdown(30); // 30 seconds countdown
-        toast.success("OTP sent successfully!");
-      } else {
-        const errorMessage = response.data?.error?.message || response.data?.message || "Failed to send OTP!";
-        toast.error(errorMessage);
-      }
-    } catch (error) {
-      console.error("Login Error:", error);
-      toast.error(error.response?.data?.message || "Something went wrong. Please try again.");
-    } finally {
-      toast.dismiss(loadingToast);
-      setLoading(false);
+    const response = await userLoginOrRegisterApi(requestData);
+    
+    if (response.success && response.status === 200) {
+      setSessionId(response.data.sessionId || "TEST_SESSION");
+      setShowOtpField(true);
+      setResendDisabled(true);
+      setCountdown(30); // 30 seconds countdown
+      toast.success("OTP sent successfully!");
+    } else {
+      // Corrected error message extraction based on the response structure
+      const errorMessage = response.error?.message || 
+                          response.data?.message || 
+                          "Failed to send OTP!";
+      toast.error(errorMessage);
+      console.log("API Response:", response);
     }
-  };
+  } catch (error) {
+    console.error("Login Error:", error);
+    // More detailed error logging
+    if (error.response) {
+      console.error("Response data:", error.response.data);
+      console.error("Response status:", error.response.status);
+      toast.error(error.response.data?.message || "Something went wrong. Please try again.");
+    } else {
+      toast.error("Network error. Please check your connection.");
+    }
+  } finally {
+    toast.dismiss(loadingToast);
+    setLoading(false);
+  }
+};
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
@@ -177,11 +196,18 @@ function Signin() {
     const loadingToast = toast.loading("Verifying OTP...");
 
     try {
-      const response = await userLoginVerifyOtpApi({
+      const requestData = {
         phone,
         otp: otpString,
         sessionId: sessionId || "TEST_SESSION" 
-      });
+      };
+      
+      // Add referralId to the request if provided
+      if (referralId) {
+        requestData.referredBy = referralId;
+      }
+      
+      const response = await userLoginVerifyOtpApi(requestData);
       
       if (response.success && response.status === 200) {
         const { user } = response.data;
@@ -219,7 +245,13 @@ function Signin() {
     setCountdown(30); // Reset countdown
     
     try {
-      const response = await userLoginResendOtpApi({ phone });
+      const requestData = { phone };
+      // Add referralId to the request if provided
+      if (referralId) {
+        requestData.referredBy = referralId;
+      }
+      
+      const response = await userLoginResendOtpApi(requestData);
       
       if (response.success && response.status === 200) {
         toast.success("New OTP sent successfully!");
@@ -257,6 +289,18 @@ function Signin() {
             onChange={(e) => setPhone(e.target.value)}
             disabled={showOtpField}
           />
+
+          {!showOtpField && (
+            <>
+              <label>Referral ID (Optional)</label>
+              <input
+                type="text"
+                placeholder="Enter referral code if you have one"
+                value={referralId}
+                onChange={(e) => setReferralId(e.target.value)}
+              />
+            </>
+          )}
 
           {showOtpField && (
             <>
