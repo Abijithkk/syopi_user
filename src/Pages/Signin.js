@@ -58,7 +58,7 @@ function Signin() {
             toast.success("Google sign-in successful!");
             
             setTimeout(() => {
-              navigate("/");
+              navigate("/addressdetails");
             }, 1000);
           } else {
             toast.error(data.message || "Failed to complete Google sign-in");

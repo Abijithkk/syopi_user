@@ -36,7 +36,7 @@ body {
 
 /* Profile Container */
 .profile-container {
-  max-width: 95%;
+  max-width: 50%;
   margin: 5rem auto;
   border-radius: var(--border-radius-lg);
   overflow: hidden;
