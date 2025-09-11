@@ -231,6 +231,21 @@ export const getUserHomePageApi = async () => {
 };
 
 
+
+export const getCoinValueApi = async () => {
+  const url = `${BASE_URL}/user/coin/view`;
+
+  try {
+    const response = await commonApi("GET", url);
+    return response;
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message || "Error fetching coin value",
+    };
+  }
+};
+
 export const getRefferOfferContentApi = async (refferId) => {
   const url = `${BASE_URL}/user/home/info/${refferId}`;
 

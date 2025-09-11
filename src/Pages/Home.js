@@ -18,6 +18,7 @@ import { SearchContext } from '../components/SearchContext';
 import Allproducts from '../components/Allproducts';
 import { getUserHomePageApi } from '../services/allApi';
 import BrandMarquee from '../components/BrandMarquee';
+import NewArrivals from '../components/NewArrivals';
 
 function Home() {
   const { searchQuery } = useContext(SearchContext);
@@ -83,7 +84,10 @@ function Home() {
             {hasData(homeData.ProductSliders) && <Home1 productSlider={homeData.ProductSliders} />}
             <Filter />
             
-            {hasData(homeData.newArrivals) && <FeaturedProduct products={homeData.newArrivals} />}
+            {hasData(homeData.newArrivals) && <NewArrivals products={homeData.newArrivals} />}
+            {hasData(homeData.featuredproducts) && <FeaturedProduct products={homeData.featuredproducts} />}
+
+
             
             {hasData(homeData.topSales) && <Topsales products={homeData.topSales} />}
             
