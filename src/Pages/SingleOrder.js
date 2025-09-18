@@ -11,11 +11,13 @@ function SingleOrder() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  
 
   const fetchOrder = async () => {
     try {
       setLoading(true);
       const response = await getSingleOrderApi(id);
+      console.log("Single order response:", response);
       if (response.data && response.data.success) {
         setOrder(response.data.order);
       } else {
@@ -70,9 +72,7 @@ function SingleOrder() {
 
   };
 
-  // Helper function to get product image
   const getProductImage = (product) => {
-    // If product has direct images array
     if (product?.productId?.images?.length > 0) {
       return product.productId.images[0];
     }

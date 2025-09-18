@@ -53,6 +53,7 @@ const [clickedSizes, setClickedSizes] = useState(new Set());
     const fetchProductAndCartData = async () => {
       try {
         const response = await getProductByIdApi(id);
+        console.log(response)
 
         if (response.data) {
           setProduct(response.data.product);
@@ -505,7 +506,7 @@ const handleBuyNow = async () => {
               <div className="stars">
                 <i
                   className={`fa-star ${
-                    Math.round(rating) >= 1 ? "fas" : "far"
+                    Math.round(rating) >= 0 ? "fas" : "far"
                   }`}
                 ></i>
               </div>

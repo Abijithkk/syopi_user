@@ -4,13 +4,14 @@ import { Col, Row } from "react-bootstrap";
 import r1 from "../images/refer1.png";
 // import r2 from "../images/refer2.png";
 import r3 from "../images/refer3.png";
-import { getProfileApi } from "../services/allApi";
+import { getProfileApi,getCoinValueApi } from "../services/allApi";
 
 function Refer() {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState("");
   const [referralCode, setReferalCode] = useState(0);
-
+    const [coins, setCoins] = useState("");
+  
   const fetchProfile = useCallback(async () => {
     try {
       const response = await getProfileApi();
@@ -31,6 +32,26 @@ function Refer() {
     fetchProfile();
   }, [fetchProfile]);
   const referralMessage = `Join Syopi and earn rewards! Use my referral code ${referralCode} to get 40 points on signup.`;
+  useEffect(() => {
+    const fetchCoinData = async () => {
+      try {
+        const response = await getCoinValueApi();
+
+        if (response.status === 200 && response.data) {
+          setCoins(response.data.coinValue);
+        } else {
+          throw new Error(
+            response.error || response.message || "Failed to fetch coin details"
+          );
+        }
+      } catch (error) {
+        console.error("Checkout data fetch error:", error);
+        
+      }
+    };
+
+    fetchCoinData();
+  }, []);
 
   const handleCopy = () => {
     navigator.clipboard

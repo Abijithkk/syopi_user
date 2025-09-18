@@ -50,6 +50,7 @@ function Home() {
     try {
       setLoading(true);
       const response = await getUserHomePageApi();
+      console.log("Homepage data response:", response);
       
       if (response.status === 200 && response.success) {
         setHomeData(response.data);
@@ -85,12 +86,9 @@ function Home() {
             <Filter />
             
             {hasData(homeData.newArrivals) && <NewArrivals products={homeData.newArrivals} />}
-            {hasData(homeData.featuredproducts) && <FeaturedProduct products={homeData.featuredproducts} />}
-
-
-            
+                    
             {hasData(homeData.topSales) && <Topsales products={homeData.topSales} />}
-            
+            {hasData(homeData.featuredProducts) && <FeaturedProduct products={homeData.featuredProducts} />}   
             {hasData(homeData.OfferSection) && <Offer offerData={homeData.OfferSection} />}
             
             <Premium />

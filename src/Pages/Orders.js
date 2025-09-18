@@ -3,7 +3,6 @@ import "./Order.css";
 import { Card, Col, Container, Row, Spinner, Alert, Modal, Form, Button } from "react-bootstrap";
 import {
   cancelOrderApi,
- 
   getUserOrdersApi,
   requestOrderReturnApi,
 } from "../services/allApi";
@@ -18,8 +17,8 @@ function Orders() {
   const [showReturnModal, setShowReturnModal] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [cancelReason, setCancelReason] = useState("");
-  const [returnReason, setReturnReason] = useState("");
-  const [returnDescription, setReturnDescription] = useState("");
+  const [reason, setReason] = useState("");
+  const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate=useNavigate();
   const formatDate = (dateString) => {
@@ -36,8 +35,7 @@ function Orders() {
     try {
       setLoading(true);
       const response = await getUserOrdersApi();
-      
-
+      console.log("Orders data response:", response);
       if (response.success && response.data.success) {
         setOrders(response.data.orders);
       } else {
@@ -65,66 +63,78 @@ function Orders() {
   const ordernavigate = (id) => {
     navigate(`/singleorder/${id}`);
   };
-  // Function to cancel an order
-  const handleCancelOrder = async () => {
-    if (!cancelReason.trim()) {
-      alert("Please provide a reason for cancellation");
-      return;
-    }
+  
+const handleCancelOrder = async () => {
+  if (!cancelReason.trim()) {
+    alert("Please provide a reason for cancellation");
+    return;
+  }
 
-    try {
-      setIsSubmitting(true);
-      const response = await cancelOrderApi(selectedOrderId, cancelReason);
-      if (response.success) {
-        // Close modal and reset form
-        setShowCancelModal(false);
-        setCancelReason("");
-        setSelectedOrderId(null);
-        // Refresh the orders list after cancellation
-        fetchUserOrders();
-      } else {
-        alert("Failed to cancel order. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error cancelling order:", error);
-      alert("An error occurred while cancelling your order.");
-    } finally {
-      setIsSubmitting(false);
+  try {
+    setIsSubmitting(true);
+    
+    // Create the request data object
+    const cancelData = {
+      reason: cancelReason,
+      description: description // Include the optional description
+    };
+    
+    const response = await cancelOrderApi(selectedOrderId, cancelData);
+    console.log("Cancel order response:", response);
+    
+    if (response.success) {
+      // Close modal and reset form
+      setShowCancelModal(false);
+      setCancelReason("");
+      setDescription(""); // Reset description too
+      setSelectedOrderId(null);
+      // Refresh the orders list after cancellation
+      fetchUserOrders();
+    } else {
+      alert("Failed to cancel order. Please try again.");
     }
-  };
+  } catch (error) {
+    console.error("Error cancelling order:", error);
+    alert("An error occurred while cancelling your order.");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
-  // Function to request a return
-  const handleReturnRequest = async () => {
-    if (!returnReason.trim()) {
-      alert("Please select a reason for return");
-      return;
+const handleReturnRequest = async () => {
+  if (!reason.trim()) {
+    alert("Please select a reason for return");
+    return;
+  }
+  try {
+    setIsSubmitting(true);
+    
+    // Create the request data object
+    const returnData = {
+      reason: reason,
+      description: description
+    };
+    
+    const response = await requestOrderReturnApi(selectedOrderId, returnData);
+    console.log("Return request response:", response);
+    
+    if (response.success) {
+      // Close modal and reset form
+      setShowReturnModal(false);
+      setReason("");
+      setDescription("");
+      setSelectedOrderId(null);
+      fetchUserOrders();
+    } else {
+      alert(response?.error?.message);
     }
-
-    try {
-      setIsSubmitting(true);
-      const response = await requestOrderReturnApi(
-        selectedOrderId,
-        returnReason,
-        returnDescription
-      );
-      if (response.success) {
-        // Close modal and reset form
-        setShowReturnModal(false);
-        setReturnReason("");
-        setReturnDescription("");
-        setSelectedOrderId(null);
-        // Refresh the orders list after return request
-        fetchUserOrders();
-      } else {
-        alert("Failed to request return. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error requesting return:", error);
-      alert("An error occurred while requesting a return.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  } catch (error) {
+    console.error("Error requesting return:", error);
+    alert("An error occurred while requesting a return.");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   // Fetch orders on component mount
   useEffect(() => {
@@ -167,12 +177,11 @@ function Orders() {
                 </p>
               </Col>
               <Col xs={12} md={4} className="text-end">
-                <button className="track-order-btn">Track Order</button>
+                <button className="track-order-btn">View Order</button>
               </Col>
             </Row>
 
-            {order.products.map((product, index) => (
-              <Row className="no-gutters align-items-start" key={index}>
+              <Row className="no-gutters align-items-start" >
                 {/* Product Card */}
                 <Col xs={12} md={6} className="order-left-column mb-4 mb-md-0">
                   <Card className="order-item mb-4">
@@ -185,9 +194,9 @@ function Orders() {
                       >
                         <img
                           src={`${BASE_URL}/uploads/${
-                            product.productId?.images?.[0] || "default-product.jpg"
+                            order?.productId?.images?.[0] || "default-product.jpg"
                           }`}
-                          alt={product.productId?.name || "Product"}
+                          alt={order?.productId?.name || "Product"}
                           className="order-image img-fluid"
                         />
                       </Col>
@@ -197,28 +206,28 @@ function Orders() {
                         <Card.Body className="p-0 d-flex flex-column justify-content-between h-100">
                           {/* Title */}
                           <Card.Title className="order-titles mb-2">
-                            {product.productId?.name || "Product Name"}
+                            {order?.productId?.name || "Product Name"}
                           </Card.Title>
 
                           {/* Color and Size */}
                           <div className="d-flex align-items-center gap-1 mb-1">
                             <p className="color-size m-0">
-                              Color: {product.color || "N/A"}
+                              Color: {order?.colorName || "N/A"}
                             </p>
                             <p className="color-size m-0 ms-2">
-                              Size: {product.size || "N/A"}
+                              Size: {order?.size || "N/A"}
                             </p>
                           </div>
 
                           {/* Quantity and Price */}
                           <div className="d-flex align-items-center gap-3 mb-1">
                             <p className="quantity m-0">
-                              Qty: {product.quantity || 0}
+                              Qty: {order?.quantity || 0}
                             </p>
                             <p className="price m-0 ms-5">
                               RS.{" "}
                               <span style={{ color: "#1DA69E" }}>
-                                {product.price || 0}
+                                {order?.price || 0}
                               </span>
                             </p>
                           </div>
@@ -228,8 +237,7 @@ function Orders() {
                   </Card>
                 </Col>
 
-                {/* Only show status and delivery date for the first product */}
-                {index === 0 && (
+            
                   <>
                     {/* Order Status */}
                     <Col xs={12} md={3} className="text-center mb-4 mb-md-0 mt-5">
@@ -253,104 +261,119 @@ function Orders() {
                       </div>
                     </Col>
                   </>
-                )}
+           
               </Row>
-            ))}
+        
 
-            <Row className="cancel-order-row">
-              <Col>
-                {order.status === "Confirmed" && (
-                  <div
-                    className="cancel-order-text"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openCancelModal(order._id);
-                    }}
-                    style={{ cursor: "pointer" }}
-                  >
-                    Cancel Order
-                  </div>
-                )}
-                {order.status === "Delivered" &&
-                  order.returnStatus === "Not_requested" && (
-                    <div
-                      className="cancel-order-text"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openReturnModal(order._id);
-                      }}
-                      style={{ cursor: "pointer" }}
-                    >
-                      Request Return
-                    </div>
-                  )}
-                {order.returnStatus === "Requested" && (
-                  <div className="return-status-text">Return Requested</div>
-                )}
-              </Col>
-              <Col className="text-end">
-                <p className="order-price">
-                  RS.{" "}
-                  <span style={{ color: "#1DA69E" }}>
-                    {order.finalPayableAmount || order.totalPrice}
-                  </span>
-                </p>
-              </Col>
-            </Row>
+<Row className="cancel-order-row">
+  <Col>
+    {(order.status === "Pending" || 
+      order.status === "Confirmed" || 
+      order.status === "Processing") && (
+      <div
+        className="cancel-order-text"
+        onClick={(e) => {
+          e.stopPropagation();
+          openCancelModal(order._id);
+        }}
+        style={{ cursor: "pointer" }}
+      >
+        Cancel Order
+      </div>
+    )}
+    
+    {order.status === "Delivered" && (
+      <div
+        className="cancel-order-text"
+        onClick={(e) => {
+          e.stopPropagation();
+          openReturnModal(order._id);
+        }}
+        style={{ cursor: "pointer" }}
+      >
+        Request Return
+      </div>
+    )}
+    
+    {order.status === "Return_Requested" && (
+      <div className="return-status-text">Return Requested</div>
+    )}
+  </Col>
+  <Col className="text-end">
+    <p className="order-price">
+      RS.{" "}
+      <span style={{ color: "#1DA69E" }}>
+        {order.itemTotal || order.totalPrice}
+      </span>
+    </p>
+  </Col>
+</Row>
           </Container>
         ))
       )}
 
 
       {/* Cancel Order Modal */}
-      <Modal 
-        show={showCancelModal} 
-        onHide={() => setShowCancelModal(false)}
-        centered
-        backdrop="static"
-        className="order-modal"
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Cancel Order</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group className="mb-3">
-              <Form.Label>Please select a reason for cancellation:</Form.Label>
-              <Form.Select 
-                value={cancelReason} 
-                onChange={(e) => setCancelReason(e.target.value)}
-                required
-              >
-                <option value="">Select a reason</option>
-                <option value="Changed my mind">Changed my mind</option>
-                <option value="Found better price elsewhere">Found better price elsewhere</option>
-                <option value="Ordered by mistake">Ordered by mistake</option>
-                <option value="Shipping time too long">Shipping time too long</option>
-                <option value="Other">Other</option>
-              </Form.Select>
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button 
-            variant="secondary" 
-            onClick={() => setShowCancelModal(false)}
-          >
-            Close
-          </Button>
-          <Button 
-            style={{ 
-              backgroundColor: "#1DA69E", 
-              border: "none" 
-            }}
-            onClick={handleCancelOrder}
-            disabled={isSubmitting || !cancelReason}
-          >
-            {isSubmitting ? 'Processing...' : 'Confirm Cancellation'}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+     {/* Cancel Order Modal - UPDATED VERSION */}
+<Modal 
+  show={showCancelModal} 
+  onHide={() => setShowCancelModal(false)}
+  centered
+  backdrop="static"
+  className="order-modal"
+>
+  <Modal.Header closeButton>
+    <Modal.Title>Cancel Order</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    <Form>
+      <Form.Group className="mb-3">
+        <Form.Label>Please select a reason for cancellation:</Form.Label>
+        <Form.Select 
+          value={cancelReason} 
+          onChange={(e) => setCancelReason(e.target.value)}
+          required
+        >
+          <option value="">Select a reason</option>
+          <option value="Changed my mind">Changed my mind</option>
+          <option value="Found better price elsewhere">Found better price elsewhere</option>
+          <option value="Ordered by mistake">Ordered by mistake</option>
+          <option value="Shipping time too long">Shipping time too long</option>
+          <option value="Other">Other</option>
+        </Form.Select>
+      </Form.Group>
+      {/* Add optional description field for consistency */}
+      <Form.Group className="mb-3">
+        <Form.Label>Additional Details (Optional):</Form.Label>
+        <Form.Control
+          as="textarea"
+          rows={3}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Please provide any additional details about your cancellation request..."
+        />
+      </Form.Group>
+    </Form>
+  </Modal.Body>
+  <Modal.Footer>
+    <Button 
+      variant="secondary" 
+      onClick={() => setShowCancelModal(false)}
+    >
+      Close
+    </Button>
+    <Button 
+      style={{ 
+        backgroundColor: "#1DA69E", 
+        border: "none" 
+      }}
+      onClick={handleCancelOrder}
+      disabled={isSubmitting || !cancelReason}
+    >
+      {isSubmitting ? 'Processing...' : 'Confirm Cancellation'}
+    </Button>
+  </Modal.Footer>
+</Modal>
 
       {/* Return Order Modal */}
       <Modal 
@@ -368,8 +391,8 @@ function Orders() {
             <Form.Group className="mb-3">
               <Form.Label>Please select a reason for return:</Form.Label>
               <Form.Select 
-                value={returnReason} 
-                onChange={(e) => setReturnReason(e.target.value)}
+                value={reason} 
+                onChange={(e) => setReason(e.target.value)}
                 required
               >
                 <option value="">Select a reason</option>
@@ -386,8 +409,8 @@ function Orders() {
               <Form.Control
                 as="textarea"
                 rows={3}
-                value={returnDescription}
-                onChange={(e) => setReturnDescription(e.target.value)}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
                 placeholder="Please provide any additional details about your return request..."
               />
             </Form.Group>
@@ -406,7 +429,7 @@ function Orders() {
               border: "none" 
             }}
             onClick={handleReturnRequest}
-            disabled={isSubmitting || !returnReason}
+            disabled={isSubmitting || !reason}
           >
             {isSubmitting ? 'Processing...' : 'Submit Return Request'}
           </Button>

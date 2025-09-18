@@ -2,25 +2,26 @@
   display: flex;
   gap: 16px;
   padding: 0 40px;
-  height: 100vh; /* Fixed height for the container */
+  height: 100vh;
 }
 
 .category-heading {
   font-family: 'Poppins', sans-serif;
   font-size: 24px;
   font-weight: 600;
-  line-height: 36px;
+  line-height: 0px;
+  margin-top:6%;
   text-align: left;
   color: #2D2E2E;
   padding: 20px 40px;
 }
 
 .category-left {
-  flex: 0 0 250px; /* Fixed width, no grow/shrink */
-  min-width: 250px;
+  flex: 0 0 220px; 
+  min-width: 220px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  overflow-y: auto; /* Allow scrolling if categories overflow */
+  overflow-y: auto;
   height: 100%;
 }
 

@@ -4,6 +4,7 @@ import cd from "../images/cd.png";
 import { Col, Form, Row, Spinner } from "react-bootstrap";
 import { getProfileApi, updateProfileApi } from "../services/allApi";
 import { toast, ToastContainer } from "react-toastify";
+import { BASE_URL } from "../services/baseUrl";
 
 function Contactdetails() {
   const [formData, setFormData] = useState({
@@ -11,40 +12,51 @@ function Contactdetails() {
     phone: "",
     email: "",
     gender: "",
+    image: null
   });
   const [originalData, setOriginalData] = useState({});
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [coin, setCoin] = useState(0);
+  const [imagePreview, setImagePreview] = useState(null);
 
-  const fetchProfile = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await getProfileApi();
-      console.log(response);
+const fetchProfile = useCallback(async () => {
+  setLoading(true);
+  try {
+    const response = await getProfileApi();
+    console.log(response);
+    
+    if (response.success && response.data.user) {
+      const user = response.data.user;
+      const userData = {
+        firstName: user.name || "",
+        phone: user.phone || "",
+        email: user.email || "",
+        gender: user.gender || "",
+        image: user.image || null
+      };
       
-      if (response.success && response.data.user) {
-        const user = response.data.user;
-        const userData = {
-          firstName: user.name || "",
-          phone: user.phone || "",
-          email: user.email || "",
-          gender: user.gender || "",
-        };
-        
-        setFormData(userData);
-        setOriginalData(userData);
-        setCoin(user.coins || 0); 
+      setFormData(userData);
+      setOriginalData(userData);
+      setCoin(user.coins || 0);
+      
+      // Set image preview if profile image exists
+      if (user.image) {
+        const fullImageUrl = `${BASE_URL}/uploads/${user.image}`;
+        setImagePreview(fullImageUrl);
       } else {
-        setError(response.error || "Failed to fetch profile");
+        setImagePreview(cd);
       }
-    } catch {
-      setError("An error occurred while fetching profile");
-    } finally {
-      setLoading(false);
+    } else {
+      setError(response.error || "Failed to fetch profile");
     }
-  }, []);
+  } catch {
+    setError("An error occurred while fetching profile");
+  } finally {
+    setLoading(false);
+  }
+}, []);
 
   useEffect(() => {
     fetchProfile();
@@ -55,56 +67,127 @@ function Contactdetails() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = async () => {
-    // Check if any fields have actually changed
-    const changes = {};
-    
-    Object.keys(formData).forEach(key => {
-      if (formData[key] !== originalData[key]) {
-        changes[key] = formData[key];
-      }
-    });
-    
-    // If no changes, show message and return
-    if (Object.keys(changes).length === 0) {
-      toast.info("No changes to save");
-      return;
-    }
-    
-    setSaving(true);
-    setError("");
-    try {
-      // Map the changes to the expected API format
-      const profileData = {};
-      
-      if (changes.hasOwnProperty('firstName')) {
-        profileData.name = changes.firstName;
-      }
-      if (changes.hasOwnProperty('phone')) {
-        profileData.phone = changes.phone;
-      }
-      if (changes.hasOwnProperty('email')) {
-        profileData.email = changes.email;
-      }
-      if (changes.hasOwnProperty('gender')) {
-        profileData.gender = changes.gender;
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Check if file is an image
+      if (!file.type.match('image.*')) {
+        toast.error("Please select an image file");
+        return;
       }
       
-      const response = await updateProfileApi(profileData);
-      if (response.status===204) {
-        setOriginalData({...originalData, ...changes});
-        toast.success("Profile updated successfully!");
-      } else {
-        setError(response.error || "Failed to update profile");
-        toast.error(response.error || "Failed to update profile");
+      // Check file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error("Image size should be less than 2MB");
+        return;
       }
-    } catch {
-      setError("An error occurred while updating profile");
-      toast.error("An error occurred while updating profile");
-    } finally {
-      setSaving(false);
+      
+      setFormData((prev) => ({ ...prev, image: file }));
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
+
+const handleSave = async () => {
+  // Check if any fields have actually changed
+  const changes = {};
+  
+  Object.keys(formData).forEach(key => {
+    // Special handling for image comparison (File object vs string)
+    if (key === 'image') {
+      if (formData.image instanceof File || formData.image !== originalData.image) {
+        changes[key] = formData[key];
+      }
+    } else if (formData[key] !== originalData[key]) {
+      changes[key] = formData[key];
+    }
+  });
+  
+  // If no changes, show message and return
+  if (Object.keys(changes).length === 0) {
+    toast.info("No changes to save");
+    return;
+  }
+  
+  setSaving(true);
+  setError("");
+  try {
+    // Create FormData for the request
+    const formDataToSend = new FormData();
+    
+    if (changes.hasOwnProperty('firstName')) {
+      formDataToSend.append('name', changes.firstName);
+    }
+    if (changes.hasOwnProperty('phone')) {
+      formDataToSend.append('phone', changes.phone);
+    }
+    if (changes.hasOwnProperty('email')) {
+      formDataToSend.append('email', changes.email);
+    }
+    if (changes.hasOwnProperty('gender')) {
+      formDataToSend.append('gender', changes.gender);
+    }
+    if (changes.hasOwnProperty('image') && changes.image) {
+      formDataToSend.append('image', changes.image);
+    }
+    
+    const response = await updateProfileApi(formDataToSend);
+    
+    if (response.status === 204 || response.success) {
+      // Update original data with changes
+      const updatedOriginalData = {...originalData};
+      
+      Object.keys(changes).forEach(key => {
+        // For image, we need to handle the server response
+        if (key === 'image' && response.data && response.data.image) {
+          updatedOriginalData.image = response.data.image; // Store the filename
+        } else {
+          updatedOriginalData[key] = changes[key];
+        }
+      });
+      
+      setOriginalData(updatedOriginalData);
+      
+      // If we uploaded an image, update the preview with the new image URL
+      if (changes.image && response.data && response.data.image) {
+        const fullImageUrl = `${BASE_URL}/uploads/${response.data.image}`;
+        setImagePreview(fullImageUrl);
+      } else if (changes.image) {
+        // Fallback: use the preview URL (local file preview)
+        setImagePreview(imagePreview);
+      }
+      
+      // Also update formData to replace File object with image filename if available
+      if (changes.image && response.data && response.data.image) {
+        setFormData(prev => ({
+          ...prev,
+          image: response.data.image
+        }));
+      }
+      
+      toast.success("Profile updated successfully!");
+      
+      fetchProfile();
+      
+    } else {
+      const errorMsg = response.error || "Failed to update profile";
+      setError(errorMsg);
+      toast.error(errorMsg);
+    }
+  } catch (error) {
+    console.error("Update error:", error);
+    const errorMsg = error.response?.data?.error || "An error occurred while updating profile";
+    setError(errorMsg);
+    toast.error(errorMsg);
+  } finally {
+    setSaving(false);
+  }
+};
 
   return (
     <div>
@@ -117,9 +200,25 @@ function Contactdetails() {
         <div className="contact-details-form">
           <Form className="mt-3 p-4">
             <div className="contact-details-container">
-              <img className="contact-details-img" src={cd} alt="Profile" />
-              
+              <label htmlFor="profile-image-upload" className="image-upload-label">
+                <img 
+                  className="contact-details-img" 
+                  src={imagePreview || cd} 
+                  alt="Profile" 
+                />
+                <div className="image-overlay">
+                  <i className="fas fa-camera"></i>
+                </div>
+              </label>
+              <input
+                id="profile-image-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                style={{ display: 'none' }}
+              />
             </div>
+            
             <div className="coin-display d-flex align-items-center mb-3">
               <div
                 className="coin-icon"
@@ -150,7 +249,6 @@ function Contactdetails() {
                 {coin ?? 0}
               </span>
             </div>
-
 
             <Row className="mt-4">
               <Col xs={12} className="mb-3">

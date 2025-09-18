@@ -88,7 +88,10 @@ const CheckoutSummary = memo(({ checkoutData }) => (
       </p>
     </div>
 
-
+    <div className="d-flex justify-content-between">
+      <p className="address-check-total">Discount:</p>
+      <p className="text-end address-check-total">{checkoutData?.ReducedDiscount || 0}</p>
+    </div>
       <div className="d-flex justify-content-between">
       <p className="address-check-total">Syopi Points:</p>
       <p className="text-end points">🪙{checkoutData?.coinsApplied || 0}</p>

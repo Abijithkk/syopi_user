@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   UserCircle,
   ShoppingBag,
@@ -20,11 +20,13 @@ import {
   ChevronLeft,
   AlertTriangle,
   User,
+  Coins,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "./profile.css"
-import { deleteUserProfileApi } from "../services/allApi";
+import { deleteUserProfileApi,LogoutApi,getProfileApi } from "../services/allApi";
 import toast from "react-hot-toast";
+
 
 const Profile = () => {
   const [activeItem, setActiveItem] = useState(null);
@@ -35,7 +37,26 @@ const Profile = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("accessuserToken"));
+  const [user, setUser] = useState(0);
 
+
+  const fetchProfile = useCallback(async () => {
+    try {
+      const response = await getProfileApi();
+      console.log(response);
+
+      if (response.success && response.data.user) {
+        setUser(response.data.user);
+
+      } else {
+      }
+    } catch {
+    } finally {
+    }
+  }, []);
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   const handleNavigation = (path, index) => {
     setActiveItem(index);
@@ -84,22 +105,28 @@ const handleLogout = async () => {
     // Show loading toast while logging out
     const loadingToast = toast.loading("Logging you out...");
     
-    // Clear all user data from localStorage
-    localStorage.removeItem("userId");
-    localStorage.removeItem("accessuserToken");
-    localStorage.removeItem("username");
-    localStorage.removeItem("email");
-    localStorage.removeItem("role");
+    // Call the logout API
+    const response = await LogoutApi();
     
-   
-    toast.success("Logged out successfully!");
+    if (response.status === 200) {
+      // Clear all user data from localStorage
+      localStorage.removeItem("userId");
+      localStorage.removeItem("accessuserToken");
+      localStorage.removeItem("username");
+      localStorage.removeItem("email");
+      localStorage.removeItem("role");
+      
+      toast.success("Logged out successfully!");
+      
+      // Navigate to signin page after a brief delay
+      setTimeout(() => {
+        navigate("/signin"); 
+      }, 1000);
+    } else {
+      throw new Error('Logout failed');
+    }
     
     toast.dismiss(loadingToast);
-    
-    // Navigate to signin page after a brief delay
-    setTimeout(() => {
-      navigate("/signin"); 
-    }, 1000);
     
   } catch (error) {
     console.error("Logout Error:", error);
@@ -220,30 +247,25 @@ const menuItems = [
   if (showMoreSection) {
     return (
       <div className="profile-container">
-        <div className="profile-header">
-          <div className="user-avatar-wrapper">
-            <button 
-              onClick={() => setShowMoreSection(false)}
-              className="back-button"
-              style={{ 
-                background: 'none', 
-                border: 'none', 
-                padding: '8px',
-                cursor: 'pointer',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
-              <ChevronLeft size={24} />
-            </button>
-          </div>
-          <div className="user-info">
-            <h2 className="user-name">More Options</h2>
-            <p className="user-subtitle">Additional settings and policies</p>
-          </div>
-        </div>
+<div className="profile-header">
+  <div className="user-avatar-wrapper">
+    <div className="user-avatar"></div>
+    <p className="user-name-text">{user?.name || user?.phone || user?.email || "Guest"}</p>
+  </div>
+  
+  {/* Enhanced Coin Balance Section */}
+  <div className="coin-balance-section">
+    <div className="coin-balance-card">
+      <div className="coin-icon-wrapper">
+        <Coins size={20} className="coin-icon" />
+      </div>
+      <div className="coin-info">
+        <span className="coin-label">Your Coins</span>
+        <span className="coin-amount">{user?.coins || 0}</span>
+      </div>
+    </div>
+  </div>
+</div>
 
         <div className="menu-container">
           {moreMenuItems.map((item, index) => (
@@ -377,14 +399,18 @@ const menuItems = [
       <div className="profile-header">
         <div className="user-avatar-wrapper">
           <div className="user-avatar">
-            <UserCircle size={34} />
+          </div>
+        <p className="user-name-text">{user?.name || user?.phone || user?.email || "Guest"}</p>
+
+        </div>
+        
+      </div>
+      <div className="coin-balance-section">
+          <div className="coin-balance">
+            <Coins size={18} className="coin-icon" />
+            <span className="coin-amount">{user?.coins}</span>
           </div>
         </div>
-        <div className="user-info">
-          <h2 className="user-name">User Profile</h2>
-          <p className="user-subtitle">Manage your account and preferences</p>
-        </div>
-      </div>
 
       <div className="menu-container">
         {menuItems.map((item, index) => (

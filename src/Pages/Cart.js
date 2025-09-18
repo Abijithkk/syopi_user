@@ -167,7 +167,7 @@ const fetchCart = async () => {
       fetchCart();
       console.error(response.error);
       toast.dismiss();
-      toast.error("Failed to update quantity");
+      toast.error(response.error?.message);
     }
   };
 

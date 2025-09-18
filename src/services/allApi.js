@@ -154,9 +154,10 @@ export const updateProfileApi = async (profileData) => {
   }
 
   try {
+    // Note: Don't set Content-Type header when sending FormData
+    // The browser will set it automatically with the correct boundary
     const response = await commonApi("PATCH", url, profileData, {
       Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
     });
 
     return response;
@@ -1044,3 +1045,33 @@ export const becomeSellerApi = async (sellerData) => {
     };
   }
 };
+
+
+
+
+
+export const LogoutApi = async () => {
+  const url = `${BASE_URL}/user/profile/logout`;
+
+  const accessToken = localStorage.getItem("accessuserToken");
+
+  if (!accessToken) {
+    return { success: false, error: "No token provided" };
+  }
+
+  try {
+    // Pass token in headers, not in the body
+    const response = await commonApi("POST", url, null, {
+      Authorization: `Bearer ${accessToken}`,
+    });
+
+    return response;
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message || "Error requesting Logout",
+    };
+  }
+};
+
+

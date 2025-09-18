@@ -277,8 +277,8 @@ const handleLogin = async (e) => {
   return (
     <div className="signin-container">
       <div className="signin-left">
-        <h1>Welcome Back 👋</h1>
-        <p>Get ready to dress your little ones in fashion-forward outfits.</p>
+        <h1>Let's sign you in</h1>
+        {/* <p>Get ready to dress your little ones in fashion-forward outfits.</p> */}
 
         <form className="signin-form" onSubmit={showOtpField ? handleVerifyOtp : handleLogin}>
           <label>Phone Number</label>
