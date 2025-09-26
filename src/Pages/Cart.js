@@ -84,6 +84,7 @@ const fetchCart = async () => {
 
   try {
     const response = await getUserCartApi(userId);
+    console.log("Cart API response:", response);
 
     if (isAuthError(null, response)) {
       handleAuthFailure();
@@ -211,7 +212,7 @@ const handleCheckout = async () => {
     } else if (response?.status === 400) {
       // Handle insufficient stock case
       toast.dismiss();
-      toast.error("Insufficient stock available for one or more items.");
+      toast.error(response.error?.message);
     } else {
       throw new Error(
         response?.error || "Checkout failed. Please try again."

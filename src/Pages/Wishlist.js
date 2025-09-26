@@ -129,7 +129,7 @@ function Wishlist() {
       if (response.success) {
         // Remove the item from the wishlist array
         setWishlist((prevWishlist) =>
-          prevWishlist.filter((item) => item.productId?._id !== id)
+          prevWishlist.filter((item) => item._id !== id)
         );
         toast.success("Item removed from wishlist");
       } else {
@@ -266,7 +266,7 @@ function Wishlist() {
 
   // Get unique colors from variants
   const getUniqueColors = (product) => {
-    if (!product.variants || product.variants.length === 0) return [];
+    if (!product || !product.variants || product.variants.length === 0) return [];
     
     const colors = [];
     const colorMap = new Map();
@@ -286,7 +286,7 @@ function Wishlist() {
 
   // Get available sizes for selected color
   const getAvailableSizes = (product) => {
-    if (!selectedColor || !product.variants || product.variants.length === 0) return [];
+    if (!product || !selectedColor || !product.variants || product.variants.length === 0) return [];
     
     const variant = product.variants.find(v => v.color === selectedColor);
     if (!variant || !variant.sizes) return [];
@@ -331,78 +331,108 @@ function Wishlist() {
           <p className="wishlist-heading">
             My Wishlist{" "}
             <span className="wishlist-heading-span">
-              ({wishlist.length} items)
+              ({wishlist.filter(item => item.productId).length} items)
             </span>
           </p>
           <div className="wishlist-card-row">
-            {wishlist.map((item) => (
-              <div className="wishlist-card" key={item._id}>
-                <div className="feature-card-image-container">
-                  <img
-                    src={`${BASE_URL}/uploads/${item.productId.images[0]}`}
-                    alt={item.productId.name}
-                    className="wishlist-card-image"
-                    onClick={() => handleNavigate(item.productId._id)}
-                  />
-                  <div
-                    className={`wishlist-icon ${
-                      wishlistStatus[item._id] ? "active" : ""
-                    }`}
+            {wishlist.map((item) => {
+              // Check if product is null/removed
+              if (!item.productId) {
+                return (
+                  <div className="wishlist-card wishlist-card-removed" key={item._id}>
+                    <div className="feature-card-image-container">
+                      <div className="wishlist-removed-image">
+                        <i className="fa-solid fa-ban"></i>
+                      </div>
+                      <div
+                        className={`wishlist-icon ${wishlistStatus[item._id] ? "active" : ""}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveFromWishlist(item._id);
+                        }}
+                      >
+                        <i className="fa-solid fa-heart"></i>
+                      </div>
+                    </div>
+                    <p className="wishlist-card-title">Product Removed</p>
+                    <p className="wishlist-card-description">
+                      This item is no longer available
+                    </p>
+                    <div className="price-container2">
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <span className="current-price">N/A</span>
+                      </div>
+                    </div>
+                    <button 
+                      className="wishlist-add-to-cart-btn wishlist-add-to-cart-disabled"
+                      disabled
+                    >
+                      Unavailable
+                    </button>
+                  </div>
+                );
+              }
+
+              const product = item.productId;
+              const mainVariant = product.variants && product.variants.length > 0 ? product.variants[0] : null;
+              
+              return (
+                <div className="wishlist-card" key={item._id}>
+                  <div className="feature-card-image-container">
+                    <img
+                      src={`${BASE_URL}/uploads/${product.images[0]}`}
+                      alt={product.name}
+                      className="wishlist-card-image"
+                      onClick={() => handleNavigate(product._id)}
+                    />
+                    <div
+                      className={`wishlist-icon ${wishlistStatus[item._id] ? "active" : ""}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveFromWishlist(item._id);
+                      }}
+                    >
+                      <i className="fa-solid fa-heart"></i>
+                    </div>
+                  </div>
+                  <p className="wishlist-card-title">{product.brandName || product.brand}</p>
+                  <p className="wishlist-card-description">
+                    {product.name}
+                  </p>
+                  <div className="price-container2">
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <span className="current-price">
+                        ₹
+                        {product.offers?.length > 0 && mainVariant
+                          ? mainVariant.offerPrice
+                          : mainVariant?.price || product.defaultPrice || "N/A"}
+                      </span>
+
+                      {mainVariant?.wholesalePrice && (
+                        <span className="wholesale-price">
+                          ₹{mainVariant.wholesalePrice}
+                        </span>
+                      )}
+
+                      {product.discountPercentage > 0 && (
+                        <span className="discount-badge">
+                          {product.discountPercentage}% OFF
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <button 
+                    className="wishlist-add-to-cart-btn"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleRemoveFromWishlist(item.productId?._id);
+                      openAddToCartPopup(product);
                     }}
                   >
-                    <i
-                      className={
-                        wishlistStatus[item._id]
-                          ? "fa-solid fa-heart"
-                          : "fa-regular fa-heart"
-                      }
-                    ></i>
-                  </div>
+                    Add to Cart
+                  </button>
                 </div>
-                <p className="feature-card-title">{item.productId.brandName || item.productId.brand}</p>
-                <p className="feature-card-description">
-                  {item.productId.name}
-                </p>
-                 <div className="price-container2">
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
-                >
-                  {/* Current price - show offerPrice if offers exist, otherwise regular price */}
-                  <span className="current-price">
-                    ₹
-                    {item.productId.offers?.length > 0
-                      ? item.productId.variants?.[0]?.offerPrice
-                      : item.productId.variants?.[0]?.price ||
-                        item.productId.defaultPrice ||
-                        "N/A"}
-                  </span>
-
-                  {/* Always show wholesale price if it exists */}
-                  {item.productId.variants?.[0]?.wholesalePrice && (
-                    <span className="wholesale-price">
-                      ₹{item.productId.variants[0].wholesalePrice}
-                    </span>
-                  )}
-
-                  <span className="discount-badge">
-                    {item.productId.discountPercentage}% OFF
-                  </span>
-                </div>
-              </div>
-              <button 
-                className="wishlist-add-to-cart-btn"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  openAddToCartPopup(item.productId);
-                }}
-              >
-                Add to Cart
-              </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
@@ -419,33 +449,6 @@ function Wishlist() {
             </div>
             
             <div className="wishlist-popup-content">
-              {/* <div className="wishlist-popup-product">
-                <img 
-                  src={`${BASE_URL}/uploads/${selectedProduct.images[0]}`} 
-                  alt={selectedProduct.name}
-                  className="wishlist-popup-image"
-                />
-                <div className="wishlist-popup-details">
-                  <p className="wishlist-popup-brand">{selectedProduct.brandName || selectedProduct.brand}</p>
-                  <p className="wishlist-popup-name">{selectedProduct.name}</p>
-                  <div className="wishlist-popup-price">
-                    <span className="current-price">
-                      ₹
-                      {selectedProduct.offers?.length > 0
-                        ? selectedProduct.variants?.[0]?.offerPrice
-                        : selectedProduct.variants?.[0]?.price ||
-                          selectedProduct.defaultPrice ||
-                          "N/A"}
-                    </span>
-                    {selectedProduct.variants?.[0]?.wholesalePrice && (
-                      <span className="wholesale-price">
-                        ₹{selectedProduct.variants[0].wholesalePrice}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div> */}
-
               <div className="wishlist-popup-options">
                 {/* Color selection */}
                 <div className="wishlist-popup-section">

@@ -679,6 +679,8 @@ export const getCheckoutByIdApi = async (checkoutId) => {
   }
 };
 
+
+
 export const deleteCheckoutByIdApi = async (checkoutId) => {
   const url = `${BASE_URL}/user/checkout/delete/${checkoutId}`;
 
@@ -726,6 +728,28 @@ export const applyCouponApi = async (checkoutId, couponCode) => {
   }
 };
 
+
+export const removeCouponApi = async (checkoutId, couponCode) => {
+  const url = `${BASE_URL}/user/checkout/remove-coupon`;
+
+  const accessToken = localStorage.getItem("accessuserToken");
+  if (!accessToken) {
+    return { success: false, error: "No token provided" };
+  }
+
+  const body = { checkoutId, couponCode };
+
+  try {
+    const response = await commonApi("POST", url, body, {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    });
+
+    return response;
+  } catch (error) {
+    return { success: false, error: error.message || "Error removing coupon" };
+  }
+};
 // Get available coupons for a checkout
 export const getAvailableCouponsApi = async (checkoutId) => {
   const url = `${BASE_URL}/user/checkout/get/${checkoutId}/coupons`;
@@ -795,6 +819,53 @@ export const buyNowCheckoutApi = async (productData) => {
   }
 };
 
+
+export const getReviewApi = async () => {
+  const url = `${BASE_URL}/user/review/has-reviewed`;
+
+  const accessToken = localStorage.getItem("accessuserToken");
+  if (!accessToken) {
+    return { success: false, error: "No token provided" };
+  }
+
+  try {
+    const response = await commonApi("GET", url, null, {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    });
+
+    return response;
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message || "Error fetching ",
+    };
+  }
+};
+
+
+export const dismissReviewApi = async (reviewData) => {
+  const url = `${BASE_URL}/user/review/dismiss-review`;
+
+  const accessToken = localStorage.getItem("accessuserToken");
+  if (!accessToken) {
+    return { success: false, error: "No token provided" };
+  }
+
+  try {
+    const response = await commonApi("POST", url, reviewData, {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    });
+
+    return response;
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message || "Error dismissing review",
+    };
+  }
+};
 
 export const addReviewApi = async (reviewData) => {
   const url = `${BASE_URL}/user/review/add`;

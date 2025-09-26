@@ -14,6 +14,7 @@ import {
   getCheckoutByIdApi,
   getProfileApi,
   getCoinValueApi,
+  removeCouponApi
 } from "../services/allApi";
 import ErrorBoundary from "../components/ErrorBoundary";
 
@@ -90,34 +91,41 @@ const CheckoutSummary = memo(({ checkoutData }) => (
 
     <div className="d-flex justify-content-between">
       <p className="address-check-total">Discount:</p>
-      <p className="text-end address-check-total">{checkoutData?.ReducedDiscount || 0}</p>
+      <p className="text-end address-check-total">
+        ₹{checkoutData?.ReducedDiscount || 0}
+      </p>
     </div>
-      <div className="d-flex justify-content-between">
+    
+    <div className="d-flex justify-content-between">
       <p className="address-check-total">Syopi Points:</p>
       <p className="text-end points">🪙{checkoutData?.coinsApplied || 0}</p>
     </div>
+    
     <div className="d-flex justify-content-between">
       <p className="address-check-total">Total Price:</p>
       <p className="text-end address-check-total">
         ₹{checkoutData?.finalTotal}
       </p>
     </div>
-    
   </Card.Text>
 ));
 
-const CouponSection = memo(
-  ({ checkoutId, onCouponApplied, availableCoupons, loading }) => {
+ const CouponSection = memo(
+  ({ checkoutId, onCouponApplied, availableCoupons, loading, checkoutData }) => {
     const [couponCode, setCouponCode] = useState("");
     const [coupons, setCoupons] = useState([]);
     const [showCoupons, setShowCoupons] = useState(false);
     const [applying, setApplying] = useState(false);
+    const [removing, setRemoving] = useState(false);
 
     useEffect(() => {
       if (availableCoupons?.length > 0) {
         setCoupons(availableCoupons);
       }
     }, [availableCoupons]);
+
+    // Check if a coupon is currently applied - this condition is correct
+    const isCouponApplied = checkoutData?.coupon != null; 
 
     const handleApplyCoupon = async () => {
       if (!couponCode.trim()) {
@@ -128,10 +136,14 @@ const CouponSection = memo(
       setApplying(true);
       try {
         const response = await applyCouponApi(checkoutId, couponCode);
+        console.log("Apply coupon response:", response);
 
-        if (response.status === 200) {
+        // Handle different response structures
+        const updatedCheckout = response.checkout || response.data?.checkout || response.data;
+        
+        if (response.status === 200 && updatedCheckout) {
           toast.success("Coupon applied successfully!");
-          onCouponApplied(response.checkout || response.data);
+          onCouponApplied(updatedCheckout);
           setCouponCode("");
         } else {
           toast.error(response.message || "Failed to apply coupon");
@@ -149,10 +161,14 @@ const CouponSection = memo(
       setApplying(true);
       try {
         const response = await applyCouponApi(checkoutId, code);
+        console.log("Apply coupon response:", response);
 
-        if (response.status === 200) {
+        // Handle different response structures
+        const updatedCheckout = response.checkout || response.data?.checkout || response.data;
+        
+        if (response.status === 200 && updatedCheckout) {
           toast.success("Coupon applied successfully!");
-          onCouponApplied(response.checkout || response.data);
+          onCouponApplied(updatedCheckout);
           setShowCoupons(false);
         } else {
           toast.error(response.message || "Failed to apply coupon");
@@ -165,20 +181,66 @@ const CouponSection = memo(
       }
     };
 
+    const handleRemoveCoupon = async () => {
+      if (!checkoutId) {
+        toast.error("Checkout information is missing");
+        return;
+      }
+
+      setRemoving(true);
+      try {
+        const response = await removeCouponApi(checkoutId);
+        console.log("Remove coupon response:", response);
+
+        // Handle different response structures
+        const updatedCheckout = response.checkout || response.data?.checkout || response.data;
+        
+        if (response.status === 200 && updatedCheckout) {
+          toast.success("Coupon removed successfully!");
+          onCouponApplied(updatedCheckout);
+        } else {
+          toast.error(response.message || "Failed to remove coupon");
+        }
+      } catch (error) {
+        toast.error("Error removing coupon");
+        console.error(error);
+      } finally {
+        setRemoving(false);
+      }
+    };
+
     return (
       <div className="coupon-section mb-4">
         <h5>Apply Coupon</h5>
+        
+        {isCouponApplied && (
+          <div className="applied-coupon mb-3 p-2 text-black rounded">
+            <div className="d-flex justify-content-between align-items-center">
+              <span>
+                <strong>Applied Coupon:</strong> {checkoutData?.coupon?.code}
+              </span>
+              <button
+                className="btn btn-sm btn-light"
+                onClick={handleRemoveCoupon}
+                disabled={removing}
+              >
+                {removing ? "Removing..." : "Remove"}
+              </button>
+            </div>
+          </div>
+        )}
+
         <InputGroup>
           <Form.Control
             placeholder="Enter coupon code"
             value={couponCode}
             onChange={(e) => setCouponCode(e.target.value)}
-            disabled={applying}
+            disabled={applying || isCouponApplied}
           />
           <button
             className="btn btn-primary"
             onClick={handleApplyCoupon}
-            disabled={applying}
+            disabled={applying || isCouponApplied}
           >
             {applying ? "Applying..." : "Apply"}
           </button>
@@ -188,7 +250,7 @@ const CouponSection = memo(
           <button
             className="btn btn-sm btn-outline-secondary"
             onClick={() => setShowCoupons(!showCoupons)}
-            disabled={loading}
+            disabled={loading || isCouponApplied}
           >
             {loading
               ? "Loading coupons..."
@@ -211,7 +273,7 @@ const CouponSection = memo(
                   <button
                     className="btn btn-sm btn-success"
                     onClick={() => applyCouponFromList(coupon.code)}
-                    disabled={applying}
+                    disabled={applying || isCouponApplied}
                   >
                     Apply
                   </button>
@@ -228,6 +290,7 @@ const CouponSection = memo(
     );
   }
 );
+
 
 function Address() {
   const [state, setState] = useState({
@@ -314,10 +377,10 @@ function Address() {
       setState((prev) => ({ ...prev, couponsLoading: true }));
       const response = await getAvailableCouponsApi(checkoutId);
 
-      if (response.status === 200 && response.coupons) {
+      if (response.status === 200) {
         setState((prev) => ({
           ...prev,
-          availableCoupons: response.coupons,
+          availableCoupons: response.data.coupons,
           couponsLoading: false,
         }));
       } else {
@@ -569,14 +632,15 @@ function Address() {
               <Card className="address-checkout p-3 shadow">
                 <Card.Body>
                   {/* Coupon Section */}
-                  {!state.loading && state.checkoutId && (
-                    <CouponSection
-                      checkoutId={state.checkoutId}
-                      onCouponApplied={handleCouponApplied}
-                      availableCoupons={state.availableCoupons}
-                      loading={state.couponsLoading}
-                    />
-                  )}
+                 {!state.loading && state.checkoutId && (
+  <CouponSection
+    checkoutId={state.checkoutId}
+    onCouponApplied={handleCouponApplied}
+    availableCoupons={state.availableCoupons}
+    loading={state.couponsLoading}
+    checkoutData={state.checkoutData} 
+  />
+)}
                   <p>Available Coins: {points}</p>
                   <div className="address-points-info text-center bg-light p-3 mb-3">
                     <p className="m-0 address-points">
