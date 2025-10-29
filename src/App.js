@@ -32,6 +32,7 @@ import ManageAddress from "./Pages/ManageAddress";
 import Privacypol from "./Pages/Privacypol";
 import RefferContent from "./components/RefferContent";
 import BecomeSeller from "./Pages/BecomeSeller";
+import VendorDetails from "./Pages/VendorDetails";
 function App() {
   return (
     <SearchProvider>
@@ -72,6 +73,8 @@ function App() {
             <Route path="/earn" element={<Earn />} />
             <Route path="/manage-address" element={<ManageAddress />} />
             <Route path="/become-seller" element={<BecomeSeller />} />
+            <Route path="/vendor/:id" element={<VendorDetails />} />
+        
           </Route>
         </Routes>
       </div>

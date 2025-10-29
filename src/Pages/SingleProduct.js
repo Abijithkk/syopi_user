@@ -212,9 +212,10 @@ useEffect(() => {
 
     try {
       const response = await addToCartApi(
-        userId,
+    
         product._id,
         1,
+
         selectedColor,
         selectedColorName,
         selectedSize

@@ -39,6 +39,8 @@ function Allproducts() {
   const [selectedDiscount, setSelectedDiscount] = useState(null);
   const [selectedProductType, setSelectedProductType] = useState([]);
   const [sortOption, setSortOption] = useState("popularity");
+  const [selectedProductIds, setSelectedProductIds] = useState(null);
+
   const [isFilterOpen, setIsFilterOpen] = useState(() => {
     if (typeof window !== "undefined") {
       return window.innerWidth >= 768;
@@ -55,7 +57,6 @@ function Allproducts() {
   const [totalProducts, setTotalProducts] = useState(0);
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [selectedRating, setSelectedRating] = useState(null);
-
   const parseUrlFilters = useCallback(() => {
     const params = new URLSearchParams(location.search);
 
@@ -68,26 +69,38 @@ function Allproducts() {
       ]);
     }
 
+    // FIX: Move productIds and vendorId parsing outside of brand condition
+    const productIdsParam = params.get("productIds");
+    if (productIdsParam) {
+      setSelectedProductIds(productIdsParam);
+    } else {
+      setSelectedProductIds(null);
+    }
+   
+
     const brandParam = params.get("brand");
     if (brandParam) {
       const brandsArray = brandParam.includes(",")
         ? brandParam.split(",").map((brand) => brand.trim())
         : [brandParam.trim()];
       setSelectedBrands(brandsArray);
-      const productSliderId = params.get("productSliderId");
-      if (productSliderId) {
-        // You might want to store this in state or use it directly in your API call
-      }
-      const topPicksId = params.get("topPicksId");
-      if (topPicksId) {
-        // You might want to store this in state if needed
-      }
-      const topSaleSectionId = params.get("topSaleSectionId");
-      if (topSaleSectionId) {
-        // You might want to store this in state if needed
-      }
     } else {
       setSelectedBrands([]);
+    }
+
+    const productSliderId = params.get("productSliderId");
+    if (productSliderId) {
+      // You might want to store this in state or use it directly in your API call
+    }
+
+    const topPicksId = params.get("topPicksId");
+    if (topPicksId) {
+      // You might want to store this in state if needed
+    }
+
+    const topSaleSectionId = params.get("topSaleSectionId");
+    if (topSaleSectionId) {
+      // You might want to store this in state if needed
     }
 
     const productType = params.get("productType");
@@ -113,7 +126,6 @@ function Allproducts() {
     if (size) {
     }
   }, [location.search]);
-
   const fetchProducts = useCallback(
     async (resetProducts = false) => {
       try {
@@ -121,8 +133,15 @@ function Allproducts() {
         setError(null);
 
         const params = new URLSearchParams(location.search);
+        const vendorIdFromUrl = params.get("vendorId");
+        const keywordsFromUrl = params.get("keywords");
+       
 
-        let brandFromUrl = null;
+        console.log("🔍 DEBUG - State values:", {
+          selectedProductIds,
+          selectedSubcategory,
+        });
+
         const urlBrandParam = params.get("brand");
         const urlBrands = urlBrandParam
           ? urlBrandParam.split(",").map((brand) => brand.trim())
@@ -135,6 +154,7 @@ function Allproducts() {
           page: resetProducts ? 1 : page,
           limit: productsPerPage,
           search: searchQuery || params.get("search") || null,
+          keywords: keywordsFromUrl || null, 
           productType:
             selectedProductType.length > 0
               ? selectedProductType
@@ -160,12 +180,12 @@ function Allproducts() {
             (params.get("discountMin")
               ? parseInt(params.get("discountMin"))
               : null),
-
           brand: activeBrands ? activeBrands.join(",") : null,
+          productIds: selectedProductIds || params.get("productIds") || null,
+          vendorId: vendorIdFromUrl || null,
           productSliderId: params.get("productSliderId") || null,
           topPicksId: params.get("topPicksId") || null,
           topSaleSectionId: params.get("topSaleSectionId") || null,
-
           minRating:
             selectedRating ||
             (params.get("minRating")
@@ -174,6 +194,7 @@ function Allproducts() {
           newArrivals: params.get("newArrivals") === "true" || null,
         };
 
+        // Clean up null/undefined values
         Object.keys(apiOptions).forEach((key) => {
           if (
             apiOptions[key] === null ||
@@ -183,6 +204,9 @@ function Allproducts() {
             delete apiOptions[key];
           }
         });
+
+        // ADD: Debug API options
+        console.log("🚀 DEBUG - API Options being sent:", apiOptions);
 
         switch (sortOption) {
           case "priceAsc":
@@ -206,6 +230,13 @@ function Allproducts() {
 
         const response = await getProductsWithSort(apiOptions);
 
+        // ADD: Debug API response
+        console.log("📦 DEBUG - API Response:", {
+          success: response.success,
+          totalProducts: response.data?.total,
+          productsCount: response.data?.products?.length,
+        });
+
         if (response.success) {
           const newProducts = response.data.products;
 
@@ -227,7 +258,7 @@ function Allproducts() {
         }
       } catch (err) {
         setError("Failed to load products. Please try again.");
-        console.error("Error fetching products:", err);
+        console.error("❌ Error fetching products:", err);
       } finally {
         setLoading(false);
       }
@@ -243,17 +274,10 @@ function Allproducts() {
       selectedBrands,
       selectedRating,
       location.search,
+      selectedProductIds,
+      productsPerPage,
     ]
   );
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const brandParam = params.get("brand");
-
-    if (brandParam) {
-      const brandsArray = brandParam.split(",").map((brand) => brand.trim());
-      setSelectedBrands(brandsArray);
-    }
-  }, [location.search]);
 
   const handleBrandChange = (brands) => {
     const brandsArray = Array.isArray(brands) ? brands : [brands];
@@ -270,15 +294,58 @@ function Allproducts() {
     navigate(`${location.pathname}?${params.toString()}`, { replace: true });
     fetchProducts(true);
   };
-
   const fetchProductsRef = useRef();
   fetchProductsRef.current = fetchProducts;
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const urlBrands = params.get("brand");
-    setSelectedBrands(urlBrands ? urlBrands.split(",") : []);
-    fetchProducts(true);
-  }, [location.search]);
+
+    const hasTimestamp = params.has("_k");
+    if (hasTimestamp) {
+      params.delete("_k");
+      const cleanUrl = `${location.pathname}${
+        params.toString() ? "?" + params.toString() : ""
+      }`;
+      navigate(cleanUrl, { replace: true });
+      return;
+    }
+
+    const needsRefresh = location.state?.refresh;
+    if (needsRefresh) {
+      navigate(location.pathname + location.search, {
+        replace: true,
+        state: {},
+      });
+    }
+
+    // Parse URL filters first
+    parseUrlFilters();
+
+    const newSubcategoryFromUrl = params.get("subcategory");
+    setSelectedSubcategory(newSubcategoryFromUrl || null);
+
+    // Set brands from URL
+    const brandParam = params.get("brand");
+    if (brandParam) {
+      const brandsArray = brandParam.split(",").map((brand) => brand.trim());
+      setSelectedBrands(brandsArray);
+    } else {
+      setSelectedBrands([]);
+    }
+
+    setPage(1);
+
+    // Use setTimeout to ensure state updates are processed before API call
+    setTimeout(() => {
+      fetchProductsRef.current(true);
+    }, 0);
+  }, [
+    location.search,
+    location.pathname,
+    location.state?.refresh,
+    navigate,
+    parseUrlFilters,
+  ]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -484,6 +551,7 @@ function Allproducts() {
     setSelectedBrands([]);
     setSelectedRating(null);
     setPrice([0, 5000]);
+    setSelectedProductIds(null);
     setSortOption("popularity");
 
     // Clear URL parameters as well
@@ -636,36 +704,38 @@ function Allproducts() {
 
         <main className="products-main">
           <div className="products-sort-bar">
-  <div className="mobile-sort-controls">
-    <button
-      onClick={() => setIsFilterOpen(!isFilterOpen)}
-      className="mobile-filter-btn"
-      aria-label={isFilterOpen ? "Close filters" : "Open filters"}
-    >
-      <i className={`fas fa-${isFilterOpen ? "times" : "filter"}`}></i>
-    </button>
+            <div className="mobile-sort-controls">
+              <button
+                onClick={() => setIsFilterOpen(!isFilterOpen)}
+                className="mobile-filter-btn"
+                aria-label={isFilterOpen ? "Close filters" : "Open filters"}
+              >
+                <i
+                  className={`fas fa-${isFilterOpen ? "times" : "filter"}`}
+                ></i>
+              </button>
 
-    <div className="products-count-mobile">
-      {!loading && <span>{totalProducts} items</span>}
-    </div>
+              <div className="products-count-mobile">
+                {!loading && <span>{totalProducts} items</span>}
+              </div>
 
-    <div className="sort-control-mobile">
-      <select
-        id="sort-select-mobile"
-        value={sortOption}
-        onChange={handleSortChange}
-        aria-label="Sort products"
-      >
-        <option value="popularity">Popularity</option>
-        <option value="priceAsc">Price: Low to High</option>
-        <option value="priceDesc">Price: High to Low</option>
-        <option value="newest">Newest Arrivals</option>
-        <option value="rating">Customer Rating</option>
-      </select>
-      <i className="fas fa-chevron-down"></i>
-    </div>
-  </div>
-</div>
+              <div className="sort-control-mobile">
+                <select
+                  id="sort-select-mobile"
+                  value={sortOption}
+                  onChange={handleSortChange}
+                  aria-label="Sort products"
+                >
+                  <option value="popularity">Popularity</option>
+                  <option value="priceAsc">Price: Low to High</option>
+                  <option value="priceDesc">Price: High to Low</option>
+                  <option value="newest">Newest Arrivals</option>
+                  <option value="rating">Customer Rating</option>
+                </select>
+                <i className="fas fa-chevron-down"></i>
+              </div>
+            </div>
+          </div>
 
           <motion.div
             className="products-grid"

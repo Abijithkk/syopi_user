@@ -2,14 +2,10 @@ import React, { useContext, useEffect, useMemo, useState } from 'react';
 import Home1 from '../components/Home1';
 import FeaturedProduct from '../components/FeaturedProduct';
 import Topsales from '../components/Topsales';
-import Street from '../components/Street';
 import Offer from '../components/Offer';
-import Featuringbrands from '../components/Featuringbrands';
 import Premium from '../components/Premium';
 import Delight from '../components/Delight';
 import Trending from '../components/Trending';
-import Brandoffer from '../components/Brandoffer';
-import Brand from '../components/Brand';
 import Toppicks from '../components/Toppicks';
 import Lowest from '../components/Lowest';
 import Footer from '../components/Footer';
@@ -19,6 +15,7 @@ import Allproducts from '../components/Allproducts';
 import { getUserHomePageApi } from '../services/allApi';
 import BrandMarquee from '../components/BrandMarquee';
 import NewArrivals from '../components/NewArrivals';
+import Vendors from '../components/Vendors';
 
 function Home() {
   const { searchQuery } = useContext(SearchContext);
@@ -73,7 +70,7 @@ function Home() {
 
   const content = useMemo(() => {
     if (loading) {
-      return <div>Loading...</div>; // Simple loading text instead of spinner
+      return <div>Loading...</div>; 
     }
     
     return (
@@ -84,7 +81,8 @@ function Home() {
           <>
             {hasData(homeData.ProductSliders) && <Home1 productSlider={homeData.ProductSliders} />}
             <Filter />
-            
+            <Vendors></Vendors>
+
             {hasData(homeData.newArrivals) && <NewArrivals products={homeData.newArrivals} />}
                     
             {hasData(homeData.topSales) && <Topsales products={homeData.topSales} />}

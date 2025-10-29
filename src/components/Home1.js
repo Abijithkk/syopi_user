@@ -69,7 +69,7 @@ function Home1({ productSlider, isLoading = false }) {
             <div
               key={item._id}
               className={`carousel-item ${index === activeIndex ? 'active' : ''}`}
-              onClick={() => handleSliderClick(item._id)} // Changed to use item._id (carousel ID)
+              onClick={() => handleSliderClick(item._id)}
             >
               <img
                 src={`${BASE_URL}/uploads/${item.image}`}
@@ -94,17 +94,7 @@ function Home1({ productSlider, isLoading = false }) {
           &#10095;
         </button>
         
-        {/* <div className="carousel-indicators">
-          {productSlider.map((_, index) => (
-            <button
-              key={index}
-              type="button"
-              className={index === activeIndex ? 'active' : ''}
-              onClick={() => setActiveIndex(index)}
-              aria-label={`Slide ${index + 1}`}
-            ></button>
-          ))}
-        </div> */}
+
       </div>
     </div>
   );

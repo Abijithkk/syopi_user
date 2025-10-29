@@ -1,0 +1,165 @@
+.popular-vendors-container {
+  max-width: 100%;
+  overflow: hidden;
+  margin-left: 30px;
+  margin-right: 30px;
+  margin-top: 3%;
+}
+
+.popular-vendors-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.popular-vendors-view-all {
+  background: none;
+  color: #000;
+  border: none;
+  padding: 8px 0;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: color 0.3s ease;
+  text-decoration: underline;
+}
+
+.popular-vendors-view-all:hover {
+  color: #555;
+}
+
+.popular-vendors-scroll-wrapper {
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 1px 0;
+  scrollbar-width: thin;
+  scrollbar-color: #ddd transparent;
+}
+
+.popular-vendors-scroll-wrapper::-webkit-scrollbar {
+  height: 4px;
+}
+
+.popular-vendors-scroll-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.popular-vendors-scroll-wrapper::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 2px;
+}
+
+.popular-vendors-list {
+  display: inline-flex;
+  gap: 30px;
+  padding: 0 15px;
+}
+
+.popular-vendor-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-width: 90px;
+  cursor: pointer;
+}
+
+.popular-vendor-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgb(220, 230, 234);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+}
+
+.popular-vendor-logo {
+  width: 45px;
+  height: 45px;
+  object-fit: contain;
+}
+
+.popular-vendor-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Placeholder styles for demo */
+.popular-vendor-logo-placeholder {
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 16px;
+  color: #333;
+  background: rgb(245, 252, 255);
+  width: 100%;
+  height: 100%;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .popular-vendors-container {
+    padding: 15px;
+  }
+
+  .popular-vendors-view-all {
+    font-size: 13px;
+  }
+
+  .popular-vendor-circle {
+    width: 70px;
+    height: 70px;
+  }
+
+  .popular-vendor-logo {
+    width: 40px;
+    height: 40px;
+  }
+
+  .popular-vendor-name {
+    font-size: 12px;
+    max-width: 80px;
+  }
+
+  .popular-vendors-list {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .popular-vendors-container {
+    padding: 10px;
+  }
+
+  .popular-vendor-circle {
+    width: 60px;
+    height: 60px;
+  }
+
+  .popular-vendor-logo {
+    width: 35px;
+    height: 35px;
+  }
+
+  .popular-vendor-name {
+    font-size: 11px;
+    max-width: 70px;
+  }
+
+  .popular-vendors-list {
+    gap: 15px;
+  }
+}

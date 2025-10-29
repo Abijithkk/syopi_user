@@ -281,9 +281,26 @@ export const getProductApi = async (params = "") => {
   }
 };
 
+export const searchKeywordsApi = async (params = "") => {
+  const url = `${BASE_URL}/user/Products/keywords${params ? `?search=${params}` : ""}`;
+
+  try {
+    const response = await commonApi("GET", url);
+    return response;
+  } catch (error) {
+    console.error("API Error:", error);
+    return {
+      success: false,
+      error: error.message || "Error fetching products",
+      message: "Failed to load products. Please try again.",
+    };
+  }
+};
+
 export const getProductsWithSort = async (options = {}) => {
   const {
     search = null,
+    keywords = null,
     productType = null,
     subcategory = null,
     category = null,
@@ -296,6 +313,8 @@ export const getProductsWithSort = async (options = {}) => {
     sortField = "createdAt",
     newArrivals = null,
     productSliderId = null,
+    productIds = null,
+    vendorId = null, // ADD: vendorId parameter
     brand = null,        
     minRating = null,    
     page = 1,
@@ -305,6 +324,7 @@ export const getProductsWithSort = async (options = {}) => {
   const params = new URLSearchParams();
   
   if (search) params.append("search", search);
+   if (keywords) params.append("keywords", keywords);
   
   if (productType) {
     if (Array.isArray(productType) && productType.length > 0) {
@@ -313,12 +333,25 @@ export const getProductsWithSort = async (options = {}) => {
       params.append("productType", productType);
     }
   }
-   if (productSliderId) {
+  
+  if (productSliderId) {
     params.append("productSliderId", productSliderId);
   }
+  
+  // FIX: Ensure productIds is properly appended
+  if (productIds) {
+    params.append("productIds", productIds);
+  }
+  
+  // ADD: vendorId parameter
+  if (vendorId) {
+    params.append("vendorId", vendorId);
+  }
+  
   if (topPicksId) {
     params.append("topPicksId", topPicksId);
   }
+  
   if (topSaleSectionId) {
     params.append("topSaleSectionId", topSaleSectionId);
   }
@@ -330,17 +363,14 @@ export const getProductsWithSort = async (options = {}) => {
   if (discountMin !== null) params.append("discountMin", discountMin);
   if (newArrivals) params.append("newArrivals", "true");
   
-  // ADD: Brand filter
   if (brand) {
     params.append("brand", brand);
   }
   
-  // ADD: Rating filter
   if (minRating !== null) {
     params.append("minRating", minRating);
   }
   
-  // ADD: Pagination
   params.append("page", page);
   params.append("limit", limit);
 
@@ -509,7 +539,7 @@ export const getWishlistApi = async () => {
 };
 
 export const addToCartApi = async (
-  userId,
+
   productId,
   quantity,
   color,
@@ -525,7 +555,7 @@ export const addToCartApi = async (
 
   // Ensure correct request body structure
   const body = {
-    userId,
+
     productId,
     quantity,
     color,
@@ -545,8 +575,8 @@ export const addToCartApi = async (
   }
 };
 
-export const getUserCartApi = async (userId) => {
-  const url = `${BASE_URL}/user/cart/view/${userId}`;
+export const getUserCartApi = async () => {
+  const url = `${BASE_URL}/user/cart/view/`;
 
   const accessToken = localStorage.getItem("accessuserToken");
   if (!accessToken) {
@@ -569,7 +599,6 @@ export const getUserCartApi = async (userId) => {
 };
 
 export const updateCartQuantityApi = async (
-  userId,
   productId,
   itemId,
   action
@@ -582,7 +611,6 @@ export const updateCartQuantityApi = async (
   }
 
   const body = {
-    userId,
     productId,
     itemId,
     action, // "increment" or "decrement"
@@ -612,7 +640,7 @@ export const removeProductFromCartApi = async (userId, itemId) => {
   }
 
   const body = {
-    userId,
+
     itemId,
   };
 
@@ -1146,3 +1174,61 @@ export const LogoutApi = async () => {
 };
 
 
+
+
+export const getAllVendorStoreApi = async () => {
+  const url = `${BASE_URL}/user/vendor-store/`;
+  try {
+    const response = await commonApi("GET", url, null, {
+    });
+
+    return response;
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message || "Error fetching vendor stores",
+    };
+  }
+};
+
+
+
+export const getVendorStoreByIdApi = async (id) => {
+  const url = `${BASE_URL}/user/vendor-store/${id}`;
+  try {
+    const response = await commonApi("GET", url, null, {
+    });
+
+    return response;
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message || "Error fetching vendor stores",
+    };
+  }
+};
+
+
+
+export const getRecommendedApi = async () => {
+  const url = `${BASE_URL}/user/Products/recommended-products`;
+   const accessToken = localStorage.getItem("accessuserToken");
+
+  if (!accessToken) {
+    return { success: false, error: "No token provided" };
+  }
+
+  try {
+    const response = await commonApi("GET", url, null, {
+            Authorization: `Bearer ${accessToken}`,
+
+    });
+
+    return response;
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message || "Error fetching recommended",
+    };
+  }
+};

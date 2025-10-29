@@ -40,6 +40,126 @@
   transition: box-shadow 0.3s ease-in-out;
 }
 
+/* Suggestions Dropdown */
+.suggestions-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 5px;
+}
+
+.suggestions-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  background-color: #f8f9fa;
+  font-weight: 500;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #f8f9fa;
+  transition: background-color 0.2s ease;
+}
+
+.suggestion-item:hover {
+  background-color: #f8f9fa;
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.suggestion-icon {
+  margin-right: 12px;
+  color: #6c757d;
+  font-size: 14px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.suggestion-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.suggestion-text {
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.suggestion-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+}
+
+.popularity-badge {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+.popularity-high {
+  background-color: #fff5f5;
+  color: #e53e3e;
+  border: 1px solid #fed7d7;
+}
+
+.popularity-medium {
+  background-color: #fef5e7;
+  color: #dd6b20;
+  border: 1px solid #feebc8;
+}
+
+.popularity-low {
+  background-color: #f0fff4;
+  color: #38a169;
+  border: 1px solid #c6f6d5;
+}
+
+.search-count {
+  color: #6c757d;
+  font-size: 0.7rem;
+}
+
+.search-all-item {
+  background-color: #f8f9fa;
+  border-top: 2px solid #dee2e6;
+  font-weight: 500;
+}
+
+.search-all-item:hover {
+  background-color: #e9ecef;
+}
+
+.search-all-item .suggestion-text {
+  color: #007bff;
+}
+
+/* Loading spinner */
+.spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+}
+
+
+
 .search-container:hover {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }

@@ -15,9 +15,7 @@
   color: #2D2E2E;
   margin-bottom: 20px;
   background: linear-gradient(90deg, #2D2E2E, #2D2E2E, #2D2E2E);
-  background-repeat: no-repeat;
   background-size: 80%;
-  animation: animate 6s linear 1;
   -webkit-background-clip: text;
   background-clip: none;
   -webkit-text-fill-color: transparent;

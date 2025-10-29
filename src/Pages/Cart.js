@@ -29,97 +29,94 @@ function Cart() {
     fetchCart();
   }, []);
 
-  const handleAuthFailure = (message = "Session expired. Please sign in again.") => {
+  const handleAuthFailure = (
+    message = "Session expired. Please sign in again."
+  ) => {
     if (authHandled) return;
-    
+
     setAuthHandled(true);
-    
-    // Dismiss any existing toasts before showing new one
+
     toast.dismiss();
     toast.error(message);
-    
+
     // Clear invalid tokens
     localStorage.removeItem("accessuserToken");
     localStorage.removeItem("userId");
-    
-    // Navigate to signin after showing toast
+
     setTimeout(() => {
       navigate("/signin");
     }, 1000);
   };
 
-  // Helper function to check if error is authentication related
   const isAuthError = (error, response) => {
     const authErrorMessages = [
       "No token provided",
       "Login Required",
-      "Unauthorized"
+      "Unauthorized",
     ];
-    
+
     return (
       response?.status === 401 ||
-      authErrorMessages.some(msg => 
-        response?.error?.includes(msg) ||
-        error?.response?.data?.error?.includes(msg) ||
-        error?.message?.includes(msg)
+      authErrorMessages.some(
+        (msg) =>
+          response?.error?.includes(msg) ||
+          error?.response?.data?.error?.includes(msg) ||
+          error?.message?.includes(msg)
       ) ||
       error?.response?.status === 401
     );
   };
 
-const fetchCart = async () => {
-  
-  const userId = localStorage.getItem("userId");
-  
-  if (!userId) {
-    console.warn("No userId found in localStorage.");
-    toast.dismiss(); 
-    toast.error("Please sign in.");
-    setTimeout(() => {
-      navigate("/signin");
-    }, 1000);
-    setLoading(false);
-    return;
-  }
+  const fetchCart = async () => {
+    const userId = localStorage.getItem("userId");
 
-  try {
-    const response = await getUserCartApi(userId);
-    console.log("Cart API response:", response);
-
-    if (isAuthError(null, response)) {
-      handleAuthFailure();
+    if (!userId) {
+      console.warn("No userId found in localStorage.");
+      toast.dismiss();
+      toast.error("Please sign in.");
+      setTimeout(() => {
+        navigate("/signin");
+      }, 1000);
+      setLoading(false);
       return;
     }
 
-    if (response.success) {
-      setCartData(response.data);
-    } else {
-      console.error("Cart fetch failed:", response.error);
-      toast.dismiss();
-      toast.error(response.error || "Failed to load cart");
+    try {
+      const response = await getUserCartApi();
+      console.log("Cart API response:", response);
+
+      if (isAuthError(null, response)) {
+        handleAuthFailure();
+        return;
+      }
+
+      if (response.success) {
+        setCartData(response.data);
+      } else {
+        console.error("Cart fetch failed:", response.error);
+        toast.dismiss();
+        toast.error(response.error || "Failed to load cart");
+      }
+    } catch (error) {
+      console.error("Error while fetching cart data:", error);
+
+      if (isAuthError(error, null)) {
+        handleAuthFailure();
+      } else {
+        toast.dismiss();
+        // toast.error("Failed to load cart data");
+      }
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error("Error while fetching cart data:", error);
-    
-    if (isAuthError(error, null)) {
-      handleAuthFailure();
-    } else {
-      toast.dismiss();
-      toast.error("Failed to load cart data");
-    }
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const handleQuantityChange = async (itemId, productId, action) => {
     const userId = localStorage.getItem("userId");
     if (!userId) return;
 
-    
     setLoadingItems((prev) => ({ ...prev, [itemId]: true }));
 
-    // Optimistic update: Update local state immediately before API response
     setCartData((prevCartData) => {
       const updatedItems = prevCartData.items.map((item) => {
         if (item._id === itemId) {
@@ -134,7 +131,6 @@ const fetchCart = async () => {
         return item;
       });
 
-      // Calculate new cart totals
       const newSubtotal =
         prevCartData.subtotal +
         (action === "increment"
@@ -151,15 +147,12 @@ const fetchCart = async () => {
       };
     });
 
-   
     const response = await updateCartQuantityApi(
-      userId,
       productId,
       itemId,
       action
     );
 
-  
     setLoadingItems((prev) => ({ ...prev, [itemId]: false }));
 
     if (response.success) {
@@ -173,19 +166,18 @@ const fetchCart = async () => {
   };
 
   const handleRemoveItem = async (itemId) => {
-    const userId = localStorage.getItem("userId");
-    if (!userId) return;
+
 
     setRemoveLoading((prev) => ({ ...prev, [itemId]: true }));
 
-    const response = await removeProductFromCartApi(userId, itemId);
+    const response = await removeProductFromCartApi( itemId);
 
     setRemoveLoading((prev) => ({ ...prev, [itemId]: false }));
 
     if (response.success) {
       toast.dismiss();
       toast.success("Item removed from cart");
-      fetchCart(); 
+      fetchCart();
     } else {
       console.error(response.error);
       toast.dismiss();
@@ -193,46 +185,44 @@ const fetchCart = async () => {
     }
   };
 
-const handleCheckout = async () => {
-  if (!cartData?._id) {
-    toast.dismiss();
-    toast.error("Cart ID is missing. Please add items to your cart first.");
-    return;
-  }
-
-  setCheckoutLoading(true);
-
-  try {
-    const response = await checkoutCreateApi(cartData._id);
-
-    if (response?.success) {
+  const handleCheckout = async () => {
+    if (!cartData?._id) {
       toast.dismiss();
-      toast.success("Checkout successful!");
-      navigate(`/address/${response.data.checkout._id}`);
-    } else if (response?.status === 400) {
-      // Handle insufficient stock case
-      toast.dismiss();
-      toast.error(response.error?.message);
-    } else {
-      throw new Error(
-        response?.error || "Checkout failed. Please try again."
-      );
+      toast.error("Cart ID is missing. Please add items to your cart first.");
+      return;
     }
-  } catch (error) {
-    toast.dismiss();
 
-    if (error?.response?.status === 400) {
-      // If axios or fetch throws error with status
-      toast.error("Insufficient stock available for one or more items.");
-    } else {
-      toast.error(
-        error.message || "An unexpected error occurred. Please try again."
-      );
+    setCheckoutLoading(true);
+
+    try {
+      const response = await checkoutCreateApi(cartData._id);
+
+      if (response?.success) {
+        toast.dismiss();
+        toast.success("Checkout successful!");
+        navigate(`/address/${response.data.checkout._id}`);
+      } else if (response?.status === 400) {
+        toast.dismiss();
+        toast.error(response.error?.message);
+      } else {
+        throw new Error(
+          response?.error || "Checkout failed. Please try again."
+        );
+      }
+    } catch (error) {
+      toast.dismiss();
+
+      if (error?.response?.status === 400) {
+        toast.error("Insufficient stock available for one or more items.");
+      } else {
+        toast.error(
+          error.message || "An unexpected error occurred. Please try again."
+        );
+      }
+    } finally {
+      setCheckoutLoading(false);
     }
-  } finally {
-    setCheckoutLoading(false);
-  }
-};
+  };
 
   return (
     <div>
@@ -343,7 +333,6 @@ const handleCheckout = async () => {
                             </div>
                           </div>
 
-
                           {/* Remove Button with improved loading state */}
                           <button
                             onClick={() => handleRemoveItem(item._id)}
@@ -373,7 +362,6 @@ const handleCheckout = async () => {
                 </Card>
               ))
             ) : (
-              // Show "No Products" Message and Continue Shopping Button
               <div className="empty-cart-container">
                 <div className="icon-container-empty">
                   <div className="icon-background" />

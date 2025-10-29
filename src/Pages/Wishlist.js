@@ -196,7 +196,6 @@ function Wishlist() {
 
     try {
       const response = await addToCartApi(
-        userId,
         selectedProduct._id,
         1,
         selectedColor,

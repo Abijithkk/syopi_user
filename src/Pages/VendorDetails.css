@@ -1,0 +1,270 @@
+/* VendorDetails.css */
+.inbox-fashion-container {
+  width: 100%;
+  padding: 0 20px;
+  margin-top: 0%;
+}
+.inbox-fashion-container2 {
+  width: 100%;
+  padding: 0 20px;
+  margin-top: 0%;
+}
+.vendor-product{
+  background-color: rgba(255, 255, 141, 0.922);
+
+}
+.vendor-background-combined {
+  position: relative;
+  background-repeat: no-repeat;
+}
+
+.vendor-background-combined::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3); 
+  z-index: 0;
+}
+
+.vendor-background-combined > * {
+  position: relative;
+  z-index: 1;
+}
+
+.inbox-fashion-content {
+  margin: 0 auto;
+  padding: 30px 0;
+}
+.rproduct{  
+  padding-left: 30px;
+  padding-right: 30px;
+  margin-top: 3%;
+
+}
+
+.inbox-fashion-brand {
+  font-size: 2.5rem;
+  font-weight: 500;
+  color: #ececec;
+  margin-bottom: 10px;
+  text-align: center;
+  font-style: italic;
+}
+
+.inbox-fashion-collections {
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: #d9d9d9;
+  margin-bottom: 10px;
+  text-align: center;
+    font-style: italic;
+
+}
+
+.inbox-products-scroll {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding: 20px 10px;
+  scrollbar-width: none; 
+  -ms-overflow-style: none;
+}
+
+.inbox-products-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.inbox-product-item {
+  min-width: 300px;
+  height: 450px;
+  border-radius: 30px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  flex-shrink: 0;
+}
+
+.inbox-product-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.inbox-product-image {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+}
+
+.inbox-product-image::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 0.1) 30%,
+    rgba(0, 0, 0, 0.3) 60%,
+    rgba(0, 0, 0, 0.6) 100%
+  );
+  z-index: 1;
+}
+
+.inbox-product-overlay {
+  position: relative;
+  z-index: 2;
+  padding: 30px 20px;
+  width: 100%;
+  color: white;
+}
+
+.inbox-product-name {
+  font-size: 1.4rem;
+  font-weight: 400;
+  margin-bottom: 8px;
+  text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.7);
+  font-style: italic;
+}
+
+.inbox-product-category {
+  font-size: 1rem;
+  font-weight: 200;
+  margin-bottom: 20px;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+  opacity: 0.9;
+  font-style: italic;
+}
+
+.inbox-shop-now {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 12px 30px;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.inbox-shop-now::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.inbox-shop-now:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.05);
+  box-shadow: 
+    0 4px 15px rgba(0, 0, 0, 0.2),
+    inset 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.inbox-shop-now:hover::before {
+  left: 100%;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .inbox-fashion-container {
+    padding: 0 15px;
+  }
+  
+  .inbox-fashion-brand {
+    font-size: 2rem;
+  }
+  
+  .inbox-fashion-collections {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+  }
+  
+  .inbox-product-item {
+    min-width: 280px;
+    height: 350px;
+  }
+  
+  .inbox-product-overlay {
+    padding: 25px 15px;
+  }
+  
+  .inbox-product-name {
+    font-size: 1.2rem;
+  }
+  
+  .inbox-product-category {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .inbox-fashion-container {
+    padding: 0 10px;
+  }
+  
+  .inbox-fashion-brand {
+    font-size: 1.8rem;
+  }
+  
+  .inbox-fashion-collections {
+    font-size: 1.1rem;
+    margin-bottom: 25px;
+  }
+  
+  .inbox-product-item {
+    min-width: 260px;
+    height: 320px;
+  }
+  
+  .inbox-products-scroll {
+    gap: 15px;
+    padding: 15px 5px;
+  }
+  
+  .inbox-fashion-container2 {
+ 
+  padding: 0px;
+
+}
+  .inbox-shop-now {
+    padding: 10px 25px;
+    font-size: 0.85rem;
+  }
+}
+
+/* For very small screens */
+@media (max-width: 360px) {
+  .inbox-product-item {
+    min-width: 240px;
+    height: 300px;
+  }
+  
+  .inbox-product-overlay {
+    padding: 20px 15px;
+  }
+}
