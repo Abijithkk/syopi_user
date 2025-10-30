@@ -41,7 +41,7 @@ function SingleProduct() {
   const [deliveryInfo, setDeliveryInfo] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [discount, setDiscount] = useState(null);
-const [clickedSizes, setClickedSizes] = useState(new Set());
+   const [clickedSizes, setClickedSizes] = useState(new Set());
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
